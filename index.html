@@ -2,536 +2,415 @@
 <html lang="fa" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>سیستم نوبت‌دهی VIP</title>
-  
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
-  <!-- تقویم شمسی -->
-  <link rel="stylesheet" href="https://unpkg.com/persian-datepicker@1.2.0/dist/css/persian-datepicker.min.css"/>
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script src="https://unpkg.com/persian-date@1.1.0/dist/persian-date.min.js"></script>
-  <script src="https://unpkg.com/persian-datepicker@1.2.0/dist/js/persian-datepicker.min.js"></script>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>کارت ساعت | حساب‌وکتاب و حضور کارگران</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700;800&display=swap');
-    body { font-family: 'Vazirmatn', sans-serif; }
-    .datepicker-plot-area { font-family: 'Vazirmatn', sans-serif !important; border-radius: 1rem !important; }
+    :root {
+      --primary: #1976d2;
+      --primary-dark: #115293;
+      --success: #2e7d32;
+      --danger: #c62828;
+      --warning: #f57f17;
+      --bg: #f4f6f8;
+      --card: #ffffff;
+      --text: #212121;
+      --border: #e0e0e0;
+    }
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Tahoma, sans-serif; }
+    body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 70px; }
+    header { background: var(--primary); color: #fff; padding: 14px 18px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+    header h1 { margin: 0; font-size: 1.25rem; }
+    header p { margin: 4px 0 0; font-size: 0.8rem; opacity: 0.9; }
+
+    .container { max-width: 600px; margin: 0 auto; padding: 12px; }
+    .card { background: var(--card); border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); border: 1px solid var(--border); }
+    .card h2 { font-size: 1rem; margin: 0 0 12px; color: var(--primary-dark); display: flex; align-items: center; gap: 6px; }
+
+    label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; color: #424242; }
+    input, select, button { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border); font-size: 0.95rem; margin-bottom: 10px; }
+    input:focus, select:focus { outline: none; border-color: var(--primary); }
+
+    .btn { cursor: pointer; border: none; font-weight: bold; transition: 0.2s; color: #fff; border-radius: 8px; }
+    .btn-primary { background: var(--primary); }
+    .btn-success { background: var(--success); }
+    .btn-danger { background: var(--danger); }
+    .btn-warning { background: var(--warning); }
+    .btn:active { transform: scale(0.98); }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .camera-box { background: #000; border-radius: 8px; overflow: hidden; position: relative; margin-bottom: 10px; aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center; }
+    video, #capturedPhoto { width: 100%; height: 100%; object-fit: cover; }
+    .canvas-hidden { display: none; }
+
+    .location-badge { background: #e8f5e9; color: #2e7d32; padding: 8px; border-radius: 6px; font-size: 0.8rem; margin-bottom: 10px; border: 1px dashed #81c784; text-align: center; }
+
+    .record-item { background: #fafafa; border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 10px; }
+    .record-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 6px; }
+    .badge { font-size: 0.75rem; padding: 3px 8px; border-radius: 12px; color: #fff; }
+    .badge-in { background: var(--success); }
+    .badge-out { background: var(--danger); }
+
+    #sigCanvas { border: 2px dashed #999; border-radius: 8px; width: 100%; height: 130px; background: #fff; touch-action: none; cursor: crosshair; }
+
+    /* Printable Settlement Sheet */
+    @media print {
+      body * { visibility: hidden; }
+      #printableSettlement, #printableSettlement * { visibility: visible; }
+      #printableSettlement { position: absolute; left: 0; top: 0; width: 100%; padding: 20px; font-size: 12pt; }
+      .no-print { display: none !important; }
+    }
   </style>
 </head>
-<body class="bg-slate-100 min-h-screen text-slate-800">
+<body>
 
-  <!-- هدر هوشمند -->
-  <header class="bg-indigo-600 text-white shadow-md sticky top-0 z-40">
-    <div class="max-w-md mx-auto px-4 py-3 flex justify-between items-center">
-      <div class="flex items-center gap-2">
-        <div class="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center">
-          <i class="fa-solid fa-crown text-amber-300"></i>
-        </div>
-        <div>
-          <h1 id="headerSalonName" class="font-bold text-base leading-tight">رزرو نوبت آرایشگاه</h1>
-          <p id="headerSalonPhone" class="text-[10px] text-indigo-200">پشتیبانی نوبت‌دهی</p>
-        </div>
-      </div>
-      
-      <div class="flex gap-1 bg-indigo-900/40 p-1 rounded-xl">
-        <button id="btnClient" onclick="switchTab('client')" class="bg-white text-indigo-900 px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-sm">رزرو</button>
-        <button id="btnAdmin" onclick="switchTab('admin')" class="text-white hover:bg-white/10 px-3 py-1.5 rounded-lg text-xs font-medium transition">مدیریت</button>
-      </div>
+<header>
+  <h1>کارت ساعت ⏱️</h1>
+  <p>سامانه ثبت حضور، چهره، موقعیت و تسویه‌حساب قانونی کارگران</p>
+</header>
+
+<div class="container">
+
+  <!-- Worker Select / Add -->
+  <div class="card">
+    <h2>👤 انتخاب یا افزودن کارگر</h2>
+    <div class="grid-2">
+      <input type="text" id="workerName" placeholder="نام و نام خانوادگی">
+      <input type="number" id="dailyWage" placeholder="دستمزد روزانه (تومان)">
     </div>
-  </header>
+    <button class="btn btn-primary" onclick="addWorker()">+ ثبت کارگر جدید</button>
+    <label for="workerSelect">کارگر فعلی جهت ثبت ساعت:</label>
+    <select id="workerSelect" onchange="loadWorkerSummary()"></select>
+  </div>
 
-  <main class="max-w-md mx-auto p-4 pb-12">
+  <!-- Timecard Clock-In / Out with Camera & GPS -->
+  <div class="card">
+    <h2>📸 ثبت ورود / خروج با عکس و GPS</h2>
     
-    <!-- نمای مشتری -->
-    <section id="clientView" class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-5 space-y-4">
-      <div class="flex items-center justify-between border-b pb-3">
-        <h2 class="font-bold text-indigo-950 text-sm flex items-center gap-2">
-          <i class="fa-regular fa-calendar-check text-indigo-600"></i> ثبت رزرو اینترنتی
-        </h2>
-        <span class="text-[11px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full font-bold">تایید آنی با پیامک</span>
-      </div>
+    <div class="camera-box">
+      <video id="webcam" autoplay playsinline></video>
+      <img id="capturedPhoto" style="display:none;" />
+    </div>
 
-      <div id="msgBox" class="hidden text-xs rounded-xl px-4 py-3 border font-medium"></div>
+    <div class="grid-2">
+      <button class="btn btn-warning" onclick="startCamera()">📷 روشن کردن دوربین</button>
+      <button class="btn btn-primary" onclick="getGPS()">📍 دریافت لوکیشن (GPS)</button>
+    </div>
 
-      <form id="bookingForm" onsubmit="bookAppointment(event)" class="space-y-4">
-        <div>
-          <label class="block text-xs font-medium text-slate-600 mb-1">نام و نام خانوادگی</label>
-          <input type="text" id="clientName" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition" placeholder="مثلاً: حمید رضایی">
-        </div>
+    <div id="gpsStatus" class="location-badge">GPS هنوز دریافت نشده است.</div>
 
-        <div>
-          <label class="block text-xs font-medium text-slate-600 mb-1">شماره موبایل (جهت دریافت پیامک تایید)</label>
-          <input type="tel" id="clientPhone" dir="ltr" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm text-right focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition" placeholder="09123456789">
-        </div>
+    <div class="grid-2" style="margin-top: 6px;">
+      <button class="btn btn-success" onclick="punchClock('ورود')">✅ ثبت ساعت ورود</button>
+      <button class="btn btn-danger" onclick="punchClock('خروج')">🚪 ثبت ساعت خروج</button>
+    </div>
+    <canvas id="photoCanvas" class="canvas-hidden"></canvas>
+  </div>
 
-        <div>
-          <label class="block text-xs font-medium text-slate-600 mb-1">نوع خدمات</label>
-          <select id="serviceSelect" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:border-indigo-600 transition"></select>
-        </div>
+  <!-- Advance / Musaedeh -->
+  <div class="card">
+    <h2>💰 ثبت مساعده و پرداختی نقد</h2>
+    <div class="grid-2">
+      <input type="number" id="musaedehAmount" placeholder="مبلغ مساعده (تومان)">
+      <button class="btn btn-warning" onclick="addMusaedeh()">کسر به عنوان مساعده</button>
+    </div>
+  </div>
 
-        <div>
-          <label class="block text-xs font-medium text-slate-600 mb-1">انتخاب روز (شمسی)</label>
-          <div class="relative">
-            <input type="text" id="shamsiDateInput" readonly required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm bg-slate-50 cursor-pointer focus:outline-none focus:border-indigo-600" placeholder="برای انتخاب کلیک کنید">
-            <i class="fa-regular fa-calendar absolute left-3.5 top-3 text-slate-400 pointer-events-none"></i>
-          </div>
-        </div>
+  <!-- Summary & Legal Settlement -->
+  <div class="card">
+    <h2>📋 خلاصه کارکرد و برگه تسویه</h2>
+    <div id="summaryBox" style="font-size: 0.9rem; line-height: 1.8;">
+      کارگری انتخاب نشده است.
+    </div>
 
-        <!-- چیپس‌های ساعت -->
-        <div>
-          <div class="flex justify-between items-center mb-1.5">
-            <label class="block text-xs font-medium text-slate-600">ساعت حضور</label>
-            <span id="selectedTimeBadge" class="text-[11px] font-bold text-indigo-600">ساعت انتخاب نشده</span>
-          </div>
-          <input type="hidden" id="selectedTime" required>
-          <div id="timeSlotsGrid" class="grid grid-cols-4 gap-2 pt-1"></div>
-        </div>
+    <label style="margin-top: 10px;">امضای دیجیتال کارگر (روی کادر زیر بکشید):</label>
+    <canvas id="sigCanvas"></canvas>
+    <button class="btn btn-outline" style="background:#eee; color:#333;" onclick="clearSignature()">پاک کردن امضا</button>
 
-        <!-- باکس بیعانه و تعهد -->
-        <div id="depositNoticeBox" class="p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-900 space-y-1">
-          <div class="flex items-center gap-1 font-bold">
-            <i class="fa-solid fa-shield-halved text-amber-600"></i> بیعانه نهایی‌سازی رزرو:
-            <span id="depositAmountNotice">۰ تومان</span>
-          </div>
-          <p class="text-[11px] text-amber-700 leading-relaxed">
-            برای تثبیت قطعی نوبت و جلوگیری از سوختن سانس، پرداخت بیعانه الزامی است.
-          </p>
-        </div>
+    <button class="btn btn-primary" style="margin-top: 8px;" onclick="generateSettlement()">📄 صدور و چاپ برگه تسویه قانونی</button>
+  </div>
 
-        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 rounded-xl transition text-sm shadow-md shadow-indigo-200 flex items-center justify-center gap-2">
-          <i class="fa-solid fa-lock"></i> ثبت نوبت و تایید قطعی
-        </button>
-      </form>
-    </section>
+  <!-- Records Log -->
+  <div class="card">
+    <h2>📜 ترددها و لاگ‌های ثبت‌شده</h2>
+    <div id="recordsList">هنوز ترددی ثبت نشده است.</div>
+  </div>
 
-    <!-- لاگین مدیریت -->
-    <section id="adminLoginView" class="hidden bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 text-center space-y-4">
-      <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mx-auto text-xl">
-        <i class="fa-solid fa-user-gear"></i>
-      </div>
-      <div>
-        <h3 class="font-bold text-slate-900 text-base">ورود به پنل سالن‌دار</h3>
-        <p class="text-xs text-slate-500 mt-1">رمز عبور پیش‌فرض: <b>1234</b></p>
-      </div>
-      <form onsubmit="handleAdminLogin(event)" class="space-y-3">
-        <input type="password" id="adminPassword" placeholder="رمز عبور" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-center text-sm tracking-widest focus:outline-none focus:border-indigo-600">
-        <button type="submit" class="w-full bg-slate-900 text-white text-sm font-medium py-2.5 rounded-xl hover:bg-black transition">ورود به مدیریت</button>
-      </form>
-    </section>
+</div>
 
-    <!-- داشبورد سالن‌دار (ادمین) -->
-    <section id="adminView" class="hidden space-y-4">
-      <div class="flex justify-between items-center bg-white px-4 py-3 rounded-2xl border border-slate-200">
-        <span class="text-xs font-bold text-emerald-700 flex items-center gap-1.5">
-          <span class="w-2 h-2 rounded-full bg-emerald-500"></span> پنل اختصاصی سالن
-        </span>
-        <button onclick="adminLogout()" class="text-xs text-rose-600 hover:text-rose-800 font-medium">خروج</button>
-      </div>
+<!-- Printable Paper Template -->
+<div id="printableSettlement" style="display: none;"></div>
 
-      <!-- تنظیمات اختصاصی سالن (برای راحتی فروش شما به هر سالن) -->
-      <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-5 space-y-3">
-        <h2 class="font-bold text-indigo-950 text-sm flex items-center gap-2">
-          <i class="fa-solid fa-sliders text-indigo-600"></i> مشخصات اختصاصی سالن
-        </h2>
-        <form onsubmit="saveSalonSettings(event)" class="space-y-3">
-          <div>
-            <label class="block text-[11px] text-slate-500 mb-1">نام سالن یا آرایشگاه</label>
-            <input type="text" id="salonNameInput" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs">
-          </div>
-          <div class="grid grid-cols-2 gap-2">
-            <div>
-              <label class="block text-[11px] text-slate-500 mb-1">تلفن سالن</label>
-              <input type="text" id="salonPhoneInput" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs">
-            </div>
-            <div>
-              <label class="block text-[11px] text-slate-500 mb-1">مبلغ بیعانه (تومان)</label>
-              <input type="number" id="depositInput" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs">
-            </div>
-          </div>
-          <button type="submit" class="w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-800 font-bold py-2 rounded-xl text-xs transition">
-            ذخیره تنظیمات سالن
-          </button>
-        </form>
-      </div>
+<script>
+  // Database State in LocalStorage
+  let db = JSON.parse(localStorage.getItem('kart_saat_db')) || {
+    workers: [],
+    logs: [],
+    musaedeh: []
+  };
 
-      <!-- افزودن خدمت -->
-      <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-5 space-y-3">
-        <h2 class="font-bold text-indigo-950 text-sm">افزودن خدمت جدید</h2>
-        <form onsubmit="addService(event)" class="space-y-3">
-          <input type="text" id="newServiceName" placeholder="عنوان خدمت (مثال: کراتینه و احیا)" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-indigo-600">
-          <input type="number" id="newServicePrice" placeholder="قیمت کل به تومان (مثال: 500000)" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-indigo-600">
-          <button type="submit" class="w-full bg-slate-900 hover:bg-black text-white font-medium py-2.5 rounded-xl transition text-xs">افزودن به لیست</button>
-        </form>
-      </div>
+  function saveDB() {
+    localStorage.setItem('kart_saat_db', JSON.stringify(db));
+  }
 
-      <!-- لیست خدمات -->
-      <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-5 space-y-3">
-        <h2 class="font-bold text-indigo-950 text-sm">لیست خدمات و نرخ‌ها</h2>
-        <div id="servicesList" class="space-y-2"></div>
-      </div>
+  // Camera handling
+  const video = document.getElementById('webcam');
+  const photoCanvas = document.getElementById('photoCanvas');
+  let currentStream = null;
+  let lastPhotoData = null;
 
-      <!-- لیست نوبت‌ها -->
-      <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-5 space-y-3">
-        <div class="flex justify-between items-center">
-          <h2 class="font-bold text-indigo-950 text-sm">نوبت‌های دریافتی</h2>
-          <span id="appointmentCount" class="text-[11px] bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-md font-bold">۰ نوبت</span>
-        </div>
-        <div id="appointmentsList" class="space-y-2.5"></div>
-      </div>
-    </section>
-  </main>
+  async function startCamera() {
+    try {
+      if (currentStream) {
+        currentStream.getTracks().forEach(track => track.stop());
+      }
+      currentStream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: "user" }, 
+        audio: false 
+      });
+      video.srcObject = currentStream;
+      video.style.display = "block";
+      document.getElementById('capturedPhoto').style.display = "none";
+    } catch (err) {
+      alert("دسترسی به دوربین داده نشد یا دستگاه پشتیبانی نمی‌کند.");
+    }
+  }
 
-  <script>
-    /* ========================================================
-       پیکربندی و تنظیمات تجاری
-       ======================================================== */
-    let salonSettings = JSON.parse(localStorage.getItem('barber_settings')) || {
-      name: "آرایشگاه VIP تهران",
-      phone: "021-88888888",
-      deposit: 50000,
-      adminPass: "1234",
-      openHour: 10,
-      closeHour: 20,
-      slotMinutes: 30
+  function snapPhoto() {
+    if (!video.videoWidth) return null;
+    photoCanvas.width = video.videoWidth;
+    photoCanvas.height = video.videoHeight;
+    const ctx = photoCanvas.getContext('2d');
+    ctx.drawImage(video, 0, 0);
+    return photoCanvas.toDataURL('image/jpeg', 0.6);
+  }
+
+  // GPS handling
+  let currentLocation = null;
+  function getGPS() {
+    const status = document.getElementById('gpsStatus');
+    status.innerText = "در حال گرفتن موقعیت ماهواره‌ای...";
+    if (!navigator.geolocation) {
+      status.innerText = "دستگاه شما از GPS پشتیبانی نمی‌کند.";
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        currentLocation = {
+          lat: pos.coords.latitude.toFixed(5),
+          lng: pos.coords.longitude.toFixed(5),
+          accuracy: Math.round(pos.coords.accuracy)
+        };
+        status.innerHTML = `موقعیت ثبت شد: عرض ${currentLocation.lat}، طول ${currentLocation.lng} (دقت: ±${currentLocation.accuracy} متر)`;
+      },
+      (err) => {
+        status.innerText = "خطا در دریافت لوکیشن: لطفاً GPS را روشن کنید.";
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  }
+
+  // Worker Management
+  function addWorker() {
+    const name = document.getElementById('workerName').value.trim();
+    const wage = Number(document.getElementById('dailyWage').value);
+    if (!name || !wage) return alert("نام و دستمزد کارگر را وارد کنید.");
+    
+    const worker = { id: Date.now(), name, wage };
+    db.workers.push(worker);
+    saveDB();
+    renderWorkerSelect();
+    document.getElementById('workerName').value = '';
+    document.getElementById('dailyWage').value = '';
+    alert("کارگر با موفقیت ثبت شد.");
+  }
+
+  function renderWorkerSelect() {
+    const select = document.getElementById('workerSelect');
+    select.innerHTML = '<option value="">-- انتخاب کنید --</option>';
+    db.workers.forEach(w => {
+      select.innerHTML += `<option value="${w.id}">${w.name} (روزی ${w.wage.toLocaleString('fa-IR')} تومان)</option>`;
+    });
+  }
+
+  // Clock In / Clock Out
+  function punchClock(type) {
+    const workerId = document.getElementById('workerSelect').value;
+    if (!workerId) return alert("ابتدا کارگر را انتخاب کنید.");
+
+    const photo = snapPhoto();
+    const now = new Date();
+    const record = {
+      id: Date.now(),
+      workerId: Number(workerId),
+      type, // 'ورود' or 'خروج'
+      timestamp: now.toLocaleString('fa-IR'),
+      rawTime: now.getTime(),
+      location: currentLocation || { lat: "نامشخص", lng: "نامشخص" },
+      photo: photo || null
     };
 
-    let services = JSON.parse(localStorage.getItem('barber_services')) || [
-      { id: '1', name: 'اصلاح سر و استایل مو', price: 180000 },
-      { id: '2', name: 'اصلاح ریش با حوله گرم', price: 90000 },
-      { id: '3', name: 'پاکسازی پوست (فیشیال VIP)', price: 350000 }
-    ];
+    db.logs.push(record);
+    saveDB();
+    renderRecords();
+    loadWorkerSummary();
+    alert(`ساعت ${type} برای این کارگر ثبت شد.`);
+  }
 
-    let appointments = JSON.parse(localStorage.getItem('barber_appointments')) || [];
-    let isAdminAuthenticated = false;
-    let selectedShamsiDate = '';
+  // Musaedeh
+  function addMusaedeh() {
+    const workerId = document.getElementById('workerSelect').value;
+    const amount = Number(document.getElementById('musaedehAmount').value);
+    if (!workerId || !amount) return alert("کارگر و مبلغ مساعده را مشخص کنید.");
 
-    function syncSalonInfo() {
-      document.getElementById('headerSalonName').textContent = salonSettings.name;
-      document.getElementById('headerSalonPhone').textContent = `تماس: ${salonSettings.phone}`;
-      document.getElementById('depositAmountNotice').textContent = `${Number(salonSettings.deposit).toLocaleString('fa-IR')} تومان`;
-      
-      document.getElementById('salonNameInput').value = salonSettings.name;
-      document.getElementById('salonPhoneInput').value = salonSettings.phone;
-      document.getElementById('depositInput').value = salonSettings.deposit;
-    }
-
-    function saveSalonSettings(e) {
-      e.preventDefault();
-      salonSettings.name = document.getElementById('salonNameInput').value.trim();
-      salonSettings.phone = document.getElementById('salonPhoneInput').value.trim();
-      salonSettings.deposit = Number(document.getElementById('depositInput').value);
-      localStorage.setItem('barber_settings', JSON.stringify(salonSettings));
-      syncSalonInfo();
-      alert('مشخصات سالن با موفقیت به‌روزرسانی شد.');
-    }
-
-    function saveData() {
-      localStorage.setItem('barber_services', JSON.stringify(services));
-      localStorage.setItem('barber_appointments', JSON.stringify(appointments));
-    }
-
-    function pad2(n) { return String(n).padStart(2, '0'); }
-
-    function buildTimeSlots() {
-      const slots = [];
-      const start = salonSettings.openHour * 60;
-      const end = salonSettings.closeHour * 60;
-      for (let t = start; t < end; t += salonSettings.slotMinutes) {
-        const h = Math.floor(t / 60);
-        const m = t % 60;
-        slots.push(`${pad2(h)}:${pad2(m)}`);
-      }
-      return slots;
-    }
-
-    function isSlotTaken(shamsiDate, time) {
-      return appointments.some(a => a.date === shamsiDate && a.time === time);
-    }
-
-    function showMsg(text, type = 'info') {
-      const box = document.getElementById('msgBox');
-      box.classList.remove('hidden');
-      if (type === 'error') {
-        box.className = 'text-xs rounded-xl px-4 py-3 border bg-rose-50 border-rose-200 text-rose-700';
-      } else if (type === 'success') {
-        box.className = 'text-xs rounded-xl px-4 py-3 border bg-emerald-50 border-emerald-200 text-emerald-700';
-      } else {
-        box.className = 'text-xs rounded-xl px-4 py-3 border bg-indigo-50 border-indigo-200 text-indigo-700';
-      }
-      box.textContent = text;
-    }
-
-    function clearMsg() {
-      document.getElementById('msgBox').classList.add('hidden');
-    }
-
-    function renderServicesDropdown() {
-      const select = document.getElementById('serviceSelect');
-      select.innerHTML = '';
-      services.forEach(s => {
-        const opt = document.createElement('option');
-        opt.value = s.name;
-        opt.textContent = `${s.name} - ${Number(s.price).toLocaleString('fa-IR')} تومان`;
-        select.appendChild(opt);
-      });
-    }
-
-    function renderTimeSlots() {
-      const container = document.getElementById('timeSlotsGrid');
-      const timeInput = document.getElementById('selectedTime');
-      const badge = document.getElementById('selectedTimeBadge');
-      container.innerHTML = '';
-
-      if (!selectedShamsiDate) {
-        container.innerHTML = '<div class="col-span-4 text-center py-4 text-xs text-slate-400">ابتدا تاریخ را انتخاب کنید</div>';
-        return;
-      }
-
-      const slots = buildTimeSlots();
-      slots.forEach(slot => {
-        const taken = isSlotTaken(selectedShamsiDate, slot);
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.textContent = slot;
-
-        if (taken) {
-          btn.disabled = true;
-          btn.className = 'py-2 text-xs rounded-lg border border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed line-through';
-        } else {
-          const isSelected = timeInput.value === slot;
-          btn.className = isSelected 
-            ? 'py-2 text-xs rounded-lg font-bold bg-indigo-600 text-white shadow-sm ring-2 ring-indigo-300'
-            : 'py-2 text-xs rounded-lg border border-slate-200 bg-white hover:border-indigo-400 hover:text-indigo-600 text-slate-700 transition';
-
-          btn.onclick = () => {
-            timeInput.value = slot;
-            badge.textContent = `ساعت: ${slot}`;
-            renderTimeSlots();
-          };
-        }
-        container.appendChild(btn);
-      });
-    }
-
-    function renderAdminServices() {
-      const list = document.getElementById('servicesList');
-      list.innerHTML = '';
-      services.forEach((s, idx) => {
-        list.innerHTML += `
-          <div class="flex justify-between items-center p-3 bg-slate-50 rounded-xl border border-slate-100 text-xs">
-            <span><b class="text-slate-800">${s.name}</b> - ${Number(s.price).toLocaleString('fa-IR')} تومان</span>
-            <button onclick="deleteService(${idx})" class="text-rose-500 hover:text-rose-700 p-1">
-              <i class="fa-solid fa-trash-can"></i>
-            </button>
-          </div>
-        `;
-      });
-    }
-
-    function renderAppointments() {
-      const list = document.getElementById('appointmentsList');
-      const countBadge = document.getElementById('appointmentCount');
-      countBadge.textContent = `${appointments.length.toLocaleString('fa-IR')} نوبت`;
-
-      if (appointments.length === 0) {
-        list.innerHTML = '<p class="text-xs text-slate-400 text-center py-6">نوبتی تاکنون ثبت نشده است.</p>';
-        return;
-      }
-
-      list.innerHTML = '';
-      const sorted = [...appointments].reverse();
-
-      sorted.forEach((app) => {
-        list.innerHTML += `
-          <div class="p-3.5 bg-indigo-50/40 rounded-xl border border-indigo-100/70 text-xs space-y-2">
-            <div class="flex justify-between items-center font-bold text-indigo-950">
-              <span class="text-sm">${app.name}</span>
-              <a href="tel:${app.phone}" class="text-indigo-600 dir-ltr font-mono">${app.phone}</a>
-            </div>
-            <div class="text-slate-600 flex justify-between">
-              <span>خدمت: <b>${app.service}</b></span>
-              <span>زمان: <b class="text-indigo-800">${app.date} - ${app.time}</b></span>
-            </div>
-            <div class="flex justify-between items-center pt-2 border-t border-indigo-50 text-[11px]">
-              <span class="text-emerald-700 font-bold"><i class="fa-solid fa-circle-check"></i> بیعانه: پرداخت‌شده</span>
-              <button onclick="deleteAppointmentById('${app.id}')" class="text-rose-500 hover:text-rose-700">
-                <i class="fa-regular fa-trash-can"></i> حذف نوبت
-              </button>
-            </div>
-          </div>
-        `;
-      });
-    }
-
-    /* ماژول شبیه‌ساز ارسال پیامک (آماده برای وب‌سرویس Kavenegar / FarazSMS) */
-    function sendSMSNotification(phone, date, time, trackingCode) {
-      console.log(`[SMS-API] پیامک ارسال شد به: ${phone}`);
-      console.log(`متن پیامک: مشتری گرامی، نوبت شما در ${salonSettings.name} برای تاریخ ${date} ساعت ${time} ثبت شد. کد رهگیری: ${trackingCode}`);
-      // هنگام اتصال به وب‌سرویس پیامکی، فقط کافیست fetch به API پنل پیامک اینجا فراخوانی شود.
-    }
-
-    function bookAppointment(e) {
-      e.preventDefault();
-      clearMsg();
-
-      const name = document.getElementById('clientName').value.trim();
-      const phone = document.getElementById('clientPhone').value.trim();
-      const service = document.getElementById('serviceSelect').value;
-      const time = document.getElementById('selectedTime').value;
-
-      if (!name || name.length < 3) {
-        showMsg('نام و نام خانوادگی را به طور کامل بنویسید.', 'error');
-        return;
-      }
-      if (!/^09\d{9}$/.test(phone)) {
-        showMsg('شماره موبایل نامعتبر است (مثال صحیح: 09121234567).', 'error');
-        return;
-      }
-      if (!selectedShamsiDate) {
-        showMsg('لطفاً تاریخ نوبت را مشخص کنید.', 'error');
-        return;
-      }
-      if (!time) {
-        showMsg('لطفاً یک ساعت خالی را انتخاب نمایید.', 'error');
-        return;
-      }
-
-      if (isSlotTaken(selectedShamsiDate, time)) {
-        showMsg('این ساعت همین لحظه پر شد! لطفاً ساعت دیگری انتخاب کنید.', 'error');
-        renderTimeSlots();
-        return;
-      }
-
-      const trackingCode = Math.floor(100000 + Math.random() * 900000);
-      const newApp = {
-        id: String(Date.now()),
-        trackingCode,
-        name,
-        phone,
-        service,
-        date: selectedShamsiDate,
-        time,
-        depositPaid: true
-      };
-
-      appointments.push(newApp);
-      saveData();
-      sendSMSNotification(phone, selectedShamsiDate, time, trackingCode);
-
-      showMsg(`نوبت با موفقیت ثبت شد! پیامک تایید حاوی کد پیگیری (${trackingCode}) برای شماره ${phone} ارسال شد.`, 'success');
-      
-      document.getElementById('bookingForm').reset();
-      document.getElementById('selectedTime').value = '';
-      document.getElementById('selectedTimeBadge').textContent = 'ساعت انتخاب نشده';
-      renderTimeSlots();
-      renderAppointments();
-    }
-
-    function addService(e) {
-      e.preventDefault();
-      const nameInput = document.getElementById('newServiceName');
-      const priceInput = document.getElementById('newServicePrice');
-      const name = nameInput.value.trim();
-      const price = Number(priceInput.value);
-
-      if (!name || !price) return;
-      services.push({ id: String(Date.now()), name, price });
-      saveData();
-
-      nameInput.value = '';
-      priceInput.value = '';
-      renderAdminServices();
-      renderServicesDropdown();
-    }
-
-    function deleteService(index) {
-      if (confirm('آیا این خدمت حذف شود؟')) {
-        services.splice(index, 1);
-        saveData();
-        renderAdminServices();
-        renderServicesDropdown();
-      }
-    }
-
-    function deleteAppointmentById(id) {
-      if (confirm('آیا از حذف این نوبت اطمینان دارید؟')) {
-        appointments = appointments.filter(a => a.id !== id);
-        saveData();
-        renderAppointments();
-        renderTimeSlots();
-      }
-    }
-
-    function switchTab(tab) {
-      const clientView = document.getElementById('clientView');
-      const adminView = document.getElementById('adminView');
-      const adminLoginView = document.getElementById('adminLoginView');
-      const btnClient = document.getElementById('btnClient');
-      const btnAdmin = document.getElementById('btnAdmin');
-
-      if (tab === 'client') {
-        clientView.classList.remove('hidden');
-        adminView.classList.add('hidden');
-        adminLoginView.classList.add('hidden');
-        btnClient.className = 'bg-white text-indigo-900 px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-sm';
-        btnAdmin.className = 'text-white hover:bg-white/10 px-3 py-1.5 rounded-lg text-xs font-medium transition';
-      } else {
-        clientView.classList.add('hidden');
-        btnAdmin.className = 'bg-white text-indigo-900 px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-sm';
-        btnClient.className = 'text-white hover:bg-white/10 px-3 py-1.5 rounded-lg text-xs font-medium transition';
-
-        if (isAdminAuthenticated) {
-          adminView.classList.remove('hidden');
-          adminLoginView.classList.add('hidden');
-          renderAdminServices();
-          renderAppointments();
-        } else {
-          adminLoginView.classList.remove('hidden');
-          adminView.classList.add('hidden');
-        }
-      }
-    }
-
-    function handleAdminLogin(e) {
-      e.preventDefault();
-      const pass = document.getElementById('adminPassword').value;
-      if (pass === salonSettings.adminPass) {
-        isAdminAuthenticated = true;
-        document.getElementById('adminPassword').value = '';
-        switchTab('admin');
-      } else {
-        alert('رمز عبور نادرست است!');
-      }
-    }
-
-    function adminLogout() {
-      isAdminAuthenticated = false;
-      switchTab('client');
-    }
-
-    $(document).ready(function() {
-      syncSalonInfo();
-      renderServicesDropdown();
-
-      $("#shamsiDateInput").persianDatepicker({
-        format: 'YYYY/MM/DD',
-        autoClose: true,
-        minDate: new persianDate().valueOf(),
-        onSelect: function(unix) {
-          const pDate = new persianDate(unix);
-          selectedShamsiDate = pDate.format('YYYY/MM/DD');
-          $("#shamsiDateInput").val(selectedShamsiDate);
-          renderTimeSlots();
-        }
-      });
-
-      const today = new persianDate();
-      selectedShamsiDate = today.format('YYYY/MM/DD');
-      $("#shamsiDateInput").val(selectedShamsiDate);
-      renderTimeSlots();
+    db.musaedeh.push({
+      id: Date.now(),
+      workerId: Number(workerId),
+      amount,
+      date: new Date().toLocaleDateString('fa-IR')
     });
-  </script>
+    saveDB();
+    document.getElementById('musaedehAmount').value = '';
+    loadWorkerSummary();
+    alert("مساعده با موفقیت ثبت و از حساب کارگر کسر شد.");
+  }
+
+  // Render logs
+  function renderRecords() {
+    const list = document.getElementById('recordsList');
+    if (!db.logs.length) {
+      list.innerHTML = 'هنوز ترددی ثبت نشده است.';
+      return;
+    }
+    list.innerHTML = db.logs.slice().reverse().map(l => {
+      const worker = db.workers.find(w => w.id === l.workerId);
+      const workerName = worker ? worker.name : "نامشخص";
+      return `
+        <div class="record-item">
+          <div class="record-header">
+            <strong>${workerName}</strong>
+            <span class="badge ${l.type === 'ورود' ? 'badge-in' : 'badge-out'}">${l.type}</span>
+          </div>
+          <div>⏰ زمان: ${l.timestamp}</div>
+          <div>📍 لوکیشن: ${l.location.lat}, ${l.location.lng}</div>
+          ${l.photo ? `<div style="margin-top:6px;"><img src="${l.photo}" style="width:70px; height:70px; border-radius:6px; object-fit:cover;"></div>` : ''}
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Calculate & Summary
+  function loadWorkerSummary() {
+    const workerId = Number(document.getElementById('workerSelect').value);
+    const box = document.getElementById('summaryBox');
+    if (!workerId) {
+      box.innerHTML = 'کارگری انتخاب نشده است.';
+      return;
+    }
+    const worker = db.workers.find(w => w.id === workerId);
+    const logs = db.logs.filter(l => l.workerId === workerId);
+    const musaedehs = db.musaedeh.filter(m => m.workerId === workerId);
+
+    const totalMusaedeh = musaedehs.reduce((acc, cur) => acc + cur.amount, 0);
+    const punchCount = logs.length;
+    // محاسبه تقریبی روزها بر اساس تعداد ثبت ورود
+    const daysWorked = logs.filter(l => l.type === 'ورود').length || 1;
+    const totalWage = daysWorked * worker.wage;
+    const remaining = totalWage - totalMusaedeh;
+
+    box.innerHTML = `
+      <strong>نام کارگر:</strong> ${worker.name}<br>
+      <strong>نرخ روزمزد:</strong> ${worker.wage.toLocaleString('fa-IR')} تومان<br>
+      <strong>تعداد شیفت/روزهای حاضر:</strong> ${daysWorked} روز<br>
+      <strong>کل کارکرد ناخالص:</strong> ${totalWage.toLocaleString('fa-IR')} تومان<br>
+      <strong>مجموع مساعده‌های دریافتی:</strong> ${totalMusaedeh.toLocaleString('fa-IR')} تومان<br>
+      <hr style="border:none; border-top:1px solid #ccc;">
+      <strong style="color:var(--success); font-size:1.05rem;">مبلغ خالص قابل پرداخت: ${remaining.toLocaleString('fa-IR')} تومان</strong>
+    `;
+  }
+
+  // Signature Pad
+  const sigCanvas = document.getElementById('sigCanvas');
+  const sigCtx = sigCanvas.getContext('2d');
+  let writing = false;
+
+  function resizeSigCanvas() {
+    sigCanvas.width = sigCanvas.offsetWidth;
+    sigCanvas.height = sigCanvas.offsetHeight;
+  }
+  window.addEventListener('load', () => {
+    resizeSigCanvas();
+    renderWorkerSelect();
+    renderRecords();
+    startCamera();
+  });
+
+  sigCanvas.addEventListener('pointerdown', (e) => { writing = true; sigCtx.beginPath(); sigCtx.moveTo(e.offsetX, e.offsetY); });
+  sigCanvas.addEventListener('pointermove', (e) => { if(writing){ sigCtx.lineTo(e.offsetX, e.offsetY); sigCtx.stroke(); } });
+  window.addEventListener('pointerup', () => writing = false);
+
+  function clearSignature() {
+    sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
+  }
+
+  // Printable Legal Settlement
+  function generateSettlement() {
+    const workerId = Number(document.getElementById('workerSelect').value);
+    if (!workerId) return alert("ابتدا کارگر را انتخاب کنید.");
+    const worker = db.workers.find(w => w.id === workerId);
+    const musaedehs = db.musaedeh.filter(m => m.workerId === workerId);
+    const logs = db.logs.filter(l => l.workerId === workerId);
+    const days = logs.filter(l => l.type === 'ورود').length || 1;
+    const totalMusaedeh = musaedehs.reduce((acc, cur) => acc + cur.amount, 0);
+    const gross = days * worker.wage;
+    const net = gross - totalMusaedeh;
+    const sigData = sigCanvas.toDataURL();
+
+    const paper = document.getElementById('printableSettlement');
+    paper.innerHTML = `
+      <div style="border: 2px solid #000; padding: 24px; border-radius: 8px; font-family: Tahoma; direction: rtl;">
+        <h2 style="text-align: center; margin: 0 0 10px;">برگه رسمی تسویه‌حساب قطعی کارگر روزمزد</h2>
+        <p style="text-align: center; font-size: 0.9rem; margin-bottom: 20px;">تنظیم‌شده بر اساس ماده ۳۷ قانون کار جمهوری اسلامی ایران</p>
+        
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;" border="1" cellpadding="8">
+          <tr>
+            <td><strong>نام کارگر:</strong> ${worker.name}</td>
+            <td><strong>تاریخ تنظیم:</strong> ${new Date().toLocaleDateString('fa-IR')}</td>
+          </tr>
+          <tr>
+            <td><strong>میزان کارکرد:</strong> ${days} روز کاری</td>
+            <td><strong>مبنای دستمزد:</strong> ${worker.wage.toLocaleString('fa-IR')} تومان</td>
+          </tr>
+          <tr>
+            <td><strong>کل مطالبات ناخالص:</strong> ${gross.toLocaleString('fa-IR')} تومان</td>
+            <td><strong>کسورات (مساعده):</strong> ${totalMusaedeh.toLocaleString('fa-IR')} تومان</td>
+          </tr>
+          <tr style="background:#f5f5f5;">
+            <td colspan="2" style="font-size: 1.1rem; text-align: center;">
+              <strong>مبلغ قطعی پرداخت‌شده و تسویه‌شده:</strong> ${net.toLocaleString('fa-IR')} تومان
+            </td>
+          </tr>
+        </table>
+
+        <p style="font-size: 0.85rem; line-height: 1.8; text-align: justify;">
+          اینجانب <strong>${worker.name}</strong> اقرار می‌نمایم کلیه دستمزد، حق‌الزحمه و مطالبات ایام کارکرد خود را تا تاریخ فوق به‌طور کامل و نقداً/واریزی دریافت نموده و هیچ‌گونه ادعا یا اعتراضی در خصوص دستمزد، اضافه کاری یا سنوات نزد کارفرما و اداره تعاون، کار و رفاه اجتماعی ندارم و این سند به منزله تسویه‌حساب نهایی و قطعی می‌باشد.
+        </p>
+
+        <div style="display: flex; justify-content: space-between; margin-top: 40px; align-items: flex-end;">
+          <div style="text-align: center; width: 45%;">
+            <strong>امضا و اثر انگشت کارفرما:</strong>
+            <div style="height: 80px;"></div>
+          </div>
+          <div style="text-align: center; width: 45%;">
+            <strong>امضای دیجیتال و تایید کارگر:</strong><br>
+            <img src="${sigData}" style="max-height: 80px; margin-top: 10px; border-bottom: 1px solid #000;">
+          </div>
+        </div>
+      </div>
+    `;
+
+    paper.style.display = 'block';
+    window.print();
+    paper.style.display = 'none';
+  }
+</script>
 </body>
 </html>
