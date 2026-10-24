@@ -148,7 +148,7 @@
 
         function renderWorkers() {
             const list = document.getElementById('workersList');
-            list.innerHTML = db.workers.length === ? '<p class="text-xs text-slate-400 text-center py-4">هنوز کارگری ثبت نشده است.</p>' : '';
+            list.innerHTML = db.workers.length === 0 ? '<p class="text-xs text-slate-400 text-center py-4">هنوز کارگری ثبت نشده است.</p>' : '';
             db.workers.forEach(w => {
                 list.innerHTML += `<div class="bg-white p-3 rounded-xl border border-slate-200 flex justify-between items-center">
                     <div>
@@ -171,7 +171,7 @@
                 const sel = document.getElementById(id);
                 sel.innerHTML = db.workers.map(w => `<option value="${w.id}">${w.name}</option>`).join('');
             });
-            if(id === 'reportWorkerSelect') generateReport();
+            generateReport();
         }
 
         function capturePhoto() {
