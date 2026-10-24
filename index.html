@@ -49,8 +49,10 @@
     .btn-warning { background: var(--accent); color: #fff; }
     .btn-row { display: flex; gap: 10px; }
     
-    /* دکمه‌های کوچک‌تر مدیریت کارگر */
     .btn-row-sm .btn { padding: 8px 10px; font-size: 0.8rem; flex: 1; }
+
+    .date-row { display: flex; gap: 8px; }
+    .date-row input { text-align: center; }
 
     .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 1000; padding: 15px; backdrop-filter: blur(4px); }
     .modal-content { background: white; padding: 22px; border-radius: 16px; width: 100%; max-width: 400px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); }
@@ -120,9 +122,9 @@
     </div>
   </div>
 
-  <!-- تب ۳: گزارش و تسویه با تقویم استاندارد موبایل -->
+  <!-- تب ۳: گزارش و تسویه با تقویم شمسی (سال / ماه / روز) -->
   <div id="reportTab" class="card">
-    <div class="card-title">📄 گزارش دوره‌ای کارکرد کارگر</div>
+    <div class="card-title">📄 گزارش دوره‌ای کارکرد کارگر (شمسی)</div>
     <div class="form-group">
       <label>انتخاب کارگر برای گزارش:</label>
       <select id="reportWorkerSelect">
@@ -131,13 +133,21 @@
     </div>
 
     <div class="form-group">
-      <label>از تاریخ (انتخاب از تقویم):</label>
-      <input type="date" id="fromDateInput">
+      <label>از تاریخ شمسی (سال / ماه / روز):</label>
+      <div class="date-row">
+        <input type="number" id="fromYear" placeholder="سال" value="1405">
+        <input type="number" id="fromMonth" placeholder="ماه" value="08">
+        <input type="number" id="fromDate" placeholder="روز" value="01">
+      </div>
     </div>
 
     <div class="form-group">
-      <label>تا تاریخ (انتخاب از تقویم):</label>
-      <input type="date" id="toDateInput">
+      <label>تا تاریخ شمسی (سال / ماه / روز):</label>
+      <div class="date-row">
+        <input type="number" id="toYear" placeholder="سال" value="1405">
+        <input type="number" id="toMonth" placeholder="ماه" value="08">
+        <input type="number" id="toDate" placeholder="روز" value="30">
+      </div>
     </div>
 
     <button class="btn btn-primary" onclick="generateReport()" style="margin-bottom: 14px;">ساخت و محاسبه گزارش کارکرد</button>
@@ -202,6 +212,7 @@
       btn.classList.add('active');
     }
 
+    // به‌روزرسانی ساعت و تاریخ شمسی زنده در هدر
     function updateClock(){
       var now = new Date();
       var parts = new Intl.DateTimeFormat('fa-IR-u-ca-persian', {
@@ -226,12 +237,29 @@
 
     function initApp() {
       renderWorkers();
-      // پیش‌فرض گذاشتن تاریخ امروز در فیلترها
-      let todayStr = new Date().toISOString().split('T')[0];
-      let fromInput = document.getElementById('fromDateInput');
-      let toInput = document.getElementById('toDateInput');
-      if(fromInput && !fromInput.value) fromInput.value = todayStr;
-      if(toInput && !toInput.value) toInput.value = todayStr;
+      // تنظیم خودکار تاریخ امروز شمسی در فیلترها
+      let now = new Date();
+      let parts = new Intl.DateTimeFormat('fa-IR-u-ca-persian', {
+        timeZone: 'Asia/Tehran', year: 'numeric', month: 'numeric', day: 'numeric'
+      }).formatToParts(now);
+      
+      let pValues = {};
+      parts.forEach(p => { if(p.type !== 'literal') pValues[p.type] = p.value; });
+
+      if(pValues.year) {
+        document.getElementById('fromYear').value = pValues.year;
+        document.getElementById('toYear').value = pValues.year;
+      }
+      if(pValues.month) {
+        let m = String(pValues.month).padStart(2, '0');
+        document.getElementById('fromMonth').value = m;
+        document.getElementById('toMonth').value = m;
+      }
+      if(pValues.day) {
+        let d = String(pValues.day).padStart(2, '0');
+        document.getElementById('fromDate').value = d;
+        document.getElementById('toDate').value = d;
+      }
     }
 
     function renderWorkers() {
@@ -374,28 +402,46 @@
       listEl.innerHTML = html;
     }
 
+    // تابع کمکی برای تبدیل تاریخ میلادی ثبت شده به رشته شمسی (YYYY/MM/DD) جهت مقایسه در گزارش
+    function getPersianDateStr(dateObj) {
+      let parts = new Intl.DateTimeFormat('fa-IR-u-ca-persian', {
+        timeZone: 'Asia/Tehran', year: 'numeric', month: 'numeric', day: 'numeric'
+      }).formatToParts(dateObj);
+      let p = {};
+      parts.forEach(el => { if(el.type !== 'literal') p[el.type] = el.value; });
+      let y = p.year || '1405';
+      let m = String(p.month || '1').padStart(2, '0');
+      let d = String(p.day || '1').padStart(2, '0');
+      return `${y}/${m}/${d}`;
+    }
+
     function generateReport() {
       let wid = document.getElementById('reportWorkerSelect').value;
       if(!wid) { alert('لطفاً کارگر گزارش را انتخاب کنید'); return; }
 
-      let fromDateStr = document.getElementById('fromDateInput').value;
-      let toDateStr = document.getElementById('toDateInput').value;
+      let fY = document.getElementById('fromYear').value;
+      let fM = String(document.getElementById('fromMonth').value).padStart(2, '0');
+      let fD = String(document.getElementById('fromDate').value).padStart(2, '0');
+      let fromStr = `${fY}/${fM}/${fD}`;
+
+      let tY = document.getElementById('toYear').value;
+      let tM = String(document.getElementById('toMonth').value).padStart(2, '0');
+      let tD = String(document.getElementById('toDate').value).padStart(2, '0');
+      let toStr = `${tY}/${tM}/${tD}`;
 
       let d = db();
       let worker = d.workers.find(w => String(w.id) === String(wid));
       
       let workerLogs = d.logs.filter(l => {
         if(String(l.workerId) !== String(wid)) return false;
-        if(!fromDateStr || !toDateStr) return true;
-        let lDate = l.time.split('T')[0];
-        return lDate >= fromDateStr && lDate <= toDateStr;
+        let lPersianDate = getPersianDateStr(new Date(l.time));
+        return lPersianDate >= fromStr && lPersianDate <= toStr;
       }).sort((a,b) => new Date(a.time) - new Date(b.time));
 
       let workerAdvances = d.advances.filter(a => {
         if(String(a.workerId) !== String(wid)) return false;
-        if(!fromDateStr || !toDateStr) return true;
-        let aDate = a.time.split('T')[0];
-        return aDate >= fromDateStr && aDate <= toDateStr;
+        let aPersianDate = getPersianDateStr(new Date(a.time));
+        return aPersianDate >= fromStr && aPersianDate <= toStr;
       });
 
       let totalAdvance = workerAdvances.reduce((sum, a) => sum + Number(a.amount), 0);
@@ -423,6 +469,7 @@
       resDiv.style.display = 'block';
       resDiv.innerHTML = `
         <b>نام کارگر:</b> ${worker.name}<br>
+        <b>بازه گزارش:</b> از ${fromStr} تا ${toStr}<br>
         <b>مجموع ساعت کارکرد:</b> ${totalHours.toFixed(1)} ساعت<br>
         <b>ساعت اضافه‌کار:</b> ${overTimeHours.toFixed(1)} ساعت<br>
         <b>مجموع مساعده‌های دریافتی:</b> ${totalAdvance.toLocaleString()} تومان<br>
