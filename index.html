@@ -8,9 +8,10 @@
 :root{--primary:#065f46;--primary-dark:#047857;--accent:#f59e0b;--bg:#f8fafc;--card:#ffffff;--text:#0f172a;--border:#cbd5e1;--danger:#dc2626}
 *{box-sizing:border-box;margin:0;padding:0;font-family:Tahoma,Vazirmatn,sans-serif}
 body{background:var(--bg);color:var(--text);padding:12px;max-width:480px;margin:auto;font-size:14px}
-header{background:var(--primary);color:#fff;padding:16px;border-radius:16px;text-align:center;margin-bottom:14px;box-shadow:0 4px 12px rgba(6,95,70,0.2)}
+header{background:var(--primary);color:#fff;padding:16px;border-radius:16px;text-align:center;margin-bottom:12px;box-shadow:0 4px 12px rgba(6,95,70,0.2)}
 header h1{font-size:18px;margin-bottom:4px}
 header p{font-size:12px;opacity:0.9}
+.clock-box{background:#047857;color:#fff;padding:10px 12px;border-radius:12px;font-size:13px;text-align:center;margin-bottom:12px;font-weight:bold;box-shadow:0 2px 6px rgba(0,0,0,0.05)}
 .card{background:var(--card);border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.05);border:1px solid var(--border)}
 h2{font-size:15px;color:var(--primary);margin-bottom:10px;display:flex;align-items:center;gap:6px}
 label{display:block;font-size:12px;color:#475569;margin-bottom:4px}
@@ -42,6 +43,9 @@ button{width:100%;padding:12px;border:none;border-radius:10px;font-size:14px;fon
 <p>حساب‌وکتاب و ساعت‌زن قانونی • پشتیبانی: 09371880982</p>
 </header>
 
+<!-- ساعت زنده و روز هفته بالای صفحه -->
+<div id="liveClock" class="clock-box">درحال بارگذاری ساعت...</div>
+
 <div class="card">
 <h2>👤 انتخاب یا مدیریت کارگر</h2>
 <div class="grid-2">
@@ -72,6 +76,11 @@ button{width:100%;padding:12px;border:none;border-radius:10px;font-size:14px;fon
 <hr style="margin:10px 0;border:0;border-top:1px solid var(--border)">
 <div style="font-size:11px;color:#64748b;margin-bottom:6px">تاریخچه مساعده‌ها:</div>
 <div id="advHistory" style="max-height:100px;overflow-y:auto"></div>
+
+<!-- دکمه حذف کامل کارگر -->
+<div style="margin-top:14px;border-top:1px dashed var(--border);padding-top:10px">
+<button class="btn-danger" onclick="deleteCurrentWorker()">🗑 حذف کامل این کارگر و تمام سوابق</button>
+</div>
 </div>
 
 <div class="card">
@@ -136,42 +145,88 @@ function save(d){localStorage.setItem(DB_KEY,JSON.stringify(d));}
 function num(v){var n=parseFloat(v);return isNaN(n)?0:n;}
 function fmt(n){return Math.round(n).toLocaleString('fa-IR');}
 function openModal(o){document.getElementById('workerModal').style.display=o?'flex':'none';}
+
+// موقعیت‌یابی GPS
 var currentLat=null,currentLng=null,currentPhotoBase64=null;
 function resetPhoto(){currentLat=null;currentLng=null;currentPhotoBase64=null;}
-if(navigator.geolocation){navigator.geolocation.getCurrentPosition(function(p){currentLat=p.coords.latitude;currentLng=p.coords.longitude;},function(){},{enableHighAccuracy:true,timeout:10000});}
+if(navigator.geolocation){
+ navigator.geolocation.getCurrentPosition(function(p){currentLat=p.coords.latitude;currentLng=p.coords.longitude;},function(){},{enableHighAccuracy:true,timeout:10000});
+}
+
+// ساعت زنده بالای صفحه با روز هفته و تاریخ شمسی
+function updateClock(){
+ var now=new Date();
+ var j=toJalali(now.getFullYear(),now.getMonth()+1,now.getDate());
+ var timeStr=now.toTimeString().slice(0,8);
+ var days=['یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنج‌شنبه','جمعه','شنبه'];
+ var dayName=days[now.getDay()];
+ var elClock=document.getElementById('liveClock');
+ if(elClock) elClock.textContent=dayName+' '+pad(j[2])+'/'+pad(j[1])+'/'+j[0]+' — '+timeStr;
+}
+setInterval(updateClock,1000);updateClock();
 
 function toJalali(gy,gm,gd){var g_d_m=[0,31,59,90,120,151,181,212,243,273,304,334];var gy2=(gm>2)?(gy+1):gy;var days=355668+(365*gy)+Math.floor((gy2+3)/4)-Math.floor((gy2+99)/100)+Math.floor((gy2+399)/400)+gd+g_d_m[gm-1];var jy=-1595+(33*Math.floor(days/12053));days%=12053;jy+=4*Math.floor(days/1461);days%=1461;if(days>365){jy+=Math.floor((days-1)/365);days=(days-1)%365;}var jm=(days<186)?1+Math.floor(days/31):7+Math.floor((days-186)/30);var jd=1+((days<186)?(days%31):((days-186)%30));return[jy,jm,jd];}
 function fmtDate(iso){var d=new Date(iso);if(isNaN(d))return'—';var j=toJalali(d.getFullYear(),d.getMonth()+1,d.getDate());return pad(j[0])+'/'+pad(j[1])+'/'+pad(j[2])+' — '+d.toTimeString().slice(0,5);}
 function durText(ms){var m=Math.floor(ms/60000),h=Math.floor(m/60);m%=60;return (h?(h+' ساعت و '):'')+(m+' دقیقه');}
 function openLogFor(d,wid){var open=null;(d.logs||[]).forEach(function(l){if(l.workerId===wid&&l.type==='IN')open=l;});return open;}
-function checkIn(){var wid=num(document.getElementById('workerSelect').value);if(!wid){toast('لطفاً ابتدا کارگر را انتخاب کنید');return;}
+
+function checkIn(){
+ var wid=num(document.getElementById('workerSelect').value);
+ if(!wid){toast('لطفاً ابتدا کارگر را انتخاب کنید');return;}
  var d=db();d.workers=d.workers||[];d.logs=d.logs||[];d.advances=d.advances||[];
  var open=openLogFor(d,wid);
  if(open){toast('⚠️ برای این کارگر یک ورود باز وجود دارد؛ ابتدا خروج ثبت کنید');return;}
  d.logs.push({workerId:wid,type:'IN',time:new Date().toISOString(),lat:currentLat,lng:currentLng,photo:currentPhotoBase64});
- save(d);resetPhoto();refresh();toast('✅ ورود به کار در ساعت '+new Date().toTimeString().slice(0,5)+' ثبت شد');}
-function checkOut(){var wid=num(document.getElementById('workerSelect').value);if(!wid){toast('لطفاً ابتدا کارگر را انتخاب کنید');return;}
+ save(d);resetPhoto();refresh();toast('✅ ورود به کار ثبت شد');
+}
+
+function checkOut(){
+ var wid=num(document.getElementById('workerSelect').value);
+ if(!wid){toast('لطفاً ابتدا کارگر را انتخاب کنید');return;}
  var d=db();d.workers=d.workers||[];d.logs=d.logs||[];d.advances=d.advances||[];
  var open=openLogFor(d,wid);
  if(!open){toast('⚠️ ابتدا «ورود به کار» ثبت کنید؛ بدون ورودِ باز، خروج مجاز نیست');return;}
  var t=new Date().toISOString();
  if(new Date(t)-new Date(open.time)<0){toast('خطا در زمان‌بندی');return;}
  d.logs.push({workerId:wid,type:'OUT',time:t,lat:currentLat,lng:currentLng,photo:currentPhotoBase64,inTime:open.time});
- save(d);resetPhoto();refresh();toast('🏁 خروج ثبت شد — مدت کار: '+durText(new Date(t)-new Date(open.time)));}
+ save(d);resetPhoto();refresh();toast('🏁 خروج ثبت شد — مدت کار: '+durText(new Date(t)-new Date(open.time)));
+}
 
-function addAdvance(){var wid=num(document.getElementById('workerSelect').value),a=num(document.getElementById('advanceAmount').value);
+function addAdvance(){
+ var wid=num(document.getElementById('workerSelect').value),a=num(document.getElementById('advanceAmount').value);
  if(!wid){toast('لطفاً کارگر را انتخاب کنید');return;}
  if(a<=0){toast('مبلغ مساعده نامعتبر است');return;}
  var d=db();d.workers=d.workers||[];d.logs=d.logs||[];d.advances=d.advances||[];
  d.advances.push({workerId:wid,amount:a,time:new Date().toISOString()});
- save(d);document.getElementById('advanceAmount').value='';refresh();toast('💵 مساعده ثبت شد');}
+ save(d);document.getElementById('advanceAmount').value='';refresh();toast('💵 مساعده ثبت شد');
+}
 
-function saveNewWorker(){var name=document.getElementById('newWorkerName').value.trim(),rate=num(document.getElementById('newWorkerRate').value);
+function saveNewWorker(){
+ var name=document.getElementById('newWorkerName').value.trim(),rate=num(document.getElementById('newWorkerRate').value);
  if(!name){toast('لطفاً نام کارگر را وارد کنید');return;}
  var d=db();d.workers=d.workers||[];d.logs=d.logs||[];d.advances=d.advances||[];
  d.workers.push({id:Date.now(),name:name,rate:rate});save(d);
  document.getElementById('newWorkerName').value='';document.getElementById('newWorkerRate').value='';
- openModal(false);refresh();toast('کارگر افزوده شد');}
+ openModal(false);refresh();toast('کارگر افزوده شد');
+}
+
+// حذف کامل کارگر
+function deleteCurrentWorker(){
+ var wid=num(document.getElementById('workerSelect').value);
+ if(!wid){toast('کارگری انتخاب نشده است');return;}
+ var d=db();
+ var w=d.workers.find(function(x){return x.id===wid});
+ var wName=w?w.name:'این کارگر';
+ if(!confirm('⚠️ هشدار جدی:\nآیا از حذف کارگر «'+wName+'» و تمام سوابق ورود، خروج و مساعده‌های او اطمینان دارید؟ این عمل غیرقابل بازگشت است!'))return;
+ 
+ d.workers=d.workers.filter(function(x){return x.id!==wid});
+ d.logs=d.logs.filter(function(l){return l.workerId!==wid});
+ d.advances=d.advances.filter(function(a){return a.workerId!==wid});
+ save(d);
+ document.getElementById('workerSelect').value='';
+ refresh();
+ toast('🗑 کارگر و تمام سوابق او حذف شدند');
+}
 
 /* ---- render ---- */
 function refresh(){
@@ -195,12 +250,12 @@ function render(d){
  hist.textContent='';advH.textContent='';
  if(!wid){box.style.display='none';hist.textContent='برای مشاهده تاریخچه، کارگر را انتخاب کنید.';advH.textContent='مساعده‌ای ثبت نشده است.';statusLine.textContent='';return;}
  var w=d.workers.find(function(x){return x.id===wid});if(!w){box.style.display='none';return;}
- box.style.display='grid';
+ box.style.display='block';
  var logs=d.logs.filter(function(l){return l.workerId===wid}).slice().sort(function(a,b){return new Date(a.time)-new Date(b.time)});
- var open=null,ms=0,pairs=0,openSec=null;
+ var open=null,ms=0,pairs=0;
  logs.forEach(function(l){
-  if(l.type==='IN'){if(open)ms+=0;open=l;openSec=l.time;}
-  else if(l.type==='OUT'&&open){var dt=new Date(l.time)-new Date(open.time);if(dt>0){ms+=dt;pairs++;}open=null;openSec=null;}
+  if(l.type==='IN'){if(open)ms+=0;open=l;}
+  else if(l.type==='OUT'&&open){var dt=new Date(l.time)-new Date(open.time);if(dt>0){ms+=dt;pairs++;}open=null;}
  });
  var hours=ms/3600000,earn=hours*w.rate;
  var adv=d.advances.filter(function(a){return a.workerId===wid}).reduce(function(s,a){return s+num(a.amount)},0);
@@ -209,7 +264,7 @@ function render(d){
  document.getElementById('summaryEarn').textContent=fmt(earn);
  document.getElementById('summaryFinal').textContent=fmt(earn-adv);
  statusLine.textContent=open?('🟠 ورود باز از ساعت '+new Date(open.time).toTimeString().slice(0,5)+' — تاکنون '+durText(new Date()-new Date(open.time))):'🟢 در حال حاضر شیفت بازی ندارد';
- /* history newest first */
+ 
  var items=logs.slice().reverse();
  if(!items.length)hist.textContent='سابقه‌ای ثبت نشده است.';
  items.forEach(function(l){
@@ -225,7 +280,6 @@ function render(d){
   row.appendChild(right);
   var left=el('div','hint');
   if(l.type==='IN'){
-   var out=null;(d.logs||[]).forEach(function(o){if(o.workerId===wid&&o.type==='OUT'&&o.inTime===l.time)out=o;});
    left.textContent='در انتظار خروج';
   } else {
    var dur=(l.inTime&&new Date(l.inTime)<new Date(l.time))?new Date(l.time)-new Date(l.inTime):0;
@@ -234,12 +288,11 @@ function render(d){
   row.appendChild(left);
   hist.appendChild(row);
  });
- /* advances newest first */
+
  var av=d.advances.filter(function(a){return a.workerId===wid}).slice().reverse();
  if(!av.length)advH.textContent='مساعده‌ای ثبت نشده است.';
  av.forEach(function(a){var row=el('div','logitem');row.appendChild(el('div','',fmtDate(a.time)));row.appendChild(el('span','tag adv',fmt(a.amount)+' تومان'));advH.appendChild(row);});
 }
-function pendingIsIn(){return false;}
 
 /* ---- Backup ---- */
 function j2g(jy,jm,jd){jy+=1595;var days=-355668+365*jy+Math.floor(jy/33)*8+Math.floor((jy%33+3)/4)+jd+((jm<7)?(jm-1)*31:((jm-7)*30)+186);var gy=400*Math.floor(days/146097);days%=146097;if(days>36524){days--;gy+=100*Math.floor(days/36524);days%=36524;if(days>=365)days++}gy+=4*Math.floor(days/1461);days%=1461;if(days>365){days--;gy+=Math.floor(days/365);days%=365}var gd=days+1,sal_a=[0,31,(gy%4===0&&gy%100!==0)||(gy%400===0?1:0)?29:28,31,30,31,30,31,31,30,31,30,31],gm;for(gm=0;gm<13&&gd>sal_a[gm];gm++)gd-=sal_a[gm];return[gy,gm,gd];}
@@ -273,7 +326,7 @@ function restoreBackup(input){
   try{
    var d=JSON.parse(e.target.result);
    if(!d||typeof d!=='object'||!Array.isArray(d.workers)||!Array.isArray(d.logs)||!Array.isArray(d.advances))throw new Error('ساختار فایل نامعتبر است');
-   if(!confirm('این فایل شامل '+d.workers.length+' کارگر، '+d.logs.length+' ثبت ورود/خروج و '+d.advances.length+' مساعده است (ایجاد: '+(d.createdAt?fmtDate(d.createdAt):'—')+'). بازیابی انجام شود؟')){input.value='';return;}
+   if(!confirm('این فایل شامل '+d.workers.length+' کارگر، '+d.logs.length+' ثبت ورود/خروج و '+d.advances.length+' مساعده است. بازیابی انجام شود؟')){input.value='';return;}
    localStorage.setItem(DB_KEY,JSON.stringify(d));
    refresh();toast('✅ پشتیبان با موفقیت بازیابی شد');
   }catch(err){alert('بازیابی ناموفق: فایل پشتیبان معتبر نیست.\n'+err.message);}
@@ -305,7 +358,7 @@ function buildReport(){
  });
  var openNote='';
  if(openIn)openNote='<p class="warn">⚠️ یک ورود باز از '+esc(jFull(openIn.time))+' بدون خروج در این بازه وجود دارد و در محاسبه لحاظ نشده است.</p>';
- if(!rows)rows='<tr><td colspan="3" class="empty">شیفت تکمیل‌شده‌ای (ورود + خروج) در این بازه ثبت نشده است.</td></tr>';
+ if(!rows)rows='<tr><td colspan="3" class="empty">شیفت تکمیل‌شده‌ای در این بازه ثبت نشده است.</td></tr>';
  var hours=totalMs/3600000,earn=hours*num(w.rate);
  var advList=d.advances.filter(function(a){return String(a.workerId)===String(w.id)&&a.time&&new Date(a.time).getTime()>=t0&&new Date(a.time).getTime()<=t1}).sort(function(a,b){return new Date(a.time)-new Date(b.time)});
  var advTotal=advList.reduce(function(s,a){return s+num(a.amount)},0);
@@ -327,11 +380,11 @@ function buildReport(){
  +'<div class="final"><span>تراز دوره (حقوق دوره منهای مساعده):</span><b>'+esc(fmt(balance))+' تومان</b></div>'
  +'<p class="foot">کارت ساعت — پشتیبانی: 09371880982</p></body></html>';
  var blob=new Blob(['\ufeff'+html],{type:'text/html;charset=utf-8'});
- var name='report_'+String(w.name).replace(/[^\w\u0600-\u06FF]+/g,'_')+'_'+pad(jFrom[0])+pad(jFrom[1])+pad(jFrom[2])+'-'+pad(jTo[0])+pad(jTo[1])+pad(jTo[2])+'.html';
+ var name='report_'+String(w.name).replace(/[^\w\u0600-\u06FF]+/g, '_')+'_'+pad(jFrom[0])+pad(jFrom[1])+pad(jFrom[2])+'-'+pad(jTo[0])+pad(jTo[1])+pad(jTo[2])+'.html';
  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();
  setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},500);
  var box=document.getElementById('reportOut');box.style.display='block';
- box.innerHTML='✅ گزارش ساخته شد: <b>'+esc(name)+'</b><br>کارگر: '+esc(w.name)+' | بازه: '+esc(rangeStr)+' | شیفت تکمیل‌شده: '+esc(shifts.toLocaleString('fa-IR'))+' | ساعت: '+esc(hours.toLocaleString('fa-IR',{maximumFractionDigits:2}))+' | تراز: '+esc(fmt(balance))+' تومان';
+ box.innerHTML='✅ گزارش ساخته شد: <b>'+esc(name)+'</b><br>کارگر: '+esc(w.name)+' | بازه: '+esc(rangeStr)+' | شیفت: '+esc(shifts.toLocaleString('fa-IR'))+' | ساعت: '+esc(hours.toLocaleString('fa-IR',{maximumFractionDigits:2}))+' | تراز: '+esc(fmt(balance))+' تومان';
 }
 
 function toast(m){var t=document.createElement('div');t.textContent=m;t.style.cssText='position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:10px 18px;border-radius:10px;font-size:13px;z-index:999;box-shadow:0 4px 12px rgba(0,0,0,0.2)';document.body.appendChild(t);setTimeout(function(){t.remove();},2500);}
