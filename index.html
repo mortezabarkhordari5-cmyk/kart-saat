@@ -1,386 +1,489 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>کارت ساعت — حساب‌وکتاب و ساعت‌زن قانونی کارگران</title>
-<style>
-:root{--primary:#065f46;--primary-dark:#047857;--accent:#f59e0b;--bg:#f8fafc;--card:#ffffff;--text:#0f172a;--border:#cbd5e1;--danger:#dc2626}
-*{box-sizing:border-box;margin:0;padding:0;font-family:Tahoma,Vazirmatn,sans-serif}
-body{background:var(--bg);color:var(--text);padding:12px;max-width:480px;margin:auto;font-size:14px}
-header{background:var(--primary);color:#fff;padding:16px;border-radius:12px;margin-bottom:12px;text-align:center;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1)}
-header h1{font-size:18px;margin-bottom:4px}
-header p{font-size:12px;opacity:0.9}
-.clock-box{background:#047857;color:#fff;padding:8px 12px;border-radius:8px;font-size:13px;text-align:center;margin-bottom:12px;font-weight:bold;letter-spacing:0.5px}
-.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,0.05)}
-h2{font-size:14px;color:var(--primary);margin-bottom:10px;display:flex;align-items:center;gap:6px}
-label{display:block;font-size:12px;color:#475569;margin-bottom:4px}
-select,input{width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:14px;margin-bottom:10px;background:#fff}
-button{width:100%;padding:11px;border:0;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:0.2s}
-.btn-primary{background:var(--primary);color:#fff}
-.btn-primary:active{background:var(--primary-dark)}
-.btn-accent{background:var(--accent);color:#fff}
-.btn-danger{background:var(--danger);color:#fff}
-.btn-outline{background:#fff;color:var(--primary);border:1px solid var(--primary)}
-.row{display:flex;gap:8px}
-.row > *{flex:1}
-.summary-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:10px}
-.stat-box{background:#f0fdfa;border:1px solid #a7f3d0;border-radius:8px;padding:10px;text-align:center}
-.stat-box span{font-size:11px;color:#047857;display:block}
-.stat-box b{font-size:15px;color:#065f46}
-.status-line{font-size:12px;padding:8px 12px;border-radius:8px;background:#fef3c7;color:#b45309;margin-bottom:10px;text-align:center;font-weight:bold}
-.logitem{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:12px}
-.logitem:last-child{border-bottom:0}
-.tag{padding:3px 8px;border-radius:6px;font-size:10px;font-weight:bold}
-.tag.in{background:#dcfce7;color:#166534}
-.tag.out{background:#fee2e2;color:#991b1b}
-.tag.adv{background:#fef3c7;color:#92400e}
-.hint{font-size:11px;color:#64748b}
-.modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;padding:16px;z-index:100}
-.modal-content{background:#fff;width:100%;max-width:400px;border-radius:12px;padding:16px;max-height:90vh;overflow-y:auto}
-.backup-row{display:flex;gap:8px;margin-top:8px}
-.date-row{display:flex;gap:6px;margin-bottom:8px}
-.date-row input{text-align:center}
-.foot{text-align:center;font-size:11px;color:#64748b;margin-top:16px}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>کارت ساعت - حضور غیاب و حقوق کارگران</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" />
+    <style>
+        body { font-family: 'Vazirmatn', sans-serif; }
+        .gradient-header { background: linear-gradient(135deg, #059669 0%, #0d9488 100%); }
+    </style>
 </head>
-<body>
+<body class="bg-slate-100 text-slate-800 min-h-screen pb-24">
 
-<header>
- <h1>کارت ساعت</h1>
- <p>حساب‌وکتاب و ساعت‌زن قانونی کارگران</p>
-</header>
+    <!-- Header -->
+    <header class="gradient-header text-white p-5 shadow-lg sticky top-0 z-50 rounded-b-3xl">
+        <div class="max-w-md mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-lg font-extrabold tracking-tight">⏱️ کارت ساعت</h1>
+                <p class="text-xs text-emerald-100 mt-0.5">حساب‌وکتاب دقیق حضور و حقوق کارگران</p>
+            </div>
+            <span class="text-xs bg-white/20 px-3 py-1.5 rounded-full font-medium backdrop-blur-sm">نسخه ۲.۲ حرفه‌ای</span>
+        </div>
+    </header>
 
-<!-- ساعت زنده بالای صفحه -->
-<div id="liveClock" class="clock-box">درحال بارگذاری ساعت...</div>
+    <main class="max-w-md mx-auto p-4 space-y-5">
 
-<div class="card">
- <h2>👥 مدیریت کارگران</h2>
- <div class="row">
-  <select id="workerSelect"><option value="">-- انتخاب کارگر --</option></select>
-  <button class="btn-primary" onclick="openModal(true)" style="width:auto;padding:0 14px">➕ جدید</button>
- </div>
-</div>
+        <!-- بخش پشتیبان‌گیری و بازیابی اطلاعات -->
+        <section class="bg-white p-4 rounded-3xl shadow-sm border border-slate-200/60 flex gap-2">
+            <button onclick="exportBackup()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-2.5 rounded-2xl text-xs font-semibold flex items-center justify-center gap-1.5 transition">
+                <span>📥 دانلود پشتیبان</span>
+            </button>
+            <input type="file" id="importFile" accept=".json" class="hidden" onchange="importBackup(event)">
+            <button onclick="document.getElementById('importFile').click()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-2.5 rounded-2xl text-xs font-semibold flex items-center justify-center gap-1.5 transition">
+                <span>📤 بازیابی پشتیبان</span>
+            </button>
+        </section>
 
-<div id="workerSummary" class="card" style="display:none">
- <h2>📋 خلاصه حساب کارگر</h2>
- <div id="statusLine" class="status-line"></div>
- <div class="summary-grid">
-  <div class="stat-box"><span>مزد هر ساعت</span><b id="summaryRate">0</b></div>
-  <div class="stat-box"><span>مجموع ساعت</span><b id="summaryHours">0</b></div>
-  <div class="stat-box"><span>حقوق کل</span><b id="summaryEarn">0</b></div>
-  <div class="stat-box"><span>تراز (پس از مساعده)</span><b id="summaryFinal" style="color:#b45309">0</b></div>
- </div>
- <div class="row" style="margin-bottom:10px">
-  <button class="btn-primary" onclick="checkIn()">🟢 ورود به کار</button>
-  <button class="btn-accent" onclick="checkOut()">🔴 خروج از کار</button>
- </div>
- <div style="margin-top:12px;border-top:1px dashed var(--border);padding-top:10px">
-  <label style="font-weight:bold;margin-bottom:6px">پرداخت مساعده:</label>
-  <div class="row">
-   <input type="number" id="advanceAmount" placeholder="مبلغ مساعده (تومان)" style="margin:0">
-   <button class="btn-primary" onclick="addAdvance()" style="width:auto;padding:0 14px">ثبت مساعده</button>
-  </div>
- </div>
- <div style="margin-top:14px">
-  <span class="hint" style="font-weight:bold;display:block;margin-bottom:4px">سوابق اخیر ورود/خروج:</span>
-  <div id="history" style="max-height:140px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:6px"></div>
- </div>
- <div style="margin-top:10px">
-  <span class="hint" style="font-weight:bold;display:block;margin-bottom:4px">مساعده‌های ثبت‌شده:</span>
-  <div id="advHistory" style="max-height:100px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:6px"></div>
- </div>
- <!-- دکمه حذف کارگر داخل خلاصه حساب -->
- <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:10px">
-  <button class="btn-danger" onclick="deleteCurrentWorker()">🗑 حذف کامل این کارگر و سوابق او</button>
- </div>
-</div>
+        <!-- بخش انتخاب/افزودن کارگر -->
+        <section class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200/60 space-y-4">
+            <div class="flex justify-between items-center">
+                <h2 class="text-xs font-bold text-slate-500 uppercase tracking-wider">👤 انتخاب یا ثبت کارگر</h2>
+                <span id="currentTimeDisplay" class="text-xs font-medium text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-lg">--:--</span>
+            </div>
+            <div class="flex gap-2">
+                <select id="workerSelect" class="flex-1 border border-slate-200 rounded-2xl px-3.5 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50/50" onchange="onWorkerChange()">
+                    <option value="">-- انتخاب کارگر --</option>
+                </select>
+                <button onclick="openAddWorkerModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-3 rounded-2xl text-sm font-semibold transition shadow-sm shadow-emerald-600/30 flex items-center gap-1">
+                    <span>➕ افزودن</span>
+                </button>
+            </div>
+            
+            <div id="workerSummary" class="bg-gradient-to-br from-slate-50 to-emerald-50/30 p-4 rounded-2xl hidden space-y-3 border border-emerald-100/60">
+                <div class="flex justify-between text-xs text-slate-600">
+                    <span>مزد هر ساعت:</span>
+                    <span id="summaryRate" class="font-bold text-slate-800">0 تومان</span>
+                </div>
+                <div class="flex justify-between text-xs text-slate-600">
+                    <span>کل ساعت کارکرد:</span>
+                    <span id="summaryHours" class="font-bold text-emerald-700">0 ساعت</span>
+                </div>
+                <button onclick="exportWorkerReport()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl text-xs font-bold transition shadow-sm shadow-emerald-600/30 flex items-center justify-center gap-1.5">
+                    <span>📄 استخراج و اشتراک گزارش کارکرد کارگر</span>
+                </button>
+            </div>
+        </section>
 
-<div class="card">
- <h2>🧾 گزارش‌گیری دوره‌ای</h2>
- <select id="reportWorker" style="margin-bottom:8px"><option value="">-- کارگر گزارش --</option></select>
- <label>از تاریخ شمسی (روز / ماه / سال):</label>
- <div class="date-row">
-  <input type="number" id="fromD" placeholder="روز" min="1" max="31" value="1">
-  <input type="number" id="fromM" placeholder="ماه" min="1" max="12" value="1">
-  <input type="number" id="fromY" placeholder="سال (مثلا 1403)" min="1300" max="1500" value="1403">
- </div>
- <div id="fromDisp" class="hint" style="margin-bottom:6px"></div>
- <label>تا تاریخ شمسی (روز / ماه / سال):</label>
- <div class="date-row">
-  <input type="number" id="toD" placeholder="روز" min="1" max="31" value="30">
-  <input type="number" id="toM" placeholder="ماه" min="1" max="12" value="12">
-  <input type="number" id="toY" placeholder="سال (مثلا 1403)" min="1300" max="1500" value="1403">
- </div>
- <div id="toDisp" class="hint" style="margin-bottom:8px"></div>
- <button class="btn-primary" onclick="buildReport()">📄 ساخت و دانلود گزارش HTML</button>
- <div id="reportOut" class="card" style="display:none;margin-top:10px;background:#f0fdfa;border:1px solid #a7f3d0;font-size:12px"></div>
-</div>
+        <!-- بخش ثبت حضور، نام پروژه، GPS و عکس سلفی -->
+        <section class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200/60 space-y-4">
+            <h2 class="text-xs font-bold text-slate-500 uppercase tracking-wider">📍 ثبت حضور و موقعیت</h2>
+            
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1.5">نام محل کار / پروژه:</label>
+                <input type="text" id="workLocationName" placeholder="مثلاً: باغ احمدآباد یا پروژه ساختمان مرکزی" class="w-full border border-slate-200 rounded-2xl px-4 py-3 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            </div>
 
-<div class="card">
- <h2>💾 پشتیبان‌گیری و بازیابی داده‌ها</h2>
- <div class="backup-row">
-  <button class="btn-outline" onclick="downloadBackup()">📥 دانلود فایل پشتیبان (JSON)</button>
-  <button class="btn-outline" onclick="document.getElementById('restoreFile').click()">📤 بازیابی فایل</button>
-  <input type="file" id="restoreFile" style="display:none" accept=".json" onchange="restoreBackup(this)">
- </div>
-</div>
+            <button onclick="getGPS()" class="w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 py-3 rounded-2xl text-xs font-medium flex items-center justify-center gap-2 transition">
+                <span>📍 دریافت مختصات دقیق GPS</span>
+            </button>
+            <p id="gpsStatus" class="text-xs text-center text-slate-500 bg-slate-50 p-2.5 rounded-xl border border-dashed border-slate-200">هنوز مختصاتی دریافت نشده است.</p>
 
-<!-- مودال ثبت کارگر جدید -->
-<div id="workerModal" class="modal">
- <div class="modal-content">
-  <h2>➕ افزودن کارگر جدید</h2>
-  <label>نام و نام خانوادگی:</label>
-  <input type="text" id="newWorkerName" placeholder="مثلاً: علی اصغری">
-  <label>مزد هر ساعت (تومان):</label>
-  <input type="number" id="newWorkerRate" placeholder="مثلاً: 50000">
-  <div class="row" style="margin-top:12px">
-   <button class="btn-primary" onclick="saveNewWorker()">ذخیره</button>
-   <button class="btn-outline" onclick="openModal(false)">انصراف</button>
-  </div>
- </div>
-</div>
+            <!-- بخش دوربین -->
+            <div class="space-y-2 pt-1">
+                <input type="file" id="cameraInput" accept="image/*" capture="user" class="hidden" onchange="handlePhotoCapture(event)">
+                <button onclick="document.getElementById('cameraInput').click()" class="w-full bg-sky-50/60 hover:bg-sky-100/80 border border-sky-200 text-sky-700 py-3 rounded-2xl text-xs font-medium flex items-center justify-center gap-2 transition">
+                    <span>📷 ثبت عکس در محل کار / سلفی</span>
+                </button>
+                <div id="photoPreviewContainer" class="hidden text-center space-y-2 pt-1">
+                    <img id="photoPreview" class="w-20 h-20 object-cover mx-auto rounded-2xl border-2 border-sky-400 shadow-md" />
+                    <p class="text-xs text-emerald-600 font-semibold">✅ عکس با موفقیت ضمیمه شد</p>
+                </div>
+            </div>
 
-<p class="foot">کارت ساعت v3.4 — پشتیبانی: 09371880982</p>
-<script>
-var DB_KEY='kart_saat_db_v3';
-function db(){try{return JSON.parse(localStorage.getItem(DB_KEY))||{workers:[],logs:[],advances:[]};}catch(e){return {workers:[],logs:[],advances:[]};}}
-function save(d){localStorage.setItem(DB_KEY,JSON.stringify(d));}
-function num(v){var n=parseFloat(v);return isNaN(n)?0:n;}
-function fmt(n){return Math.round(n).toLocaleString('fa-IR');}
-function openModal(o){document.getElementById('workerModal').style.display=o?'flex':'none';}
-var currentLat=null,currentLng=null,currentPhotoBase64=null;
-function resetPhoto(){currentLat=null;currentLng=null;currentPhotoBase64=null;}
-if(navigator.geolocation){navigator.geolocation.getCurrentPosition(function(p){currentLat=p.coords.latitude;currentLng=p.coords.longitude;},function(){},{enableHighAccuracy:true,timeout:10000});}
+            <div class="grid grid-cols-2 gap-3 pt-2">
+                <button onclick="checkIn()" class="bg-emerald-600 hover:bg-emerald-700 text-white py-3.5 rounded-2xl font-bold text-sm transition shadow-md shadow-emerald-600/30 flex items-center justify-center gap-1.5">
+                    <span>🟢 ورود به محل کار</span>
+                </button>
+                <button onclick="checkOut()" class="bg-rose-600 hover:bg-rose-700 text-white py-3.5 rounded-2xl font-bold text-sm transition shadow-md shadow-rose-600/30 flex items-center justify-center gap-1.5">
+                    <span>🔴 خروج از کار</span>
+                </button>
+            </div>
+        </section>
 
-// Live Clock
-function updateClock(){
- var now=new Date();
- var j=toJalali(now.getFullYear(),now.getMonth()+1,now.getDate());
- var timeStr=now.toTimeString().slice(0,8);
- var days=['یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنج‌شنبه','جمعه','شنبه'];
- var dayName=days[now.getDay()];
- var elClock=document.getElementById('liveClock');
- if(elClock) elClock.textContent=dayName+' '+pad(j[2])+'/'+pad(j[1])+'/'+j[0]+' — '+timeStr;
-}
-setInterval(updateClock,1000);updateClock();
+        <!-- فهرست سوابق حضور این کارگر -->
+        <section id="logsSection" class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200/60 space-y-3 hidden">
+            <h2 class="text-xs font-bold text-slate-500 uppercase tracking-wider">📋 تاریخچه ترددها</h2>
+            <div id="logsList" class="space-y-2.5 max-h-60 overflow-y-auto text-xs pr-1"></div>
+        </section>
 
-function toJalali(gy,gm,gd){var g_d_m=[0,31,59,90,120,151,181,212,243,273,304,334];var gy2=(gm>2)?(gy+1):gy;var days=355668+(365*gy)+Math.floor((gy2+3)/4)-Math.floor((gy2+99)/100)+Math.floor((gy2+399)/400)+gd+g_d_m[gm-1];var jy=-1595+(33*Math.floor(days/12053));days%=12053;jy+=4*Math.floor(days/1461);days%=1461;if(days>365){jy+=Math.floor((days-1)/365);days=(days-1)%365;}var jm=(days<186)?1+Math.floor(days/31):7+Math.floor((days-186)/30);var jd=1+((days<186)?(days%31):((days-186)%30));return[jy,jm,jd];}
-function fmtDate(iso){var d=new Date(iso);if(isNaN(d))return'—';var j=toJalali(d.getFullYear(),d.getMonth()+1,d.getDate());return pad(j[0])+'/'+pad(j[1])+'/'+pad(j[2])+' — '+d.toTimeString().slice(0,5);}
-function durText(ms){var m=Math.floor(ms/60000),h=Math.floor(m/60);m%=60;return (h?(h+' ساعت و '):'')+(m+' دقیقه');}
-function openLogFor(d,wid){var open=null;(d.logs||[]).forEach(function(l){if(l.workerId===wid&&l.type==='IN')open=l;});return open;}
+        <!-- بخش مساعده و پیش‌پرداخت -->
+        <section class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200/60 space-y-3">
+            <h2 class="text-xs font-bold text-slate-500 uppercase tracking-wider">💵 ثبت مساعده (پیش‌پرداخت)</h2>
+            <div class="flex gap-2">
+                <input type="number" id="advanceAmount" placeholder="مبلغ به تومان" class="flex-1 border border-slate-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-slate-50/50">
+                <button onclick="addAdvance()" class="bg-amber-600 hover:bg-amber-700 text-white px-5 py-3 rounded-2xl text-sm font-bold transition shadow-sm shadow-amber-600/30">ثبت</button>
+            </div>
+        </section>
 
-function checkIn(){var wid=num(document.getElementById('workerSelect').value);if(!wid){toast('لطفاً ابتدا کارگر را انتخاب کنید');return;}
- var d=db();d.workers=d.workers||[];d.logs=d.logs||[];d.advances=d.advances||[];
- var open=openLogFor(d,wid);
- if(open){toast('⚠️ برای این کارگر یک ورود باز وجود دارد؛ ابتدا خروج ثبت کنید');return;}
- d.logs.push({workerId:wid,type:'IN',time:new Date().toISOString(),lat:currentLat,lng:currentLng,photo:currentPhotoBase64});
- save(d);resetPhoto();refresh();toast('✅ ورود به کار در ساعت '+new Date().toTimeString().slice(0,5)+' ثبت شد');}
+        <!-- گزارش‌ها و تسویه حساب نهایی -->
+        <section class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200/60 space-y-3">
+            <h2 class="text-xs font-bold text-slate-500 uppercase tracking-wider">📊 تسویه حساب نهایی</h2>
+            <div class="bg-slate-50 p-4 rounded-2xl space-y-2 text-xs text-slate-600 border border-slate-200/60">
+                <div class="flex justify-between">
+                    <span>مجموع حقوق کارکرد:</span>
+                    <span id="totalEarnings" class="font-bold text-slate-800">0 تومان</span>
+                </div>
+                <div class="flex justify-between">
+                    <span>مجموع مساعده‌ها:</span>
+                    <span id="totalAdvances" class="font-bold text-amber-700">0 تومان</span>
+                </div>
+                <div class="border-t border-slate-200 pt-2.5 flex justify-between text-sm font-extrabold text-emerald-700">
+                    <span>قابل پرداخت نهایی:</span>
+                    <span id="finalBalance">0 تومان</span>
+                </div>
+            </div>
+        </section>
 
-function checkOut(){var wid=num(document.getElementById('workerSelect').value);if(!wid){toast('لطفاً ابتدا کارگر را انتخاب کنید');return;}
- var d=db();d.workers=d.workers||[];d.logs=d.logs||[];d.advances=d.advances||[];
- var open=openLogFor(d,wid);
- if(!open){toast('⚠️ ابتدا «ورود به کار» ثبت کنید؛ بدون ورودِ باز، خروج مجاز نیست');return;}
- var t=new Date().toISOString();
- if(new Date(t)-new Date(open.time)<0){toast('خطا در زمان‌بندی');return;}
- d.logs.push({workerId:wid,type:'OUT',time:t,lat:currentLat,lng:currentLng,photo:currentPhotoBase64,inTime:open.time});
- save(d);resetPhoto();refresh();toast('🏁 خروج ثبت شد — مدت کار: '+durText(new Date(t)-new Date(open.time)));}
+        <!-- بخش پشتیبانی و ارتباط با ما -->
+        <section class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200/60 space-y-1 text-center">
+            <h2 class="text-xs font-semibold text-slate-400">📞 پشتیبانی اپلیکیشن</h2>
+            <p class="text-xs text-slate-600">سوال یا مشکلی دارید؟ تماس بگیرید:</p>
+            <p class="text-sm font-extrabold text-emerald-600 pt-1" dir="ltr">09371880982</p>
+        </section>
 
-function addAdvance(){var wid=num(document.getElementById('workerSelect').value),a=num(document.getElementById('advanceAmount').value);
- if(!wid){toast('لطفاً کارگر را انتخاب کنید');return;}
- if(a<=0){toast('مبلغ مساعده نامعتبر است');return;}
- var d=db();d.workers=d.workers||[];d.logs=d.logs||[];d.advances=d.advances||[];
- d.advances.push({workerId:wid,amount:a,time:new Date().toISOString()});
- save(d);document.getElementById('advanceAmount').value='';refresh();toast('💵 مساعده ثبت شد');}
+    </main>
 
-function saveNewWorker(){var name=document.getElementById('newWorkerName').value.trim(),rate=num(document.getElementById('newWorkerRate').value);
- if(!name){toast('لطفاً نام کارگر را وارد کنید');return;}
- var d=db();d.workers=d.workers||[];d.logs=d.logs||[];d.advances=d.advances||[];
- d.workers.push({id:Date.now(),name:name,rate:rate});save(d);
- document.getElementById('newWorkerName').value='';document.getElementById('newWorkerRate').value='';
- openModal(false);refresh();toast('کارگر افزوده شد');}
+    <!-- Modal گزارش متنی استخراج شده -->
+    <div id="reportModal" class="fixed inset-0 bg-black/60 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
+        <div class="bg-white w-full max-w-md p-6 rounded-3xl space-y-4 shadow-2xl border border-slate-100 max-h-[90vh] flex flex-col">
+            <h3 class="font-bold text-slate-800 text-sm">گزارش رسمی کارکرد کارگر</h3>
+            <textarea id="reportTextContent" readonly class="w-full h-64 border border-slate-200 rounded-2xl p-3 text-xs bg-slate-50 font-mono focus:outline-none"></textarea>
+            <div class="flex gap-2 pt-2">
+                <button onclick="copyReport()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-2xl text-xs font-bold shadow-md shadow-emerald-600/30">کپی متن گزارش</button>
+                <button onclick="closeReportModal()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 py-3 rounded-2xl text-xs font-medium">بستن</button>
+            </div>
+        </div>
+    </div>
 
-function deleteCurrentWorker(){
- var wid=num(document.getElementById('workerSelect').value);
- if(!wid){toast('کارگری انتخاب نشده است');return;}
- var d=db();
- var w=d.workers.find(function(x){return x.id===wid});
- var wName=w?w.name:'این کارگر';
- if(!confirm('⚠️ هشدار جدی:\nآیا از حذف کارگر «'+wName+'» و تمام سوابق ورود، خروج و مساعده‌های او اطمینان دارید؟ این عمل غیرقابل بازگشت است!'))return;
- 
- d.workers=d.workers.filter(function(x){return x.id!==wid});
- d.logs=d.logs.filter(function(l){return l.workerId!==wid});
- d.advances=d.advances.filter(function(a){return a.workerId!==wid});
- save(d);
- document.getElementById('workerSelect').value='';
- refresh();
- toast('🗑 کارگر و تمام سوابق او حذف شدند');
-}
+    <!-- Modal افزودن کارگر -->
+    <div id="workerModal" class="fixed inset-0 bg-black/60 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
+        <div class="bg-white w-full max-w-sm p-6 rounded-3xl space-y-4 shadow-2xl border border-slate-100">
+            <h3 class="font-bold text-slate-800 text-sm">افزودن کارگر جدید</h3>
+            <input type="text" id="newWorkerName" placeholder="نام و نام خانوادگی کارگر" class="w-full border border-slate-200 rounded-2xl px-4 py-3 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            <input type="number" id="newWorkerRate" placeholder="مزد هر ساعت (تومان)" class="w-full border border-slate-200 rounded-2xl px-4 py-3 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            <div class="flex gap-2 pt-2">
+                <button onclick="saveNewWorker()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-2xl text-sm font-bold shadow-md shadow-emerald-600/30">ذخیره کارگر</button>
+                <button onclick="closeAddWorkerModal()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 py-3 rounded-2xl text-sm font-medium">انصراف</button>
+            </div>
+        </div>
+    </div>
 
-/* ---- render ---- */
-function refresh(){
- var d=db();d.workers=Array.isArray(d.workers)?d.workers:[];d.logs=Array.isArray(d.logs)?d.logs:[];d.advances=Array.isArray(d.advances)?d.advances:[];
- var sel=document.getElementById('workerSelect'),prev=sel.value;
- sel.textContent='';
- var ph=document.createElement('option');ph.value='';ph.textContent='-- انتخاب کارگر --';sel.appendChild(ph);
- d.workers.forEach(function(w){var o=document.createElement('option');o.value=w.id;o.textContent=w.name+' (مزد ساعت: '+fmt(w.rate)+' ت)';sel.appendChild(o);});
- if(prev&&d.workers.some(function(w){return String(w.id)===String(prev)}))sel.value=prev;
- var rsel=document.getElementById('reportWorker'),rprev=rsel.value;
- rsel.textContent='';
- var ph2=document.createElement('option');ph2.value='';ph2.textContent='-- کارگر گزارش --';rsel.appendChild(ph2);
- d.workers.forEach(function(w){var o=document.createElement('option');o.value=w.id;o.textContent=w.name;rsel.appendChild(o);});
- if(rprev&&d.workers.some(function(w){return String(w.id)===String(rprev)}))rsel.value=rprev;
- render(d);
-}
-function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e;}
-function render(d){
- var wid=num(document.getElementById('workerSelect').value);
- var box=document.getElementById('workerSummary'),hist=document.getElementById('history'),advH=document.getElementById('advHistory'),statusLine=document.getElementById('statusLine');
- hist.textContent='';advH.textContent='';
- if(!wid){box.style.display='none';hist.textContent='برای مشاهده تاریخچه، کارگر را انتخاب کنید.';advH.textContent='مساعده‌ای ثبت نشده است.';statusLine.textContent='';return;}
- var w=d.workers.find(function(x){return x.id===wid});if(!w){box.style.display='none';return;}
- box.style.display='block';
- var logs=d.logs.filter(function(l){return l.workerId===wid}).slice().sort(function(a,b){return new Date(a.time)-new Date(b.time)});
- var open=null,ms=0,pairs=0,openSec=null;
- logs.forEach(function(l){
-  if(l.type==='IN'){if(open)ms+=0;open=l;openSec=l.time;}
-  else if(l.type==='OUT'&&open){var dt=new Date(l.time)-new Date(open.time);if(dt>0){ms+=dt;pairs++;}open=null;openSec=null;}
- });
- var hours=ms/3600000,earn=hours*w.rate;
- var adv=d.advances.filter(function(a){return a.workerId===wid}).reduce(function(s,a){return s+num(a.amount)},0);
- document.getElementById('summaryRate').textContent=fmt(w.rate);
- document.getElementById('summaryHours').textContent=hours.toLocaleString('fa-IR',{maximumFractionDigits:2});
- document.getElementById('summaryEarn').textContent=fmt(earn);
- document.getElementById('summaryFinal').textContent=fmt(earn-adv);
- statusLine.textContent=open?('🟠 ورود باز از ساعت '+new Date(open.time).toTimeString().slice(0,5)+' — تاکنون '+durText(new Date()-new Date(open.time))):'🟢 در حال حاضر شیفت بازی ندارد';
- 
- var items=logs.slice().reverse();
- if(!items.length)hist.textContent='سابقه‌ای ثبت نشده است.';
- items.forEach(function(l){
-  var row=el('div','logitem');
-  var right=el('div');
-  var tag=el('span','tag '+(l.type==='IN'?'in':'out'),l.type==='IN'?'ورود':'خروج');
-  right.appendChild(tag);
-  right.appendChild(el('div','',fmtDate(l.time)));
-  var extra=[];
-  if(l.lat!=null)extra.push('📍'+Number(l.lat).toFixed(3)+','+Number(l.lng).toFixed(3));
-  if(l.photo)extra.push('📷');
-  if(extra.length)right.appendChild(el('div','',extra.join(' ')));
-  row.appendChild(right);
-  var left=el('div','hint');
-  if(l.type==='IN'){
-   var out=null;(d.logs||[]).forEach(function(o){if(o.workerId===wid&&o.type==='OUT'&&o.inTime===l.time)out=o;});
-   left.textContent='در انتظار خروج';
-  } else {
-   var dur=(l.inTime&&new Date(l.inTime)<new Date(l.time))?new Date(l.time)-new Date(l.inTime):0;
-   left.textContent=dur?('⏱ '+durText(dur)):'⏱ —';
-  }
-  row.appendChild(left);
-  hist.appendChild(row);
- });
+    <script>
+        let db = JSON.parse(localStorage.getItem('kart_saat_db')) || { workers: [], logs: [], advances: [] };
+        let currentLat = null;
+        let currentLng = null;
+        let currentPhotoBase64 = null;
 
- var av=d.advances.filter(function(a){return a.workerId===wid}).slice().reverse();
- if(!av.length)advH.textContent='مساعده‌ای ثبت نشده است.';
- av.forEach(function(a){var row=el('div','logitem');row.appendChild(el('div','',fmtDate(a.time)));row.appendChild(el('span','tag adv',fmt(a.amount)+' تومان'));advH.appendChild(row);});
-}
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('currentTimeDisplay').innerText = now.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
 
-/* ---- Backup ---- */
-function j2g(jy,jm,jd){jy+=1595;var days=-355668+365*jy+Math.floor(jy/33)*8+Math.floor((jy%33+3)/4)+jd+((jm<7)?(jm-1)*31:((jm-7)*30)+186);var gy=400*Math.floor(days/146097);days%=146097;if(days>36524){days--;gy+=100*Math.floor(days/36524);days%=36524;if(days>=365)days++}gy+=4*Math.floor(days/1461);days%=1461;if(days>365){days--;gy+=Math.floor(days/365);days%=365}var gd=days+1,sal_a=[0,31,(gy%4===0&&gy%100!==0)||(gy%400===0?1:0)?29:28,31,30,31,30,31,31,30,31,30,31],gm;for(gm=0;gm<13&&gd>sal_a[gm];gm++)gd-=sal_a[gm];return[gy,gm,gd];}
-function pad(n){return (n<10?'0':'')+n;}
-function readJDate(yp,mp,dp){var y=parseInt(document.getElementById(yp).value,10),m=parseInt(document.getElementById(mp).value,10),dd=parseInt(document.getElementById(dp).value,10);
- if(!y||!m||!dd)return null;
- if(y<1200||y>1600||m<1||m>12||dd<1||dd>31)return 'invalid';
- var g=j2g(y,m,dd);var dt=new Date(g[0],g[1]-1,g[2],0,0,0,0);
- if(dt.getFullYear()!==g[0]||dt.getMonth()!==g[1]-1||dt.getDate()!==g[2])return 'invalid';
- return dt;}
-function jDisp(){var f=readJDate('fromY','fromM','fromD'),t=readJDate('toY','toM','toD');
- document.getElementById('fromDisp').textContent=(f&&f!=='invalid')?('معادل: '+fmtDate(f.toISOString())):(f==='invalid'?'تاریخ نامعتبر است':'');
- document.getElementById('toDisp').textContent=(t&&t!=='invalid')?('معادل: '+fmtDate(new Date(t.getTime()+86399999).toISOString())):(t==='invalid'?'تاریخ نامعتبر است':'');}
-['fromY','fromM','fromD','toY','toM','toD'].forEach(function(id){document.getElementById(id).addEventListener('input',jDisp);});
+        function saveData() {
+            localStorage.setItem('kart_saat_db', JSON.stringify(db));
+            updateUI();
+        }
 
-function downloadBackup(){
- var d=db();
- var data={createdAt:new Date().toISOString(),workers:d.workers||[],logs:d.logs||[],advances:d.advances||[]};
- var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json;charset=utf-8'});
- var now=new Date();
- var name='kart_saat_backup_'+now.getFullYear()+pad(now.getMonth()+1)+pad(now.getDate())+'_'+pad(now.getHours())+pad(now.getMinutes())+'.json';
- var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();
- setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},500);
- toast('✅ پشتیبان کامل دانلود شد: '+name);
-}
-function restoreBackup(input){
- var f=input.files&&input.files[0];if(!f)return;
- if(!confirm('هشدار: بازیابی پشتیبان، تمام داده‌های فعلی این دستگاه را با محتوای فایل جایگزین می‌کند. ادامه می‌دهید؟')){input.value='';return;}
- var r=new FileReader();
- r.onload=function(e){
-  try{
-   var d=JSON.parse(e.target.result);
-   if(!d||typeof d!=='object'||!Array.isArray(d.workers)||!Array.isArray(d.logs)||!Array.isArray(d.advances))throw new Error('ساختار فایل نامعتبر است');
-   if(!confirm('این فایل شامل '+d.workers.length+' کارگر، '+d.logs.length+' ثبت ورود/خروج و '+d.advances.length+' مساعده است (ایجاد: '+(d.createdAt?fmtDate(d.createdAt):'—')+'). بازیابی انجام شود؟')){input.value='';return;}
-   localStorage.setItem(DB_KEY,JSON.stringify(d));
-   refresh();toast('✅ پشتیبان با موفقیت بازیابی شد');
-  }catch(err){alert('بازیابی ناموفق: فایل پشتیبان معتبر نیست.\n'+err.message);}
-  input.value='';
- };
- r.readAsText(f,'utf-8');
-}
+        // پشتیبان‌گیری
+        function exportBackup() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db, null, 2));
+            const dlAnchor = document.createElement('a');
+            dlAnchor.setAttribute("href", dataStr);
+            dlAnchor.setAttribute("download", `kart_saat_backup_${new Date().toISOString().slice(0,10)}.json`);
+            document.body.appendChild(dlAnchor);
+            dlAnchor.click();
+            dlAnchor.remove();
+        }
 
-/* ---- Report ---- */
-function esc(x){return String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function jFull(iso){var d=new Date(iso);if(isNaN(d))return '—';var j=toJalali(d.getFullYear(),d.getMonth()+1,d.getDate());return pad(j[0])+'/'+pad(j[1])+'/'+pad(j[2])+' — ساعت '+d.toTimeString().slice(0,5);}
-function buildReport(){
- var d=db();d.workers=d.workers||[];d.logs=d.logs||[];d.advances=d.advances||[];
- var widRaw=document.getElementById('reportWorker').value;
- var w=d.workers.find(function(x){return String(x.id)===String(widRaw)});
- if(!w){alert('ابتدا کارگر را برای گزارش انتخاب کنید');return;}
- var from=readJDate('fromY','fromM','fromD'),to=readJDate('toY','toM','toD');
- if(!from||from==='invalid'||!to||to==='invalid'){alert('هر دو تاریخ شمسی باید کامل و معتبر باشند');return;}
- if(from>to){alert('تاریخ «از» باید قبل یا برابر تاریخ «تا» باشد');return;}
- var t0=from.getTime(),t1=to.getTime()+86399999;
- var logs=d.logs.filter(function(l){return String(l.workerId)===String(w.id)&&l.time&&new Date(l.time).getTime()>=t0&&new Date(l.time).getTime()<=t1}).sort(function(a,b){return new Date(a.time)-new Date(b.time)});
- var rows='',totalMs=0,shifts=0,openIn=null;
- logs.forEach(function(l){
-  if(l.type==='IN'){if(!openIn)openIn=l;}
-  else if(l.type==='OUT'&&openIn){var dt=new Date(l.time)-new Date(openIn.time);
-   if(dt>0){shifts++;totalMs+=dt;
-    rows+='<tr><td>'+esc(jFull(openIn.time))+'</td><td>'+esc(jFull(l.time))+'</td><td>'+esc(durText(dt))+'</td></tr>';}
-   openIn=null;}
- });
- var openNote='';
- if(openIn)openNote='<p class="warn">⚠️ یک ورود باز از '+esc(jFull(openIn.time))+' بدون خروج در این بازه وجود دارد و در محاسبه لحاظ نشده است.</p>';
- if(!rows)rows='<tr><td colspan="3" class="empty">شیفت تکمیل‌شده‌ای (ورود + خروج) در این بازه ثبت نشده است.</td></tr>';
- var hours=totalMs/3600000,earn=hours*num(w.rate);
- var advList=d.advances.filter(function(a){return String(a.workerId)===String(w.id)&&a.time&&new Date(a.time).getTime()>=t0&&new Date(a.time).getTime()<=t1}).sort(function(a,b){return new Date(a.time)-new Date(b.time)});
- var advTotal=advList.reduce(function(s,a){return s+num(a.amount)},0);
- var advRows=advList.map(function(a){return '<tr><td>'+esc(jFull(a.time))+'</td><td>'+esc(fmt(a.amount))+'</td></tr>'}).join('')||'<tr><td colspan="2" class="empty">مساعده‌ای در این بازه ثبت نشده است.</td></tr>';
- var balance=earn-advTotal;
- var jFrom=toJalali(from.getFullYear(),from.getMonth()+1,from.getDate()),jTo=toJalali(to.getFullYear(),to.getMonth()+1,to.getDate());
- var rangeStr=pad(jFrom[0])+'/'+pad(jFrom[1])+'/'+pad(jFrom[2])+' تا '+pad(jTo[0])+'/'+pad(jTo[1])+'/'+pad(jTo[2]);
- var html='<!DOCTYPE html><html lang="fa" dir="rtl"><head><meta charset="UTF-8"><title>گزارش کارکرد '+esc(w.name)+'</title>'
- +'<style>body{font-family:Tahoma,Vazirmatn,sans-serif;padding:24px;color:#0f172a;max-width:820px;margin:auto}h1{font-size:18px;color:#065f46}h2{font-size:14px;color:#0f766e;margin:18px 0 8px}.meta{background:#ecfdf5;border:1px solid #a7f3d0;border-radius:10px;padding:12px;font-size:13px;line-height:2}table{width:100%;border-collapse:collapse;font-size:12px;margin-top:6px}th,td{border:1px solid #cbd5e1;padding:7px;text-align:center}th{background:#f0fdfa;color:#065f46}.empty{color:#64748b}.warn{color:#b45309;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:8px;font-size:12px}.sum{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}.sum div{border:1px solid #a7f3d0;background:#f0fdfa;border-radius:10px;padding:8px 14px;font-size:13px}.sum b{display:block;font-size:16px;color:#065f46}.final{margin-top:12px;background:#065f46;color:#fff;border-radius:10px;padding:12px 16px;display:flex;justify-content:space-between;font-size:14px}.foot{margin-top:20px;font-size:11px;color:#64748b;text-align:center}@media print{body{padding:8px}}</style>'
- +'</head><body><h1>🧾 گزارش دوره‌ای کارکرد</h1>'
- +'<div class="meta"><b>نام کارگر:</b> '+esc(w.name)+'<br><b>بازه گزارش:</b> از '+esc(rangeStr)+'<br><b>مزد هر ساعت:</b> '+esc(fmt(w.rate))+' تومان<br><b>تاریخ صدور:</b> '+esc(fmtDate(new Date().toISOString()))+'</div>'
- +'<h2>ریز ورود و خروج‌ها و شیفت‌های تکمیل‌شده</h2>'
- +'<table><tr><th>ورود</th><th>خروج</th><th>مدت شیفت</th></tr>'+rows+'</table>'+openNote
- +'<h2>مساعده‌های ثبت‌شده در بازه</h2><table><tr><th>تاریخ</th><th>مبلغ (تومان)</th></tr>'+advRows+'</table>'
- +'<div class="sum"><div>مجموع ساعت کارکرد<b>'+esc(hours.toLocaleString('fa-IR',{maximumFractionDigits:2}))+'</b></div>'
- +'<div>تعداد شیفت تکمیل‌شده<b>'+esc(shifts.toLocaleString('fa-IR'))+'</b></div>'
- +'<div>حقوق دوره (تومان)<b>'+esc(fmt(earn))+'</b></div>'
- +'<div>جمع مساعده (تومان)<b>'+esc(fmt(advTotal))+'</b></div></div>'
- +'<div class="final"><span>تراز دوره (حقوق دوره منهای مساعده):</span><b>'+esc(fmt(balance))+' تومان</b></div>'
- +'<p class="foot">کارت ساعت — پشتیبانی: 09371880982</p></body></html>';
- var blob=new Blob(['\ufeff'+html],{type:'text/html;charset=utf-8'});
- var name='report_'+String(w.name).replace(/[^\w\u0600-\u06FF]+/g,'_')+'_'+pad(jFrom[0])+pad(jFrom[1])+pad(jFrom[2])+'-'+pad(jTo[0])+pad(jTo[1])+pad(jTo[2])+'.html';
- var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();
- setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},500);
- var box=document.getElementById('reportOut');box.style.display='block';
- box.innerHTML='✅ گزارش ساخته شد: <b>'+esc(name)+'</b><br>کارگر: '+esc(w.name)+' | بازه: '+esc(rangeStr)+' | شیفت تکمیل‌شده: '+esc(shifts.toLocaleString('fa-IR'))+' | ساعت: '+esc(hours.toLocaleString('fa-IR',{maximumFractionDigits:2}))+' | تراز: '+esc(fmt(balance))+' تومان';
-}
+        // بازیابی پشتیبان
+        function importBackup(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (imported && imported.workers && imported.logs) {
+                        db = imported;
+                        saveData();
+                        loadWorkersToSelect();
+                        alert('✅ اطلاعات با موفقیت بازیابی شد.');
+                    } else {
+                        alert('❌ ساختار فایل پشتیبان نامعتبر است.');
+                    }
+                } catch(err) {
+                    alert('❌ خطا در خواندن فایل.');
+                }
+            };
+            reader.readAsText(file);
+        }
 
-function toast(m){var t=document.createElement('div');t.textContent=m;t.style.cssText='position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:10px 18px;border-radius:10px;font-size:13px;z-index:999;box-shadow:0 4px 12px rgba(0,0,0,0.2)';document.body.appendChild(t);setTimeout(function(){t.remove();},2500);}
+        function openAddWorkerModal() {
+            document.getElementById('workerModal').classList.remove('hidden');
+            document.getElementById('workerModal').classList.add('flex');
+        }
 
-document.getElementById('workerSelect').addEventListener('change',render);
-refresh();
-</script>
+        function closeAddWorkerModal() {
+            document.getElementById('workerModal').classList.remove('flex');
+            document.getElementById('workerModal').classList.add('hidden');
+        }
+
+        function saveNewWorker() {
+            const name = document.getElementById('newWorkerName').value.trim();
+            const rate = parseFloat(document.getElementById('newWorkerRate').value) || 0;
+            if (!name) { alert('لطفاً نام کارگر را وارد کنید.'); return; }
+            if (rate <= 0) { alert('لطفاً مزد ساعتی معتبر وارد کنید.'); return; }
+            
+            db.workers.push({ id: Date.now(), name, rate });
+            saveData();
+            closeAddWorkerModal();
+            document.getElementById('newWorkerName').value = '';
+            document.getElementById('newWorkerRate').value = '';
+            loadWorkersToSelect();
+        }
+
+        function loadWorkersToSelect() {
+            const select = document.getElementById('workerSelect');
+            const currentSelected = select.value;
+            select.innerHTML = '<option value="">-- انتخاب کارگر --</option>';
+            db.workers.forEach(w => {
+                select.innerHTML += `<option value="${w.id}">${w.name} (مزد ساعت: ${w.rate.toLocaleString()} تومان)</option>`;
+            });
+            if(currentSelected) select.value = currentSelected;
+        }
+
+        function onWorkerChange() {
+            updateUI();
+        }
+
+        function getGPS() {
+            const status = document.getElementById('gpsStatus');
+            if (!navigator.geolocation) {
+                status.innerText = '📍 این دستگاه از موقعیت‌یابی پشتیبانی نمی‌کند.';
+                return;
+            }
+            status.innerText = '📍 در حال دریافت مختصات دقیق GPS...';
+            navigator.geolocation.getCurrentPosition(
+                function(pos) {
+                    currentLat = pos.coords.latitude;
+                    currentLng = pos.coords.longitude;
+                    status.innerHTML = `📍 مختصات ثبت شد: <span class="font-mono">${currentLat.toFixed(4)}, ${currentLng.toFixed(4)}</span> (دقت: ${Math.round(pos.coords.accuracy)}متر)`;
+                },
+                function(err) {
+                    let msg = 'خطا در دریافت موقعیت';
+                    if(err.code === 1) msg = 'دسترسی به GPS رد شد.';
+                    else if(err.code === 2) msg = 'GPS گوشی را روشن کنید.';
+                    else if(err.code === 3) msg = 'زمان دریافت تمام شد.';
+                    status.innerText = '📍 ' + msg;
+                },
+                { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
+            );
+        }
+
+        function handlePhotoCapture(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                currentPhotoBase64 = e.target.result;
+                const preview = document.getElementById('photoPreview');
+                preview.src = currentPhotoBase64;
+                document.getElementById('photoPreviewContainer').classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function checkIn() {
+            const workerId = document.getElementById('workerSelect').value;
+            if (!workerId) { alert('لطفاً ابتدا کارگر را انتخاب کنید.'); return; }
+            const locationName = document.getElementById('workLocationName').value.trim() || 'نامشخص';
+            if(!db.logs) db.logs = [];
+            
+            db.logs.push({
+                workerId: Number(workerId),
+                type: 'IN',
+                time: new Date().toISOString(),
+                locationName: locationName,
+                lat: currentLat,
+                lng: currentLng,
+                photo: currentPhotoBase64
+            });
+            saveData();
+            resetCheckForm();
+            alert('✅ ورود با موفقیت ثبت شد.');
+        }
+
+        function checkOut() {
+            const workerId = document.getElementById('workerSelect').value;
+            if (!workerId) { alert('لطفاً ابتدا کارگر را انتخاب کنید.'); return; }
+            const locationName = document.getElementById('workLocationName').value.trim() || 'نامشخص';
+            if(!db.logs) db.logs = [];
+
+            db.logs.push({
+                workerId: Number(workerId),
+                type: 'OUT',
+                time: new Date().toISOString(),
+                locationName: locationName,
+                lat: currentLat,
+                lng: currentLng,
+                photo: currentPhotoBase64
+            });
+            saveData();
+            resetCheckForm();
+            alert('✅ خروج با موفقیت ثبت شد.');
+        }
+
+        function resetCheckForm() {
+            currentPhotoBase64 = null;
+            document.getElementById('photoPreviewContainer').classList.add('hidden');
+            document.getElementById('cameraInput').value = '';
+            document.getElementById('workLocationName').value = '';
+        }
+
+        function addAdvance() {
+            const workerId = document.getElementById('workerSelect').value;
+            const amount = parseFloat(document.getElementById('advanceAmount').value) || 0;
+            if (!workerId) { alert('لطفاً کارگر را انتخاب کنید.'); return; }
+            if (amount <= 0) { alert('مبلغ مساعده نامعتبر است.'); return; }
+            
+            if(!db.advances) db.advances = [];
+            db.advances.push({ workerId: Number(workerId), amount, time: new Date().toISOString() });
+            saveData();
+            document.getElementById('advanceAmount').value = '';
+            alert('💵 مساعده با موفقیت ثبت شد.');
+        }
+
+        let lastCalculatedData = null;
+
+        function updateUI() {
+            const workerId = document.getElementById('workerSelect').value;
+            const summaryBox = document.getElementById('workerSummary');
+            const logsSection = document.getElementById('logsSection');
+            
+            if (!workerId) {
+                summaryBox.classList.add('hidden');
+                logsSection.classList.add('hidden');
+                document.getElementById('totalEarnings').innerText = '0 تومان';
+                document.getElementById('totalAdvances').innerText = '0 تومان';
+                document.getElementById('finalBalance').innerText = '0 تومان';
+                return;
+            }
+            summaryBox.classList.remove('hidden');
+            logsSection.classList.remove('hidden');
+
+            const worker = db.workers.find(w => w.id == workerId);
+            if (!worker) return;
+
+            document.getElementById('summaryRate').innerText = worker.rate.toLocaleString() + ' تومان';
+
+            let workerLogs = (db.logs || []).filter(l => l.workerId == workerId).sort((a,b) => new Date(a.time) - new Date(b.time));
+            
+            let totalMilliseconds = 0;
+            let lastInTime = null;
+            let logsHtml = '';
+            let logDetailsText = [];
+
+            workerLogs.forEach(l => {
+                const dt = new Date(l.time);
+                const timeStr = dt.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
+                const dateStr = dt.toLocaleDateString('fa-IR');
+                const locStr = l.locationName ? `📍 ${l.locationName}` : '';
+                const coordStr = (l.lat && l.lng) ? `(${l.lat.toFixed(4)}, ${l.lng.toFixed(4)})` : '';
+
+                if (l.type === 'IN') {
+                    lastInTime = dt;
+                    logsHtml += `<div class="bg-emerald-50/70 p-3 rounded-2xl space-y-1 border border-emerald-100">
+                        <div class="flex justify-between items-center"><span class="font-bold text-emerald-800">🟢 ورود: ${dateStr} - ${timeStr}</span></div>
+                        <div class="text-[11px] text-slate-600 flex justify-between"><span>${locStr}</span><span class="font-mono text-slate-500">${coordStr}</span></div>
+                    </div>`;
+                    logDetailsText.push(`[ورود] تاریخ: ${dateStr} ساعت: ${timeStr} - محل: ${l.locationName || 'نامشخص'}`);
+                } else {
+                    let durationText = '';
+                    let diffHours = 0;
+                    if (lastInTime) {
+                        const diff = dt - lastInTime;
+                        if (diff > 0) {
+                            totalMilliseconds += diff;
+                            const hours = Math.floor(diff / (1000 * 60 * 60));
+                            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                            durationText = ` (${hours} ساعت و ${minutes} دقیقه)`;
+                        }
+                        lastInTime = null;
+                    }
+                    logsHtml += `<div class="bg-rose-50/70 p-3 rounded-2xl space-y-1 border border-rose-100">
+                        <div class="flex justify-between items-center"><span class="font-bold text-rose-800">🔴 خروج: ${dateStr} - ${timeStr} <span class="text-emerald-700">${durationText}</span></span></div>
+                        <div class="text-[11px] text-slate-600 flex justify-between"><span>${locStr}</span><span class="font-mono text-slate-500">${coordStr}</span></div>
+                    </div>`;
+                    logDetailsText.push(`[خروج] تاریخ: ${dateStr} ساعت: ${timeStr} ${durationText}`);
+                }
+            });
+
+            document.getElementById('logsList').innerHTML = logsHtml || '<p class="text-slate-400 text-center py-2">هنوز ترددی ثبت نشده است.</p>';
+
+            let totalHours = totalMilliseconds / (1000 * 60 * 60);
+            document.getElementById('summaryHours').innerText = totalHours.toFixed(1) + ' ساعت';
+
+            let totalEarnings = totalHours * worker.rate;
+            let workerAdvancesList = (db.advances || []).filter(a => a.workerId == workerId);
+            let workerAdvances = workerAdvancesList.reduce((sum, a) => sum + a.amount, 0);
+            let finalBalance = totalEarnings - workerAdvances;
+
+            document.getElementById('totalEarnings').innerText = Math.round(totalEarnings).toLocaleString() + ' تومان';
+            document.getElementById('totalAdvances').innerText = workerAdvances.toLocaleString() + ' تومان';
+            document.getElementById('finalBalance').innerText = Math.round(finalBalance).toLocaleString() + ' تومان';
+
+            lastCalculatedData = {
+                workerName: worker.name,
+                rate: worker.rate,
+                totalHours: totalHours.toFixed(1),
+                totalEarnings: Math.round(totalEarnings),
+                workerAdvances,
+                finalBalance: Math.round(finalBalance),
+                logDetailsText,
+                advancesList: workerAdvancesList
+            };
+        }
+
+        function exportWorkerReport() {
+            if (!lastCalculatedData) return;
+            const d = lastCalculatedData;
+            let text = `📄 گزارش رسمی کارکرد و حقوق\n`;
+            text += `------------------------------------\n`;
+            text += `👤 نام کارگر: ${d.workerName}\n`;
+            text += `💰 مزد هر ساعت: ${d.rate.toLocaleString()} تومان\n`;
+            text += `⏱️ کل ساعت کارکرد: ${d.totalHours} ساعت\n`;
+            text += `💵 مجموع حقوق کارکرد: ${d.totalEarnings.toLocaleString()} تومان\n`;
+            text += `💸 مجموع مساعده‌ها: ${d.workerAdvances.toLocaleString()} تومان\n`;
+            text += `====================================\n`;
+            text += `🟢 قابل پرداخت نهایی: ${d.finalBalance.toLocaleString()} تومان\n`;
+            text += `------------------------------------\n`;
+            text += `📋 ریز ترددها:\n` + (d.logDetailsText.length ? d.logDetailsText.join('\n') : 'موردی ثبت نشده است') + `\n`;
+            text += `------------------------------------\n`;
+            text += `📞 پشتیبانی: 09371880982 (کارت ساعت)`;
+
+            document.getElementById('reportTextContent').value = text;
+            document.getElementById('reportModal').classList.remove('hidden');
+            document.getElementById('reportModal').classList.add('flex');
+        }
+
+        function closeReportModal() {
+            document.getElementById('reportModal').classList.remove('flex');
+            document.getElementById('reportModal').classList.add('hidden');
+        }
+
+        function copyReport() {
+            const textarea = document.getElementById('reportTextContent');
+            textarea.select();
+            document.execCommand('copy');
+            alert('✅ گزارش با موفقیت کپی شد. می‌توانید آن را در واتساپ یا تلگرام برای کارگر ارسال کنید.');
+        }
+
+        loadWorkersToSelect();
+    </script>
 </body>
 </html>
