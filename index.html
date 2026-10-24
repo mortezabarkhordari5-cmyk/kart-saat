@@ -43,7 +43,6 @@ button{width:100%;padding:12px;border:none;border-radius:10px;font-size:14px;fon
 <p>حساب‌وکتاب و ساعت‌زن قانونی • پشتیبانی: 09371880982</p>
 </header>
 
-<!-- ساعت زنده و روز هفته بالای صفحه -->
 <div id="liveClock" class="clock-box">درحال بارگذاری ساعت...</div>
 
 <div class="card">
@@ -77,7 +76,6 @@ button{width:100%;padding:12px;border:none;border-radius:10px;font-size:14px;fon
 <div style="font-size:11px;color:#64748b;margin-bottom:6px">تاریخچه مساعده‌ها:</div>
 <div id="advHistory" style="max-height:100px;overflow-y:auto"></div>
 
-<!-- دکمه حذف کامل کارگر -->
 <div style="margin-top:14px;border-top:1px dashed var(--border);padding-top:10px">
 <button class="btn-danger" onclick="deleteCurrentWorker()">🗑 حذف کامل این کارگر و تمام سوابق</button>
 </div>
@@ -146,27 +144,27 @@ function num(v){var n=parseFloat(v);return isNaN(n)?0:n;}
 function fmt(n){return Math.round(n).toLocaleString('fa-IR');}
 function openModal(o){document.getElementById('workerModal').style.display=o?'flex':'none';}
 
-// موقعیت‌یابی GPS
 var currentLat=null,currentLng=null,currentPhotoBase64=null;
 function resetPhoto(){currentLat=null;currentLng=null;currentPhotoBase64=null;}
 if(navigator.geolocation){
  navigator.geolocation.getCurrentPosition(function(p){currentLat=p.coords.latitude;currentLng=p.coords.longitude;},function(){},{enableHighAccuracy:true,timeout:10000});
 }
 
-// ساعت و تاریخ زنده بالای صفحه با تبدیل دقیق شمسی
+// ساعت و تاریخ زنده بالای صفحه (محاسبه دقیق شمسی)
 function updateClock(){
  var now=new Date();
  var j=toJalali(now.getFullYear(),now.getMonth()+1,now.getDate());
  var timeStr=now.toTimeString().slice(0,8);
  var days=['یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنج‌شنبه','جمعه','شنبه'];
  var dayName=days[now.getDay()];
+ var months=['','فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
  var elClock=document.getElementById('liveClock');
- if(elClock) elClock.textContent=dayName+' '+pad(j[2])+'/'+pad(j[1])+'/'+j[0]+' — '+timeStr;
+ if(elClock) elClock.textContent=dayName+' '+j[2]+' '+months[j[1]]+' '+j[0]+' — '+timeStr;
 }
 setInterval(updateClock,1000);updateClock();
 
 function toJalali(gy,gm,gd){var g_d_m=[0,31,59,90,120,151,181,212,243,273,304,334];var gy2=(gm>2)?(gy+1):gy;var days=355668+(365*gy)+Math.floor((gy2+3)/4)-Math.floor((gy2+99)/100)+Math.floor((gy2+399)/400)+gd+g_d_m[gm-1];var jy=-1595+(33*Math.floor(days/12053));days%=12053;jy+=4*Math.floor(days/1461);days%=1461;if(days>365){jy+=Math.floor((days-1)/365);days=(days-1)%365;}var jm=(days<186)?1+Math.floor(days/31):7+Math.floor((days-186)/30);var jd=1+((days<186)?(days%31):((days-186)%30));return[jy,jm,jd];}
-function fmtDate(iso){var d=new Date(iso);if(isNaN(d))return'—';var j=toJalali(d.getFullYear(),d.getMonth()+1,d.getDate());return pad(j[0])+'/'+pad(j[1])+'/'+pad(j[2])+' — '+d.toTimeString().slice(0,5);}
+function fmtDate(iso){var d=new Date(iso);if(isNaN(d))return'—';var j=toJalali(d.getFullYear(),d.getMonth()+1,d.getDate());var months=['','فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];return j[2]+' '+months[j[1]]+' '+j[0]+' — '+d.toTimeString().slice(0,5);}
 function durText(ms){var m=Math.floor(ms/60000),h=Math.floor(m/60);m%=60;return (h?(h+' ساعت و '):'')+(m+' دقیقه');}
 function openLogFor(d,wid){var open=null;(d.logs||[]).forEach(function(l){if(String(l.workerId)===String(wid)&&l.type==='IN')open=l;});return open;}
 
@@ -210,7 +208,7 @@ function saveNewWorker(){
  openModal(false);refresh();toast('کارگر افزوده شد');
 }
 
-// حذف کامل کارگر (اصلاح‌شده و تضمینی)
+// تابع حذف کامل کارگر و تمام سوابق با مقایسه رشته‌ای ایمن
 function deleteCurrentWorker(){
  var sel=document.getElementById('workerSelect');
  var wid=sel.value;
@@ -235,7 +233,6 @@ function deleteCurrentWorker(){
  toast('🗑 کارگر و تمام سوابق او حذف شدند');
 }
 
-/* ---- render ---- */
 function refresh(){
  var d=db();d.workers=Array.isArray(d.workers)?d.workers:[];d.logs=Array.isArray(d.logs)?d.logs:[];d.advances=Array.isArray(d.advances)?d.advances:[];
  var sel=document.getElementById('workerSelect'),prev=sel.value;
@@ -301,7 +298,6 @@ function render(d){
  av.forEach(function(a){var row=el('div','logitem');row.appendChild(el('div','',fmtDate(a.time)));row.appendChild(el('span','tag adv',fmt(a.amount)+' تومان'));advH.appendChild(row);});
 }
 
-/* ---- Backup ---- */
 function j2g(jy,jm,jd){jy+=1595;var days=-355668+365*jy+Math.floor(jy/33)*8+Math.floor((jy%33+3)/4)+jd+((jm<7)?(jm-1)*31:((jm-7)*30)+186);var gy=400*Math.floor(days/146097);days%=146097;if(days>36524){days--;gy+=100*Math.floor(days/36524);days%=36524;if(days>=365)days++}gy+=4*Math.floor(days/1461);days%=1461;if(days>365){days--;gy+=Math.floor(days/365);days%=365}var gd=days+1,sal_a=[0,31,(gy%4===0&&gy%100!==0)||(gy%400===0?1:0)?29:28,31,30,31,30,31,31,30,31,30,31],gm;for(gm=0;gm<13&&gd>sal_a[gm];gm++)gd-=sal_a[gm];return[gy,gm,gd];}
 function pad(n){return (n<10?'0':'')+n;}
 function readJDate(yp,mp,dp){var y=parseInt(document.getElementById(yp).value,10),m=parseInt(document.getElementById(mp).value,10),dd=parseInt(document.getElementById(dp).value,10);
@@ -342,9 +338,8 @@ function restoreBackup(input){
  r.readAsText(f,'utf-8');
 }
 
-/* ---- Report ---- */
 function esc(x){return String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function jFull(iso){var d=new Date(iso);if(isNaN(d))return '—';var j=toJalali(d.getFullYear(),d.getMonth()+1,d.getDate());return pad(j[0])+'/'+pad(j[1])+'/'+pad(j[2])+' — ساعت '+d.toTimeString().slice(0,5);}
+function jFull(iso){var d=new Date(iso);if(isNaN(d))return '—';var j=toJalali(d.getFullYear(),d.getMonth()+1,d.getDate());var months=['','فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];return j[2]+' '+months[j[1]]+' '+j[0]+' — ساعت '+d.toTimeString().slice(0,5);}
 function buildReport(){
  var d=db();d.workers=d.workers||[];d.logs=d.logs||[];d.advances=d.advances||[];
  var widRaw=document.getElementById('reportWorker').value;
@@ -372,7 +367,8 @@ function buildReport(){
  var advRows=advList.map(function(a){return '<tr><td>'+esc(jFull(a.time))+'</td><td>'+esc(fmt(a.amount))+'</td></tr>'}).join('')||'<tr><td colspan="2" class="empty">مساعده‌ای در این بازه ثبت نشده است.</td></tr>';
  var balance=earn-advTotal;
  var jFrom=toJalali(from.getFullYear(),from.getMonth()+1,from.getDate()),jTo=toJalali(to.getFullYear(),to.getMonth()+1,to.getDate());
- var rangeStr=pad(jFrom[0])+'/'+pad(jFrom[1])+'/'+pad(jFrom[2])+' تا '+pad(jTo[0])+'/'+pad(jTo[1])+'/'+pad(jTo[2]);
+ var months=['','فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
+ var rangeStr=jFrom[2]+' '+months[jFrom[1]]+' '+jFrom[0]+' تا '+jTo[2]+' '+months[jTo[1]]+' '+jTo[0];
  var html='<!DOCTYPE html><html lang="fa" dir="rtl"><head><meta charset="UTF-8"><title>گزارش کارکرد '+esc(w.name)+'</title>'
  +'<style>body{font-family:Tahoma,Vazirmatn,sans-serif;padding:24px;color:#0f172a;max-width:820px;margin:auto}h1{font-size:18px;color:#065f46}h2{font-size:14px;color:#0f766e;margin:18px 0 8px}.meta{background:#ecfdf5;border:1px solid #a7f3d0;border-radius:10px;padding:12px;font-size:13px;line-height:2}table{width:100%;border-collapse:collapse;font-size:12px;margin-top:6px}th,td{border:1px solid #cbd5e1;padding:7px;text-align:center}th{background:#f0fdfa;color:#065f46}.empty{color:#64748b}.warn{color:#b45309;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:8px;font-size:12px}.sum{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}.sum div{border:1px solid #a7f3d0;background:#f0fdfa;border-radius:10px;padding:8px 14px;font-size:13px}.sum b{display:block;font-size:16px;color:#065f46}.final{margin-top:12px;background:#065f46;color:#fff;border-radius:10px;padding:12px 16px;display:flex;justify-content:space-between;font-size:14px}.foot{margin-top:20px;font-size:11px;color:#64748b;text-align:center}@media print{body{padding:8px}}</style>'
  +'</head><body><h1>🧾 گزارش دوره‌ای کارکرد</h1>'
@@ -387,7 +383,7 @@ function buildReport(){
  +'<div class="final"><span>تراز دوره (حقوق دوره منهای مساعده):</span><b>'+esc(fmt(balance))+' تومان</b></div>'
  +'<p class="foot">کارت ساعت — پشتیبانی: 09371880982</p></body></html>';
  var blob=new Blob(['\ufeff'+html],{type:'text/html;charset=utf-8'});
- var name='report_'+String(w.name).replace(/[^\w\u0600-\u06FF]+/g, '_')+'_'+pad(jFrom[0])+pad(jFrom[1])+pad(jFrom[2])+'-'+pad(jTo[0])+pad(jTo[1])+pad(jTo[2])+'.html';
+ var name='report_'+String(w.name).replace(/[^\w\u0600-\u06FF]+/g, '_')+'_'+jFrom[0]+pad(jFrom[1])+pad(jFrom[2])+'-'+jTo[0]+pad(jTo[1])+pad(jTo[2])+'.html';
  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();
  setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},500);
  var box=document.getElementById('reportOut');box.style.display='block';
