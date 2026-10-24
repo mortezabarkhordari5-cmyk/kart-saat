@@ -24,7 +24,9 @@ jobs:
       - name: Initialize Capacitor
         run: |
           npm install
-          npx cap init "کارت ساعت" "ir.kartsaat.app" --web-dir .
+          mkdir -p www
+          cp index.html www/
+          npx cap init "کارت ساعت" "ir.kartsaat.app" --web-dir www
           npx cap add android
 
       - name: Add Camera & Location Permissions
