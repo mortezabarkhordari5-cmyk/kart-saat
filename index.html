@@ -1,664 +1,2316 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>کارت ساعت — حساب‌وکتاب و ساعت‌زن قانونی کارگران</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>کارت ساعت هوشمند و قانونی کارگران</title>
+  <!-- فونت وزیرمتن -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" />
+  
   <style>
     :root {
-      --primary: #0f766e;
-      --primary-dark: #115e59;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-light: #eff6ff;
       --accent: #f59e0b;
-      --danger: #ef4444;
+      --accent-hover: #d97706;
       --success: #10b981;
+      --success-hover: #059669;
+      --danger: #ef4444;
+      --danger-hover: #dc2626;
       --bg: #f8fafc;
       --card-bg: #ffffff;
-      --text: #334155;
+      --text-main: #0f172a;
       --text-muted: #64748b;
-      --border: #cbd5e1;
+      --border-color: #e2e8f0;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
+      --shadow-lg: 0 10px 25px rgba(0,0,0,0.1);
+      --radius: 14px;
+      --transition: all 0.25s ease-in-out;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Tahoma, Arial, sans-serif; }
-    body { background-color: var(--bg); color: var(--text); padding: 12px; max-width: 600px; margin: 0 auto; direction: rtl; }
-    
-    header { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; padding: 18px; border-radius: 16px; text-align: center; margin-bottom: 12px; box-shadow: 0 10px 15px -3px rgba(15, 118, 110, 0.2); }
-    header h1 { font-size: 1.3rem; margin-bottom: 6px; font-weight: 800; }
-    header p { font-size: 0.8rem; opacity: 0.9; }
 
-    .tabs-nav { display: flex; background: #e2e8f0; padding: 6px; border-radius: 12px; margin-bottom: 15px; gap: 6px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); }
-    .tab-btn { flex: 1; padding: 10px 4px; border: none; background: transparent; font-size: 0.85rem; font-weight: bold; color: var(--text-muted); cursor: pointer; border-radius: 8px; text-align: center; transition: all 0.3s ease; }
-    .tab-btn.active { background: white; color: var(--primary); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-    .clock-box { background: white; border: 2px dashed var(--primary); color: var(--primary-dark); padding: 10px; border-radius: 12px; text-align: center; font-size: 0.9rem; font-weight: bold; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-    
-    .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 18px; margin-bottom: 15px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); display: none; }
-    .card.active-tab { display: block; }
-    
-    .card-title { font-size: 1rem; font-weight: bold; color: var(--primary-dark); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
-    
-    .form-group { margin-bottom: 14px; }
-    label { display: block; font-size: 0.85rem; margin-bottom: 6px; color: var(--text-muted); font-weight: 600; }
-    select, input { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 0.95rem; background: #fff; color: var(--text); outline: none; transition: border-color 0.2s; }
-    select:focus, input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1); }
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      direction: rtl;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 12px;
+    }
 
-    .btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-size: 0.95rem; font-weight: bold; cursor: pointer; text-align: center; display: inline-block; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-    .btn-primary { background: var(--primary); color: white; }
-    .btn-primary:hover { background: var(--primary-dark); }
-    .btn-success { background: var(--success); color: white; }
-    .btn-danger { background: var(--danger); color: white; }
-    .btn-warning { background: var(--accent); color: #fff; }
-    .btn-row { display: flex; gap: 10px; }
-    
-    .btn-row-sm .btn { padding: 8px 10px; font-size: 0.8rem; flex: 1; }
+    .app-container {
+      width: 100%;
+      max-width: 520px;
+      background: var(--card-bg);
+      border-radius: 20px;
+      box-shadow: var(--shadow-lg);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: relative;
+    }
 
-    /* دکمه انتخاب تاریخ سفارشی */
-    .date-picker-trigger {
+    /* هدر و نمایش زنده زمان */
+    .app-header {
+      background: linear-gradient(135deg, #1e3a8a, #2563eb);
+      border-radius: 16px;
+      padding: 18px 16px;
+      color: #ffffff;
+      text-align: center;
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25);
+      position: relative;
+      overflow: hidden;
+    }
+    .app-header::after {
+      content: '';
+      position: absolute;
+      top: -40%;
+      left: -20%;
+      width: 140px;
+      height: 140px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .app-header h1 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+    }
+    .live-clock-box {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(8px);
+      border-radius: 10px;
+      padding: 6px 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-top: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .live-clock-box span#liveTime {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #fef08a;
+      letter-spacing: 1px;
+    }
+
+    /* تب‌های ناوبری اصلی */
+    .nav-tabs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      background: #f1f5f9;
+      padding: 5px;
+      border-radius: 12px;
+    }
+    .tab-btn {
+      background: transparent;
+      border: none;
+      padding: 9px 4px;
+      border-radius: 9px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .tab-btn.active {
+      background: #ffffff;
+      color: var(--primary);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    /* کارت‌های بخش‌های مختلف */
+    .section-card {
+      display: none;
+      flex-direction: column;
+      gap: 14px;
+      animation: fadeIn 0.25s ease-in-out;
+    }
+    .section-card.active {
+      display: flex;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card-box {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 14px;
+      box-shadow: var(--shadow-sm);
+    }
+    .card-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* کنترل‌های فرم */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .form-group label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #475569;
+    }
+    .form-control {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1.5px solid var(--border-color);
+      border-radius: 10px;
+      font-size: 0.9rem;
+      color: var(--text-main);
+      background: #fafafa;
+      transition: var(--transition);
+      outline: none;
+    }
+    .form-control:focus {
+      border-color: var(--primary);
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 9px;
+    }
+
+    /* دکمه‌ها */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      transition: var(--transition);
+      text-decoration: none;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), #1d4ed8);
+      color: white;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+    }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-success {
+      background: linear-gradient(135deg, var(--success), #059669);
+      color: white;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+    }
+    .btn-success:hover { background: #059669; }
+    .btn-danger {
+      background: linear-gradient(135deg, var(--danger), #dc2626);
+      color: white;
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+    }
+    .btn-danger:hover { background: #dc2626; }
+    .btn-warning {
+      background: linear-gradient(135deg, var(--accent), #d97706);
+      color: white;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
+    }
+    .btn-warning:hover { background: #d97706; }
+    .btn-secondary {
+      background: #e2e8f0;
+      color: #334155;
+    }
+    .btn-secondary:hover { background: #cbd5e1; }
+    .btn-block { width: 100%; }
+
+    /* ثبت ورود و خروج */
+    .punch-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 6px;
+    }
+    .punch-btn {
+      padding: 16px 10px;
+      font-size: 1rem;
+      border-radius: 12px;
+      font-weight: 800;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      justify-content: center;
+      text-align: center;
+      border: none;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .punch-btn .icon { font-size: 1.5rem; line-height: 1; }
+    .punch-btn:hover { transform: translateY(-2px); }
+
+    /* نشانگر وضعیت کارگر */
+    .worker-info {
+      display: none;
+      background: linear-gradient(135deg, #eff6ff, #dbeafe);
+      border: 1px solid #bfdbfe;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    .worker-info.show { display: block; }
+    .worker-info-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      width: 100%;
-      padding: 12px;
-      background: #fff;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      font-size: 0.95rem;
-      color: var(--text);
+      gap: 8px;
+      padding: 4px 0;
+      font-size: 0.85rem;
+    }
+    .worker-info-row strong { color: #1e40af; }
+
+    .attendance-status {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 9px;
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .status-dot {
+      width: 9px;
+      height: 9px;
+      background: #94a3b8;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .attendance-status.present {
+      color: #047857;
+      background: #ecfdf5;
+      border-color: #a7f3d0;
+    }
+    .attendance-status.present .status-dot {
+      background: #10b981;
+      box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.12);
+    }
+
+    /* باکس‌های آمار */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 9px;
+      margin-top: 12px;
+    }
+    .stat-box {
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: 11px;
+      padding: 10px;
+      text-align: center;
+    }
+    .stat-label {
+      display: block;
+      color: var(--text-muted);
+      font-size: 0.73rem;
+      margin-bottom: 5px;
+    }
+    .stat-value {
+      display: block;
+      color: var(--text-main);
+      font-size: 0.92rem;
+      font-weight: 800;
+    }
+
+    /* لیست‌ها */
+    .worker-list, .attendance-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 390px;
+      overflow-y: auto;
+      padding-left: 2px;
+    }
+    .worker-item, .attendance-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: 11px;
+      padding: 10px;
+      transition: var(--transition);
+    }
+    .worker-item:hover, .attendance-item:hover {
+      background: #ffffff;
+      border-color: #bfdbfe;
+      box-shadow: var(--shadow-sm);
+    }
+    .item-main { min-width: 0; flex: 1; }
+    .item-title {
+      display: block;
+      color: #1e293b;
+      font-size: 0.86rem;
+      font-weight: 800;
+      margin-bottom: 4px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .item-subtitle {
+      display: block;
+      color: var(--text-muted);
+      font-size: 0.73rem;
+      line-height: 1.7;
+    }
+    .item-actions {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-shrink: 0;
+    }
+    .icon-btn {
+      width: 32px;
+      height: 32px;
+      border: none;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
-      text-align: right;
+      font-size: 0.9rem;
+      transition: var(--transition);
     }
-    .date-picker-trigger:hover {
-      border-color: var(--primary);
+    .icon-btn.edit { background: #dbeafe; color: #1d4ed8; }
+    .icon-btn.delete { background: #fee2e2; color: #b91c1c; }
+
+    /* جدول گزارش و فیلتر */
+    .filter-box {
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 11px;
+      margin-bottom: 12px;
+    }
+    .filter-title {
+      color: #334155;
+      font-size: 0.83rem;
+      font-weight: 800;
+      margin-bottom: 9px;
+    }
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+    }
+    .report-table {
+      width: 100%;
+      min-width: 600px;
+      border-collapse: collapse;
+      font-size: 0.76rem;
+      background: #ffffff;
+    }
+    .report-table th {
+      background: #eff6ff;
+      color: #1e40af;
+      font-weight: 800;
+      padding: 9px 7px;
+      border-bottom: 1px solid #bfdbfe;
+    }
+    .report-table td {
+      color: #334155;
+      text-align: center;
+      padding: 8px 6px;
+      border-bottom: 1px solid #e2e8f0;
+      white-space: nowrap;
+    }
+    .empty-state {
+      text-align: center;
+      color: #94a3b8;
+      background: #f8fafc;
+      border: 1px dashed #cbd5e1;
+      border-radius: 11px;
+      padding: 18px 10px;
+      font-size: 0.82rem;
+      line-height: 1.9;
     }
 
-    /* مودال تقویم شمسی */
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 1000; padding: 15px; backdrop-filter: blur(4px); }
-    .modal-content { background: white; padding: 20px; border-radius: 16px; width: 100%; max-width: 360px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); }
-    
-    .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-    .cal-header button { background: #f1f5f9; border: none; font-size: 1.1rem; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; color: var(--primary-dark); font-weight: bold; }
-    .cal-header button:hover { background: #e2e8f0; }
-    .cal-title { font-size: 1.05rem; font-weight: bold; color: var(--primary-dark); }
+    /* پنجره‌های مودال */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+      background: rgba(15, 23, 42, 0.58);
+      backdrop-filter: blur(4px);
+    }
+    .modal-overlay.show { display: flex; }
+    .modal {
+      width: 100%;
+      max-width: 500px;
+      max-height: 92vh;
+      overflow-y: auto;
+      background: #ffffff;
+      border-radius: 17px;
+      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.25);
+    }
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      color: #ffffff;
+      background: linear-gradient(135deg, #1e3a8a, #2563eb);
+      border-radius: 17px 17px 0 0;
+    }
+    .modal-close {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      font-size: 1.1rem;
+      cursor: pointer;
+    }
+    .modal-body { padding: 16px; }
+    .modal-footer {
+      display: flex;
+      gap: 8px;
+      padding: 0 16px 16px;
+    }
+    .modal-footer .btn { flex: 1; }
 
-    .cal-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 0.8rem; font-weight: bold; color: var(--text-muted); margin-bottom: 8px; }
-    .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
-    .cal-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; border-radius: 8px; cursor: pointer; background: #f8fafc; color: var(--text); font-weight: 600; }
-    .cal-day:hover { background: #e2e8f0; color: var(--primary); }
-    .cal-day.selected { background: var(--primary); color: white; }
-    .cal-day.today { border: 2px solid var(--accent); }
-    .cal-day.empty { background: transparent; cursor: default; }
+    /* تقویم جلالی */
+    .calendar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .calendar-title {
+      color: #1e3a8a;
+      font-weight: 800;
+      font-size: 0.95rem;
+    }
+    .calendar-nav {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: #dbeafe;
+      color: #1d4ed8;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 900;
+    }
+    .calendar-weekdays, .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+    }
+    .calendar-weekdays div {
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-align: center;
+      color: #64748b;
+      padding: 4px 0;
+    }
+    .calendar-day {
+      min-height: 34px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      background: #fff;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: var(--transition);
+    }
+    .calendar-day.today {
+      background: #dbeafe;
+      border-color: #60a5fa;
+      color: #1d4ed8;
+      font-weight: 900;
+    }
+    .calendar-day.selected {
+      background: #2563eb;
+      color: white;
+      border-color: #1d4ed8;
+      font-weight: 900;
+    }
+    .calendar-day.empty {
+      border-color: transparent;
+      background: transparent;
+      cursor: default;
+    }
+    .selected-date-box {
+      color: #1e40af;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 8px;
+      padding: 8px;
+      margin-top: 10px;
+      text-align: center;
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
 
-    .logs-list { max-height: 220px; overflow-y: auto; border: 1px solid var(--border); border-radius: 10px; padding: 8px; margin-top: 10px; font-size: 0.85rem; background: #f8fafc; }
-    .log-item { padding: 10px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; background: white; margin-bottom: 6px; border-radius: 8px; }
-    .log-item:last-child { margin-bottom: 0; }
+    /* توست اعلان */
+    .toast-container {
+      position: fixed;
+      bottom: 20px;
+      left: 14px;
+      right: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      z-index: 3000;
+      pointer-events: none;
+    }
+    .toast {
+      background: #1e293b;
+      color: white;
+      border-radius: 10px;
+      padding: 10px 16px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    }
+    .toast.success { background: #059669; }
+    .toast.error { background: #dc2626; }
+    .toast.warning { background: #d97706; }
+
+    .app-footer {
+      color: #94a3b8;
+      text-align: center;
+      font-size: 0.72rem;
+      line-height: 1.8;
+      padding-top: 4px;
+    }
+
+    /* استایل‌های پرینت و خروجی چاپی */
+    .print-only { display: none; }
+    @media print {
+      body { background: white; padding: 0; }
+      .app-container, .modal-overlay, .toast-container, .nav-tabs, .app-header, .no-print { display: none !important; }
+      .print-only { display: block !important; padding: 16px; font-family: Tahoma, sans-serif; direction: rtl; }
+      .print-report h2, .print-report h3 { text-align: center; margin-bottom: 8px; }
+      .print-table { width: 100%; border-collapse: collapse; margin-top: 14px; font-size: 11px; }
+      .print-table th, .print-table td { border: 1px solid #334155; padding: 6px; text-align: center; }
+      .print-table th { background: #f1f5f9; }
+      .print-signatures { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 50px; }
+      .sig-box { border-top: 1px solid #334155; padding-top: 8px; text-align: center; font-size: 12px; }
+    }
   </style>
 </head>
 <body>
+  <main class="app-container">
 
-  <header>
-    <h1>کارت ساعت کارگران</h1>
-    <p>حساب‌وکتاب و ساعت‌زن قانونی • پشتیبانی: 09371880982</p>
-  </header>
-
-  <div class="clock-box" id="liveClock">در حال بارگذاری ساعت...</div>
-
-  <div class="tabs-nav">
-    <button class="tab-btn active" onclick="switchTab('workersTab', this)">👤 کارگران</button>
-    <button class="tab-btn" onclick="switchTab('attendanceTab', this)">⏱ ثبت حضور</button>
-    <button class="tab-btn" onclick="switchTab('reportTab', this)">📄 گزارش و تسویه</button>
-  </div>
-
-  <!-- تب ۱: کارگران -->
-  <div id="workersTab" class="card active-tab">
-    <div class="card-title">👤 انتخاب یا مدیریت کارگر</div>
-    <div class="form-group">
-      <select id="workerSelect" onchange="onWorkerChange()">
-        <option value="">-- لطفاً ابتدا کارگر را انتخاب کنید --</option>
-      </select>
-    </div>
-    
-    <div id="workerSummary" style="display:none; margin-bottom:14px; font-size:0.9rem; background:#f1f5f9; padding:12px; border-radius:10px; border: 1px solid #e2e8f0;">
-      <div id="workerDetailsText"></div>
-    </div>
-
-    <div class="btn-row btn-row-sm">
-      <button class="btn btn-primary" onclick="openAddWorkerModal()">➕ افزودن کارگر</button>
-      <button class="btn btn-danger" onclick="deleteCurrentWorker()">❌ حذف کارگر انتخاب‌شده</button>
-    </div>
-  </div>
-
-  <!-- تب ۲: ثبت حضور و مساعده -->
-  <div id="attendanceTab" class="card">
-    <div class="card-title">⏱ ثبت ورود، خروج و محل کار</div>
-    <div class="form-group">
-      <label>محل کار / پروژه</label>
-      <input type="text" id="workLocation" placeholder="مثلاً پروژه ساختمانی تهرانپارس">
-    </div>
-    <div class="btn-row" style="margin-bottom: 14px;">
-      <button class="btn btn-success" onclick="recordAction('in')">🟢 ثبت ورود به کار</button>
-      <button class="btn btn-danger" onclick="recordAction('out')">🔴 ثبت خروج</button>
-    </div>
-    <div class="logs-list" id="logsList">
-      <div style="text-align:center; color:var(--text-muted); padding:15px;">لطفاً کارگری را انتخاب کنید</div>
-    </div>
-
-    <div style="margin-top: 22px; border-top: 2px solid #f1f5f9; padding-top: 15px;">
-      <div class="card-title" style="border:none; margin-bottom:8px;">💵 ثبت مساعده نقدی</div>
-      <div class="form-group">
-        <label>مبلغ مساعده به تومان</label>
-        <input type="number" id="advanceAmount" placeholder="مثلاً ۵۰۰۰۰۰">
+    <!-- هدر با ساعت و تاریخ زنده -->
+    <header class="app-header">
+      <h1>کارت ساعت هوشمند کارگران</h1>
+      <div class="live-clock-box">
+        <span>امروز:</span>
+        <span id="liveDate">در حال بارگذاری...</span>
+        <span id="liveTime">--:--:--</span>
       </div>
-      <button class="btn btn-warning" onclick="recordAdvance()">ثبت مساعده</button>
-    </div>
-  </div>
+    </header>
 
-  <!-- تب ۳: گزارش و تسویه با تقویم شمسی داخلی -->
-  <div id="reportTab" class="card">
-    <div class="card-title">📄 گزارش دوره‌ای کارکرد کارگر (شمسی)</div>
-    <div class="form-group">
-      <label>انتخاب کارگر برای گزارش:</label>
-      <select id="reportWorkerSelect">
-        <option value="">-- کارگر گزارش --</option>
-      </select>
-    </div>
-
-    <!-- فیلدهای مخفی برای حفظ ساختار محاسباتی قبلی -->
-    <input type="hidden" id="fromYear"><input type="hidden" id="fromMonth"><input type="hidden" id="fromDate">
-    <input type="hidden" id="toYear"><input type="hidden" id="toMonth"><input type="hidden" id="toDate">
-
-    <div class="form-group">
-      <label>از تاریخ شمسی:</label>
-      <button type="button" class="date-picker-trigger" id="fromDateBtn" onclick="openCalendar('from')">
-        <span id="fromDateText">انتخاب تاریخ شروع</span>
-        <span>📅</span>
+    <!-- تب‌های ناوبری -->
+    <nav class="nav-tabs" aria-label="ناوبری برنامه">
+      <button class="tab-btn active" data-tab="dashboardTab">
+        <span>🏠</span>
+        <span>داشبورد</span>
       </button>
-    </div>
-
-    <div class="form-group">
-      <label>تا تاریخ شمسی:</label>
-      <button type="button" class="date-picker-trigger" id="toDateBtn" onclick="openCalendar('to')">
-        <span id="toDateText">انتخاب تاریخ پایان</span>
-        <span>📅</span>
+      <button class="tab-btn" data-tab="workersTab">
+        <span>👷</span>
+        <span>کارگران</span>
       </button>
-    </div>
+      <button class="tab-btn" data-tab="attendanceTab">
+        <span>🕘</span>
+        <span>ترددها</span>
+      </button>
+      <button class="tab-btn" data-tab="reportsTab">
+        <span>📊</span>
+        <span>گزارش‌ها</span>
+      </button>
+    </nav>
 
-    <button class="btn btn-primary" onclick="generateReport()" style="margin-bottom: 14px;">ساخت و محاسبه گزارش کارکرد</button>
+    <!-- بخش ۱: داشبورد اصلی ثبت تردد زنده -->
+    <section id="dashboardTab" class="section-card active">
+      <div class="card-box">
+        <h2 class="card-title"><span>👤</span> ثبت سریع ورود و خروج</h2>
 
-    <div id="reportResult" style="display:none; background:#f1f5f9; padding:15px; border-radius:10px; font-size:0.9rem; line-height:1.8; border: 1px solid #e2e8f0;">
+        <div class="form-group">
+          <label for="dashboardWorkerSelect">انتخاب کارگر</label>
+          <select id="dashboardWorkerSelect" class="form-control">
+            <option value="">-- لطفاً یک کارگر انتخاب کنید --</option>
+          </select>
+        </div>
+
+        <div id="selectedWorkerInfo" class="worker-info">
+          <div class="worker-info-row">
+            <span>نام کارگر:</span>
+            <strong id="selectedWorkerName">---</strong>
+          </div>
+          <div class="worker-info-row">
+            <span>دستمزد ساعتی:</span>
+            <strong id="selectedWorkerWage">---</strong>
+          </div>
+          <div class="worker-info-row">
+            <span>کارگاه / پروژه پیش‌فرض:</span>
+            <strong id="selectedWorkerLocation">---</strong>
+          </div>
+        </div>
+
+        <div id="attendanceStatus" class="attendance-status">
+          <span class="status-dot"></span>
+          <span id="attendanceStatusText">وضعیت ورود ثبت نشده است</span>
+        </div>
+
+        <div class="form-group">
+          <label for="dashboardLocation">پروژه یا کارگاه جاری</label>
+          <input id="dashboardLocation" class="form-control" type="text" placeholder="مثلاً: پروژه مسکونی آزادی" />
+        </div>
+
+        <div class="punch-actions">
+          <button id="clockInBtn" class="btn btn-success punch-btn">
+            <span class="icon">⏱️</span>
+            <span>ثبت ورود</span>
+          </button>
+          <button id="clockOutBtn" class="btn btn-danger punch-btn">
+            <span class="icon">🏁</span>
+            <span>ثبت خروج</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- وضعیت آماری امروز -->
+      <div class="card-box">
+        <h2 class="card-title"><span>📌</span> خلاصه وضعیت امروز</h2>
+        <div class="stats-grid">
+          <div class="stat-box">
+            <span class="stat-label">کل کارگران</span>
+            <strong id="totalWorkersStat" class="stat-value">۰</strong>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">ورودهای امروز</span>
+            <strong id="todayEntriesStat" class="stat-value">۰</strong>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">خروج‌های ثبت‌شده</span>
+            <strong id="todayExitsStat" class="stat-value">۰</strong>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">کارکرد کل امروز</span>
+            <strong id="todayHoursStat" class="stat-value">۰ ساعت</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- ثبت علی‌الحساب و مساعده -->
+      <div class="card-box">
+        <h2 class="card-title"><span>💵</span> ثبت مساعده / علی‌الحساب</h2>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="advanceWorkerSelect">کارگر</label>
+            <select id="advanceWorkerSelect" class="form-control">
+              <option value="">انتخاب کارگر</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="advanceAmount">مبلغ (تومان)</label>
+            <input id="advanceAmount" class="form-control" type="number" min="0" placeholder="مثلاً ۵۰۰,۰۰۰" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="advanceDescription">شرح پرداخت</label>
+          <input id="advanceDescription" class="form-control" type="text" placeholder="بابت مساعده هفتگی، کرایه یا خرید لوازام" />
+        </div>
+        <button id="addAdvanceBtn" class="btn btn-warning btn-block">ثبت دریافت مساعده</button>
+      </div>
+    </section>
+
+    <!-- بخش ۲: مدیریت کارگران -->
+    <section id="workersTab" class="section-card">
+      <div class="card-box">
+        <h2 class="card-title"><span>➕</span> ثبت کارگر جدید</h2>
+        <div class="form-group">
+          <label for="workerName">نام و نام خانوادگی</label>
+          <input id="workerName" class="form-control" type="text" placeholder="نام کارگر یا اوستا" />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="workerWage">دستمزد ساعتی (تومان)</label>
+            <input id="workerWage" class="form-control" type="number" min="0" placeholder="مثلاً: ۷۵۰۰۰" />
+          </div>
+          <div class="form-group">
+            <label for="workerLocation">کارگاه / پروژه پیش‌فرض</label>
+            <input id="workerLocation" class="form-control" type="text" placeholder="مثلاً: فاز ۲ پردیس" />
+          </div>
+        </div>
+        <button id="addWorkerBtn" class="btn btn-primary btn-block">افزودن به لیست کارگران</button>
+      </div>
+
+      <div class="card-box">
+        <h2 class="card-title"><span>👷</span> فهرست کارگران فعال</h2>
+        <div id="workerList" class="worker-list">
+          <div class="empty-state">هنوز کارگری در سیستم ثبت نشده است.</div>
+        </div>
+      </div>
+
+      <!-- پشتیبان‌گیری دیتابیس محلی -->
+      <div class="card-box">
+        <h2 class="card-title"><span>💾</span> پشتیبان‌گیری و انتقال اطلاعات</h2>
+        <div class="form-row">
+          <button id="exportDataBtn" class="btn btn-secondary">دریافت فایل پشتیبان (JSON)</button>
+          <label for="importDataInput" class="btn btn-secondary" style="cursor: pointer; text-align: center;">
+            بازیابی پشتیبان
+          </label>
+          <input id="importDataInput" type="file" accept=".json,application/json" style="display: none;" />
+        </div>
+      </div>
+    </section>
+    <!-- بخش ۳: ترددها و سوابق -->
+    <section id="attendanceTab" class="section-card">
+      <div class="card-box">
+        <h2 class="card-title"><span>🕒</span> سوابق تردد ثبت‌شده</h2>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="filterAttendanceWorker">فیلتر بر اساس کارگر</label>
+            <select id="filterAttendanceWorker" class="form-control">
+              <option value="">همه کارگران</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="filterAttendanceLocation">فیلتر پروژه / کارگاه</label>
+            <input id="filterAttendanceLocation" class="form-control" type="text" placeholder="نام پروژه..." />
+          </div>
+        </div>
+        <div id="attendanceList" class="attendance-list">
+          <div class="empty-state">سابقه‌ای برای نمایش یافت نشد.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- بخش ۴: گزارش‌ها و فاکتور قانونی کارکرد -->
+    <section id="reportsTab" class="section-card">
+      <div class="card-box">
+        <h2 class="card-title"><span>📑</span> فیلترهای گزارش کارکرد و تسویه‌حساب</h2>
+        
+        <div class="filter-box">
+          <div class="filter-grid">
+            <div class="form-group">
+              <label for="reportWorkerSelect">انتخاب کارگر</label>
+              <select id="reportWorkerSelect" class="form-control">
+                <option value="">-- انتخاب کارگر --</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="reportLocationFilter">فیلتر کارگاه / پروژه</label>
+              <input id="reportLocationFilter" class="form-control" type="text" placeholder="اختیاری..." />
+            </div>
+            <div class="form-group">
+              <label for="reportStartDate">از تاریخ</label>
+              <input id="reportStartDate" class="form-control" type="text" placeholder="۱۴۰۳/۰۱/۰۱" readonly style="cursor: pointer; background: #fff;" />
+            </div>
+            <div class="form-group">
+              <label for="reportEndDate">تا تاریخ</label>
+              <input id="reportEndDate" class="form-control" type="text" placeholder="۱۴۰۳/۰۱/۳۱" readonly style="cursor: pointer; background: #fff;" />
+            </div>
+          </div>
+          <div class="form-row" style="margin-top: 10px;">
+            <button id="generateReportBtn" class="btn btn-primary">مشاهده گزارش</button>
+            <button id="printReportBtn" class="btn btn-success">🖨️ چاپ / خروجی PDF</button>
+          </div>
+        </div>
+
+        <!-- خلاصه مالی و ساعت کاری گزارش -->
+        <div id="reportSummary" style="display: none; margin-bottom: 12px;">
+          <div class="stats-grid">
+            <div class="stat-box">
+              <span class="stat-label">مجموع ساعت کارکرد</span>
+              <strong id="repTotalHours" class="stat-value">۰ ساعت</strong>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">ساعت اضافه کاری</span>
+              <strong id="repOvertimeHours" class="stat-value">۰ ساعت</strong>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">کل دستمزد ناخالص</span>
+              <strong id="repTotalGross" class="stat-value">۰ تومان</strong>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">مساعده کسر شده</span>
+              <strong id="repTotalAdvance" class="stat-value">۰ تومان</strong>
+            </div>
+          </div>
+          <div class="card-box" style="margin-top: 8px; background: #ecfdf5; border-color: #a7f3d0; text-align: center;">
+            <span style="font-size: 0.85rem; color: #047857; font-weight: 700;">خالص قابل پرداخت کارگر:</span>
+            <div id="repNetPayable" style="font-size: 1.25rem; font-weight: 900; color: #065f46; margin-top: 4px;">۰ تومان</div>
+          </div>
+        </div>
+
+        <!-- جدول نتایج گزارش -->
+        <div class="table-wrapper">
+          <table class="report-table">
+            <thead>
+              <tr>
+                <th>ردیف</th>
+                <th>تاریخ</th>
+                <th>ورود</th>
+                <th>خروج</th>
+                <th>مدت</th>
+                <th>پروژه</th>
+                <th>دستمزد (تومان)</th>
+              </tr>
+            </thead>
+            <tbody id="reportTableBody">
+              <tr>
+                <td colspan="7" class="empty-state">جهت صدور گزارش ابتدا کارگر و بازه تاریخی را مشخص کنید.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- فوتر برنامه و شماره پشتیبانی -->
+    <footer class="app-footer">
+      کارت ساعت هوشمند و قانونی کارگران — نسخه ۳.۰<br />
+      پشتیبانی و ثبت سفارش: ۰۹۳۷۱۸۸۰۹۸۲
+    </footer>
+  </main>
+
+  <!-- مودال تقویم جلالی برای انتخاب تاریخ‌ها -->
+  <div id="calendarModal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="calendar-title" id="calMonthYearTitle">فروردین ۱۴۰۳</span>
+        <button class="modal-close" id="closeCalendarBtn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="calendar-header">
+          <button id="prevMonthBtn" class="calendar-nav">&lt;</button>
+          <span style="font-size: 0.85rem; color: #64748b; font-weight: 700;">جهت تغییر ماه کلیک کنید</span>
+          <button id="nextMonthBtn" class="calendar-nav">&gt;</button>
+        </div>
+        <div class="calendar-weekdays">
+          <div>ش</div>
+          <div>ی</div>
+          <div>د</div>
+          <div>س</div>
+          <div>چ</div>
+          <div>پ</div>
+          <div>ج</div>
+        </div>
+        <div id="calendarDaysGrid" class="calendar-grid" style="margin-top: 8px;"></div>
+        <div class="selected-date-box">
+          تاریخ انتخاب‌شده: <span id="calendarSelectedDateText">هنوز انتخاب نشده</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="confirmDateBtn" class="btn btn-primary">تأیید تاریخ</button>
+        <button id="cancelDateBtn" class="btn btn-secondary">انصراف</button>
+      </div>
     </div>
   </div>
 
-  <!-- پشتیبان‌گیری -->
-  <div class="card" style="display:block;">
-    <div class="card-title">💾 پشتیبان‌گیری و بازیابی اطلاعات</div>
-    <div class="btn-row">
-      <button class="btn btn-primary" onclick="downloadJSON()">دانلود پشتیبان JSON</button>
-      <button class="btn btn-warning" onclick="document.getElementById('importFile').click()">بارگذاری پشتیبان</button>
-      <input type="file" id="importFile" style="display:none" accept=".json" onchange="importJSON(event)">
+  <!-- مودال ویرایش دستی تردد -->
+  <div id="editAttendanceModal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <span>ویرایش دستی تردد کارگر</span>
+        <button class="modal-close" id="closeEditModalBtn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="editAttendanceId" />
+        <div class="form-group">
+          <label>نام کارگر</label>
+          <input id="editWorkerName" class="form-control" type="text" disabled style="background:#e2e8f0;" />
+        </div>
+        <div class="form-group">
+          <label for="editDate">تاریخ ثبت (شمسی)</label>
+          <input id="editDate" class="form-control" type="text" placeholder="۱۴۰۳/۰۱/۰۱" />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="editClockIn">ساعت ورود (HH:MM)</label>
+            <input id="editClockIn" class="form-control" type="time" />
+          </div>
+          <div class="form-group">
+            <label for="editClockOut">ساعت خروج (HH:MM)</label>
+            <input id="editClockOut" class="form-control" type="time" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="editLocation">کارگاه / پروژه</label>
+          <input id="editLocation" class="form-control" type="text" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="saveEditAttendanceBtn" class="btn btn-primary">ذخیره تغییرات</button>
+        <button id="cancelEditModalBtn" class="btn btn-secondary">انصراف</button>
+      </div>
     </div>
   </div>
 
-  <!-- مودال افزودن کارگر -->
-  <div class="modal" id="workerModal">
-    <div class="modal-content">
-      <h3 style="margin-bottom:14px; color:var(--primary-dark);">افزودن کارگر جدید</h3>
-      <div class="form-group">
-        <label>نام و نام خانوادگی</label>
-        <input type="text" id="newWorkerName" placeholder="مثلاً رضا رضایی">
-      </div>
-      <div class="form-group">
-        <label>مزایای ساعتی (تومان)</label>
-        <input type="number" id="newWorkerWage" placeholder="مثلاً ۵۰۰۰۰">
-      </div>
-      <div class="btn-row">
-        <button class="btn btn-primary" onclick="saveNewWorker()">ذخیره کارگر</button>
-        <button class="btn" style="background:#e2e8f0; color:var(--text);" onclick="closeAddWorkerModal()">انصراف</button>
-      </div>
-    </div>
-  </div>
+  <!-- توست اعلان پیام‌ها -->
+  <div id="toastContainer" class="toast-container"></div>
 
-  <!-- مودال تقویم شمسی داخلی -->
-  <div class="modal" id="jalaliCalModal">
-    <div class="modal-content">
-      <div class="cal-header">
-        <button onclick="changeCalMonth(-1)">‹</button>
-        <div class="cal-title" id="calMonthTitle">آبان ۱۴۰۵</div>
-        <button onclick="changeCalMonth(1)">›</button>
-      </div>
-      <div class="cal-weekdays">
-        <div>ش</div><div>ی</div><div>د</div><div>س</div><div>چ</div><div>پ</div><div>ج</div>
-      </div>
-      <div class="cal-grid" id="calGrid"></div>
-      <button class="btn btn-primary" style="margin-top: 15px;" onclick="closeCalendarModal()">بستن تقویم</button>
-    </div>
-  </div>
-
+  <!-- بخش اختصاصی پرینت و خروجی چاپی قانونی -->
+  <div id="printArea" class="print-only"></div>
   <script>
+    'use strict';
+
+    /* =========================================
+       تنظیمات و دیتابیس محلی برنامه
+    ========================================= */
     const DB_KEY = 'kart_saat_db_v3';
 
-    function db() {
-      let data = localStorage.getItem(DB_KEY);
-      if (!data) {
-        let initial = { workers: [], logs: [], advances: [] };
-        localStorage.setItem(DB_KEY, JSON.stringify(initial));
-        return initial;
+    const defaultDatabase = {
+      workers: [],
+      attendances: [],
+      advances: [],
+      settings: {
+        dailyStandardHours: 8,
+        overtimeRate: 1.4
       }
-      return JSON.parse(data);
+    };
+
+    let db = loadDatabase();
+
+    let activeCalendarInput = null;
+    let calendarYear = 1403;
+    let calendarMonth = 1;
+    let selectedCalendarDate = '';
+
+    function loadDatabase() {
+      try {
+        const savedData = localStorage.getItem(DB_KEY);
+        if (!savedData) {
+          return JSON.parse(JSON.stringify(defaultDatabase));
+        }
+        const parsedData = JSON.parse(savedData);
+        return {
+          workers: Array.isArray(parsedData.workers) ? parsedData.workers : [],
+          attendances: Array.isArray(parsedData.attendances) ? parsedData.attendances : [],
+          advances: Array.isArray(parsedData.advances) ? parsedData.advances : [],
+          settings: {
+            dailyStandardHours: Number(parsedData.settings?.dailyStandardHours) || 8,
+            overtimeRate: Number(parsedData.settings?.overtimeRate) || 1.4
+          }
+        };
+      } catch (error) {
+        console.error('خطا در بازیابی اطلاعات:', error);
+        return JSON.parse(JSON.stringify(defaultDatabase));
+      }
     }
 
-    function save(data) {
-      localStorage.setItem(DB_KEY, JSON.stringify(data));
+    function saveDatabase() {
+      try {
+        localStorage.setItem(DB_KEY, JSON.stringify(db));
+      } catch (error) {
+        console.error('خطا در ذخیره اطلاعات:', error);
+        showToast('ذخیره اطلاعات با خطا مواجه شد.', 'error');
+      }
     }
 
-    function switchTab(tabId, btn) {
-      document.querySelectorAll('.card').forEach(c => {
-        if(c.id !== 'workersTab' && c.id !== 'attendanceTab' && c.id !== 'reportTab') return;
-        c.classList.remove('active-tab');
+    function generateId(prefix = 'item') {
+      return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+    }
+
+    /* =========================================
+       توابع کمکی نمایش اعداد، متن و زمان
+    ========================================= */
+    function toPersianDigits(value) {
+      const persianNumbers = '۰۱۲۳۴۵۶۷۸۹';
+      return String(value).replace(/\d/g, digit => persianNumbers[digit]);
+    }
+
+    function toEnglishDigits(value) {
+      const persianNumbers = '۰۱۲۳۴۵۶۷۸۹';
+      const arabicNumbers = '٠١٢٣٤٥٦٧٨٩';
+      return String(value)
+        .replace(/[۰-۹]/g, digit => persianNumbers.indexOf(digit))
+        .replace(/[٠-٩]/g, digit => arabicNumbers.indexOf(digit));
+    }
+
+    function formatMoney(value) {
+      const numericValue = Number(value) || 0;
+      return toPersianDigits(Math.round(numericValue).toLocaleString('en-US'));
+    }
+
+    function formatHours(value) {
+      const numericValue = Number(value) || 0;
+      return toPersianDigits(
+        numericValue.toLocaleString('fa-IR', {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 2
+        })
+      );
+    }
+
+    function escapeHTML(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function normalizeText(value) {
+      return String(value ?? '')
+        .trim()
+        .replace(/ي/g, 'ی')
+        .replace(/ك/g, 'ک')
+        .toLowerCase();
+    }
+
+    function getWorkerById(workerId) {
+      return db.workers.find(worker => worker.id === workerId);
+    }
+
+    function getAttendanceById(attendanceId) {
+      return db.attendances.find(attendance => attendance.id === attendanceId);
+    }
+
+    function getTimeFromISO(isoDate) {
+      if (!isoDate) return '--:--';
+      const date = new Date(isoDate);
+      if (Number.isNaN(date.getTime())) return '--:--';
+      return date.toLocaleTimeString('fa-IR', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
       });
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.getElementById(tabId).classList.add('active-tab');
-      btn.classList.add('active');
     }
 
-    function updateClock(){
-      var now = new Date();
-      var parts = new Intl.DateTimeFormat('fa-IR-u-ca-persian', {
-        timeZone: 'Asia/Tehran',
-        weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
-      }).formatToParts(now);
+    function getTimeValueFromISO(isoDate) {
+      if (!isoDate) return '';
+      const date = new Date(isoDate);
+      if (Number.isNaN(date.getTime())) return '';
+      return `${padNumber(date.getHours())}:${padNumber(date.getMinutes())}`;
+    }
 
-      var values = {};
-      parts.forEach(function(part){ if(part.type !== 'literal') values[part.type] = part.value; });
+    function minutesToReadable(totalMinutes) {
+      const safeMinutes = Math.max(0, Math.round(Number(totalMinutes) || 0));
+      const hours = Math.floor(safeMinutes / 60);
+      const minutes = safeMinutes % 60;
+      if (hours === 0) return `${toPersianDigits(minutes)} دقیقه`;
+      if (minutes === 0) return `${toPersianDigits(hours)} ساعت`;
+      return `${toPersianDigits(hours)} ساعت و ${toPersianDigits(minutes)} دقیقه`;
+    }
 
-      var timeStr = new Intl.DateTimeFormat('fa-IR', {
-        timeZone: 'Asia/Tehran', hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23'
-      }).format(now);
+    function calculateAttendanceMinutes(attendance) {
+      if (!attendance?.clockIn || !attendance?.clockOut) return 0;
+      const clockIn = new Date(attendance.clockIn);
+      const clockOut = new Date(attendance.clockOut);
+      if (Number.isNaN(clockIn.getTime()) || Number.isNaN(clockOut.getTime())) return 0;
+      const difference = clockOut.getTime() - clockIn.getTime();
+      return difference > 0 ? Math.round(difference / 60000) : 0;
+    }
 
-      var elClock = document.getElementById('liveClock');
-      if(elClock){
-        elClock.textContent = (values.weekday || '') + ' ' + (values.day || '') + ' ' + (values.month || '') + ' ' + (values.year || '') + ' — ' + timeStr;
+    /* =========================================
+       هسته تبدیل تاریخ شمسی به میلادی و برعکس (آفلاین)
+    ========================================= */
+    function div(a, b) {
+      return ~~(a / b);
+    }
+
+    function jalCal(jy) {
+      const breaks = [
+        -61, 9, 38, 199, 426, 686, 756, 818,
+        1111, 1181, 1210, 1635, 2060, 2097,
+        2192, 2262, 2324, 2394, 2456, 3178
+      ];
+      const breakLength = breaks.length;
+      const gy = jy + 621;
+      let leapJ = -14;
+      let jp = breaks[0];
+      let jump = 0;
+
+      if (jy < jp || jy >= breaks[breakLength - 1]) {
+        throw new Error('سال شمسی خارج از محدوده است.');
       }
+
+      for (let i = 1; i < breakLength; i++) {
+        const jm = breaks[i];
+        jump = jm - jp;
+        if (jy < jm) break;
+        leapJ += div(jump, 33) * 8 + div(jump % 33, 4);
+        jp = jm;
+      }
+
+      let n = jy - jp;
+      leapJ += div(n, 33) * 8 + div((n % 33) + 3, 4);
+      if (jump % 33 === 4 && jump - n === 4) {
+        leapJ += 1;
+      }
+
+      const leapG = div(gy, 4) - div((div(gy, 100) + 1) * 3, 4) - 150;
+      const march = 20 + leapJ - leapG;
+      if (jump - n < 6) {
+        n = n - jump + div(jump + 4, 33) * 33;
+      }
+      let leap = ((n + 1) % 33 - 1) % 4;
+      if (leap === -1) leap = 4;
+      return { leap, gy, march };
     }
-    setInterval(updateClock, 1000);
-    updateClock();
 
-    // موتور تقویم شمسی داخلی
-    let currentCalTarget = null;
-    let calYear = 1405, calMonth = 8, calDay = 1;
-
-    function getJalaliParts(dateObj) {
-      let parts = new Intl.DateTimeFormat('fa-IR-u-ca-persian', {
-        timeZone: 'Asia/Tehran', year: 'numeric', month: 'numeric', day: 'numeric'
-      }).formatToParts(dateObj);
-      let p = {};
-      parts.forEach(el => { if(el.type !== 'literal') p[el.type] = Number(el.value); });
-      return p;
+    function g2d(gy, gm, gd) {
+      let d = div((gy + div(gm - 8, 6) + 100100) * 1461, 4) +
+        div(153 * ((gm + 9) % 12) + 2, 5) + gd - 34840408;
+      d = d - div(div(gy + 100100 + div(gm - 8, 6), 100) * 3, 4) + 752;
+      return d;
     }
 
-    function isLeapJalali(jy) {
-      let rem = jy % 33;
-      return rem === 1 || rem === 5 || rem === 9 || rem === 13 || rem === 17 || rem === 22 || rem === 26 || rem === 30;
+    function d2g(jdn) {
+      let j = 4 * jdn + 139361631;
+      j = j + div(div(4 * jdn + 183187720, 146097) * 3, 4) * 4 - 3908;
+      const i = div((j % 1461), 4) * 5 + 308;
+      const gd = div(i % 153, 5) + 1;
+      const gm = (div(i, 153) % 12) + 1;
+      const gy = div(j, 1461) - 100100 + div(8 - gm, 6);
+      return { gy, gm, gd };
     }
 
-    function getJalaliDaysInMonth(jy, jm) {
+    function j2d(jy, jm, jd) {
+      const result = jalCal(jy);
+      return g2d(result.gy, 3, result.march) + (jm - 1) * 31 - div(jm, 7) * (jm - 7) + jd - 1;
+    }
+
+    function d2j(jdn) {
+      const gregorian = d2g(jdn);
+      let jy = gregorian.gy - 621;
+      const result = jalCal(jy);
+      const firstDay = g2d(gregorian.gy, 3, result.march);
+      let dayDifference = jdn - firstDay;
+
+      if (dayDifference >= 0) {
+        if (dayDifference <= 185) {
+          return {
+            jy,
+            jm: 1 + div(dayDifference, 31),
+            jd: (dayDifference % 31) + 1
+          };
+        }
+        dayDifference -= 186;
+      } else {
+        jy -= 1;
+        dayDifference += 179;
+        if (result.leap === 1) dayDifference += 1;
+      }
+      return {
+        jy,
+        jm: 7 + div(dayDifference, 30),
+        jd: (dayDifference % 30) + 1
+      };
+    }
+
+    function toJalaali(gy, gm, gd) {
+      return d2j(g2d(gy, gm, gd));
+    }
+
+    function toGregorian(jy, jm, jd) {
+      return d2g(j2d(jy, jm, jd));
+    }
+
+    function isLeapJalaaliYear(jy) {
+      return jalCal(jy).leap === 0;
+    }
+
+    function jalaaliMonthLength(jy, jm) {
       if (jm <= 6) return 31;
       if (jm <= 11) return 30;
-      return isLeapJalali(jy) ? 30 : 29;
+      return isLeapJalaaliYear(jy) ? 30 : 29;
     }
 
-    function jalaliToGregorian(jy, jm, jd) {
-      let gy = (jy <= 979) ? 621 : 1600;
-      let jy2 = (jy <= 979) ? jy - 0 : jy - 979;
-      let days = (365 * jy2) + (Math.floor(jy2 / 33) * 8) + Math.floor(((jy2 % 33) + 3) / 4) + 78 + jd + ((jm < 7) ? (jm - 1) * 31 : ((jm - 7) * 30) + 186);
-      gy += 400 * Math.floor(days / 146097);
-      days %= 146097;
-      if (days > 36524) { gy += 100 * Math.floor(--days / 36524); days %= 36524; if (days >= 365) days++; }
-      gy += 4 * Math.floor(days / 1461);
-      days %= 1461;
-      if (days > 365) { gy += Math.floor((days - 1) / 365); days = (days - 1) % 365; }
-      let gd = days + 1;
-      let sal_a = [0, 31, ((gy % 4 === 0 && gy % 100 !== 0) || (gy % 400 === 0)) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-      let gm = 0;
-      for (gm = 0; gm < 13; gm++) {
-        let v = sal_a[gm];
-        if (gd <= v) break;
-        gd -= v;
-      }
-      return new Date(gy, gm - 1, gd, 12, 0, 0);
+    function padNumber(value) {
+      return String(value).padStart(2, '0');
     }
 
-    const persianMonths = ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور", "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"];
-
-    function initApp() {
-      renderWorkers();
-      let now = new Date();
-      let jp = getJalaliParts(now);
-      if(jp.year) {
-        setJalaliDateValue('from', jp.year, jp.month, jp.day);
-        setJalaliDateValue('to', jp.year, jp.month, jp.day);
-      }
+    function formatJalaliDate(jy, jm, jd) {
+      return `${jy}/${padNumber(jm)}/${padNumber(jd)}`;
     }
 
-    function setJalaliDateValue(target, y, m, d) {
-      document.getElementById(target + 'Year').value = y;
-      document.getElementById(target + 'Month').value = String(m).padStart(2, '0');
-      document.getElementById(target + 'Date').value = String(d).padStart(2, '0');
-      
-      let faNum = (n) => String(n).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
-      let text = `${faNum(y)}/${faNum(m)}/${faNum(d)}`;
-      document.getElementById(target + 'DateText').textContent = text;
+    function getJalaliDateFromDate(date = new Date()) {
+      const jalali = toJalaali(date.getFullYear(), date.getMonth() + 1, date.getDate());
+      return formatJalaliDate(jalali.jy, jalali.jm, jalali.jd);
     }
 
-    function openCalendar(target) {
-      currentCalTarget = target;
-      let y = Number(document.getElementById(target + 'Year').value) || 1405;
-      let m = Number(document.getElementById(target + 'Month').value) || 8;
-      let d = Number(document.getElementById(target + 'Date').value) || 1;
-      calYear = y; calMonth = m; calDay = d;
-      renderCalendarGrid();
-      document.getElementById('jalaliCalModal').style.display = 'flex';
+    function parseJalaliDate(dateString) {
+      const normalized = toEnglishDigits(dateString).trim().replace(/-/g, '/');
+      const parts = normalized.split('/').map(part => Number(part));
+      if (parts.length !== 3 || parts.some(part => !Number.isInteger(part))) return null;
+      const [jy, jm, jd] = parts;
+      if (jy < 1200 || jy > 1700 || jm < 1 || jm > 12) return null;
+      const maximumDay = jalaaliMonthLength(jy, jm);
+      if (jd < 1 || jd > maximumDay) return null;
+      return { jy, jm, jd };
     }
 
-    function closeCalendarModal() {
-      document.getElementById('jalaliCalModal').style.display = 'none';
+    function jalaliDateToTimestamp(jalaliDate, timeValue = '00:00') {
+      const parsedDate = parseJalaliDate(jalaliDate);
+      if (!parsedDate) return null;
+      const timeParts = toEnglishDigits(timeValue).split(':').map(Number);
+      const hour = timeParts[0] || 0;
+      const minute = timeParts[1] || 0;
+      if (hour < 0 || hour > 23 || minute < 0 || minute > 59) return null;
+      const gregorian = toGregorian(parsedDate.jy, parsedDate.jm, parsedDate.jd);
+      const date = new Date(gregorian.gy, gregorian.gm - 1, gregorian.gd, hour, minute, 0, 0);
+      return date.toISOString();
     }
 
-    function changeCalMonth(dir) {
-      calMonth += dir;
-      if(calMonth > 12) { calMonth = 1; calYear++; }
-      else if(calMonth < 1) { calMonth = 12; calYear--; }
-      renderCalendarGrid();
+    function compareJalaliDates(firstDate, secondDate) {
+      const firstParsed = parseJalaliDate(firstDate);
+      const secondParsed = parseJalaliDate(secondDate);
+      if (!firstParsed || !secondParsed) return 0;
+      const firstNumber = firstParsed.jy * 10000 + firstParsed.jm * 100 + firstParsed.jd;
+      const secondNumber = secondParsed.jy * 10000 + secondParsed.jm * 100 + secondParsed.jd;
+      return firstNumber - secondNumber;
     }
 
-    function renderCalendarGrid() {
-      document.getElementById('calMonthTitle').textContent = `${persianMonths[calMonth - 1]} ${calYear}`;
-      let grid = document.getElementById('calGrid');
-      grid.innerHTML = '';
+    /* =========================================
+       ساعت، تاریخ زنده و اعلان‌ها
+    ========================================= */
+    function updateLiveClock() {
+      const now = new Date();
+      const liveTimeElement = document.getElementById('liveTime');
+      const liveDateElement = document.getElementById('liveDate');
 
-      let firstGDate = jalaliToGregorian(calYear, calMonth, 1);
-      let gDay = firstGDate.getDay(); // 0: Sun, 1: Mon, ... 6: Sat
-      // تنظیم برای شروع هفته از شنبه
-      let startDayOffset = (gDay + 1) % 7;
-
-      for(let i=0; i<startDayOffset; i++) {
-        let emptyDiv = document.createElement('div');
-        emptyDiv.className = 'cal-day empty';
-        grid.appendChild(emptyDiv);
+      if (liveTimeElement) {
+        liveTimeElement.textContent = now.toLocaleTimeString('fa-IR', {
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: false
+        });
       }
 
-      let totalDays = getJalaliDaysInMonth(calYear, calMonth);
-      let selectedY = Number(document.getElementById(currentCalTarget + 'Year').value);
-      let selectedM = Number(document.getElementById(currentCalTarget + 'Month').value);
-      let selectedD = Number(document.getElementById(currentCalTarget + 'Date').value);
-      let todayJp = getJalaliParts(new Date());
+      if (liveDateElement) {
+        liveDateElement.textContent = new Intl.DateTimeFormat('fa-IR-u-ca-persian', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        }).format(now);
+      }
+    }
 
-      for(let d=1; d<=totalDays; d++) {
-        let dayDiv = document.createElement('div');
-        dayDiv.className = 'cal-day';
-        dayDiv.textContent = String(d).replace(/\d/g, x => '۰۱۲۳۴۵۶۷۸۹'[x]);
-        
-        if(calYear === selectedY && calMonth === selectedM && d === selectedD) {
-          dayDiv.classList.add('selected');
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toastContainer');
+      if (!container) return;
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.textContent = message;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(10px)';
+        toast.style.transition = 'all 0.25s ease';
+        setTimeout(() => toast.remove(), 250);
+      }, 2800);
+    }
+    /* =========================================
+       مدیریت کارگران و لیست انتخابی
+    ========================================= */
+    function renderWorkerSelects() {
+      const selectIds = [
+        'clockWorkerSelect',
+        'advanceWorkerSelect',
+        'reportWorkerSelect',
+        'editWorkerSelect'
+      ];
+
+      selectIds.forEach(selectId => {
+        const select = document.getElementById(selectId);
+        if (!select) return;
+
+        const currentValue = select.value;
+        const isReportSelect = selectId === 'reportWorkerSelect';
+
+        let optionsHtml = isReportSelect
+          ? '<option value="">همه کارگران (گزارش کلی)</option>'
+          : '<option value="">انتخاب کارگر...</option>';
+
+        db.workers.forEach(worker => {
+          optionsHtml += `<option value="${escapeHTML(worker.id)}">${escapeHTML(worker.name)} (${escapeHTML(worker.role || 'کارگر')})</option>`;
+        });
+
+        select.innerHTML = optionsHtml;
+        if (currentValue && db.workers.some(w => w.id === currentValue)) {
+          select.value = currentValue;
         }
-        if(calYear === todayJp.year && calMonth === todayJp.month && d === todayJp.day) {
-          dayDiv.classList.add('today');
-        }
-
-        dayDiv.onclick = function() {
-          setJalaliDateValue(currentCalTarget, calYear, calMonth, d);
-          closeCalendarModal();
-        };
-
-        grid.appendChild(dayDiv);
-      }
-    }
-
-    function renderWorkers() {
-      let d = db();
-      let select = document.getElementById('workerSelect');
-      let reportSelect = document.getElementById('reportWorkerSelect');
-      let currentVal = select.value;
-      
-      select.innerHTML = '<option value="">-- انتخاب کارگر --</option>';
-      reportSelect.innerHTML = '<option value="">-- کارگر گزارش --</option>';
-
-      d.workers.forEach(w => {
-        let opt1 = document.createElement('option');
-        opt1.value = w.id;
-        opt1.textContent = w.name + ' (مزد ساعت: ' + Number(w.wage || 0).toLocaleString() + ' تومان)';
-        select.appendChild(opt1.cloneNode(true));
-        reportSelect.appendChild(opt1);
       });
-      if(currentVal) select.value = currentVal;
-      onWorkerChange();
     }
 
-    function openAddWorkerModal() {
-      document.getElementById('newWorkerName').value = '';
-      document.getElementById('newWorkerWage').value = '';
-      document.getElementById('workerModal').style.display = 'flex';
-    }
+    function renderWorkersList() {
+      const tableBody = document.getElementById('workersTableBody');
+      const totalWorkersBadge = document.getElementById('totalWorkersBadge');
+      if (!tableBody) return;
 
-    function closeAddWorkerModal() {
-      document.getElementById('workerModal').style.display = 'none';
-    }
+      if (totalWorkersBadge) {
+        totalWorkersBadge.textContent = `${toPersianDigits(db.workers.length)} نفر`;
+      }
 
-    function saveNewWorker() {
-      let name = document.getElementById('newWorkerName').value.trim();
-      let wage = Number(document.getElementById('newWorkerWage').value);
-      if(!name) { alert('لطفاً نام کارگر را وارد کنید'); return; }
-
-      let d = db();
-      let newId = Date.now().toString();
-      d.workers.push({ id: newId, name: name, wage: wage });
-      save(d);
-      closeAddWorkerModal();
-      renderWorkers();
-      document.getElementById('workerSelect').value = newId;
-      onWorkerChange();
-    }
-
-    function onWorkerChange() {
-      let wid = document.getElementById('workerSelect').value;
-      let summaryDiv = document.getElementById('workerSummary');
-      let detailsText = document.getElementById('workerDetailsText');
-      
-      if(!wid) {
-        summaryDiv.style.display = 'none';
-        renderLogs();
+      if (db.workers.length === 0) {
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="5" class="empty-state">
+              هنوز هیچ کارگری اضافه نشده است. لطفاً فرم بالا را تکمیل کنید.
+            </td>
+          </tr>
+        `;
         return;
       }
 
-      let d = db();
-      let worker = d.workers.find(w => String(w.id) === String(wid));
-      if(worker) {
-        summaryDiv.style.display = 'block';
-        detailsText.innerHTML = `<b>نام:</b> ${worker.name} | <b>مزد ساعتی:</b> ${Number(worker.wage || 0).toLocaleString()} تومان`;
-      }
-      renderLogs();
+      tableBody.innerHTML = db.workers
+        .map((worker, index) => {
+          return `
+            <tr>
+              <td><strong>${toPersianDigits(index + 1)}</strong></td>
+              <td>
+                <div style="font-weight: 700; color: var(--text);">${escapeHTML(worker.name)}</div>
+                <small style="color: var(--muted);">${escapeHTML(worker.phone || 'بدون شماره')}</small>
+              </td>
+              <td><span class="badge badge-accent">${escapeHTML(worker.role || 'کارگر')}</span></td>
+              <td><strong>${formatMoney(worker.hourlyWage)}</strong> تومان</td>
+              <td>
+                <button type="button" class="btn btn-outline" style="padding: 0.35rem 0.7rem; font-size: 0.8rem; border-color: #ef4444; color: #ef4444;" onclick="deleteWorker('${escapeHTML(worker.id)}')">
+                  حذف
+                </button>
+              </td>
+            </tr>
+          `;
+        })
+        .join('');
     }
 
-    function deleteCurrentWorker() {
-      let wid = document.getElementById('workerSelect').value;
-      if(!wid) { alert('لطفاً ابتدا کارگری را انتخاب کنید'); return; }
-      if(!confirm('آیا از حذف کامل این کارگر و سوابق او اطمینان دارید؟')) return;
+    function handleAddWorker(event) {
+      event.preventDefault();
+      const nameInput = document.getElementById('workerName');
+      const roleInput = document.getElementById('workerRole');
+      const wageInput = document.getElementById('workerWage');
+      const phoneInput = document.getElementById('workerPhone');
 
-      let d = db();
-      d.workers = d.workers.filter(w => String(w.id) !== String(wid));
-      d.logs = d.logs.filter(l => String(l.workerId) !== String(wid));
-      d.advances = d.advances.filter(a => String(a.workerId) !== String(wid));
-      save(d);
-      renderWorkers();
-      alert('کارگر با موفقیت حذف شد.');
-    }
+      const name = nameInput.value.trim();
+      const role = roleInput.value.trim() || 'کارگر ساده';
+      const hourlyWage = Number(toEnglishDigits(wageInput.value)) || 0;
+      const phone = toEnglishDigits(phoneInput.value).trim();
 
-    function recordAction(type) {
-      let wid = document.getElementById('workerSelect').value;
-      if(!wid) { alert('لطفاً ابتدا کارگر را انتخاب کنید'); return; }
-      let location = document.getElementById('workLocation').value.trim() || 'نامشخص';
-
-      let d = db();
-      d.logs.push({
-        id: Date.now().toString(),
-        workerId: wid,
-        type: type,
-        location: location,
-        time: new Date().toISOString()
-      });
-      save(d);
-      renderLogs();
-      alert(type === 'in' ? 'ورود با موفقیت ثبت شد' : 'خروج با موفقیت ثبت شد');
-    }
-
-    function recordAdvance() {
-      let wid = document.getElementById('workerSelect').value;
-      if(!wid) { alert('لطفاً ابتدا کارگر را انتخاب کنید'); return; }
-      let amount = Number(document.getElementById('advanceAmount').value);
-      if(!amount || amount <= 0) { alert('لطفاً مبلغ معتبری وارد کنید'); return; }
-
-      let d = db();
-      d.advances.push({
-        id: Date.now().toString(),
-        workerId: wid,
-        amount: amount,
-        time: new Date().toISOString()
-      });
-      save(d);
-      document.getElementById('advanceAmount').value = '';
-      alert('مساعده نقدی با موفقیت ثبت شد');
-    }
-
-    function renderLogs() {
-      let wid = document.getElementById('workerSelect').value;
-      let listEl = document.getElementById('logsList');
-      if(!wid) {
-        listEl.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:15px;">لطفاً کارگری را انتخاب کنید</div>';
+      if (!name) {
+        showToast('لطفاً نام و نام خانوادگی کارگر را وارد کنید.', 'error');
+        nameInput.focus();
         return;
       }
 
-      let d = db();
-      let workerLogs = d.logs.filter(l => String(l.workerId) === String(wid)).sort((a,b) => new Date(b.time) - new Date(a.time));
-
-      if(workerLogs.length === 0) {
-        listEl.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:15px;">هیچ سوابقی ثبت نشده است</div>';
+      if (hourlyWage <= 0) {
+        showToast('لطفاً دستمزد ساعتی را به درستی وارد کنید.', 'error');
+        wageInput.focus();
         return;
       }
 
-      let html = '';
-      workerLogs.forEach(l => {
-        let dt = new Date(l.time).toLocaleString('fa-IR', { timeZone: 'Asia/Tehran' });
-        let badge = l.type === 'in' ? '<span style="color:var(--success); font-weight:bold;">ورود</span>' : '<span style="color:var(--danger); font-weight:bold;">خروج</span>';
-        html += `<div class="log-item"><span>${badge} (${l.location || ''}) — ${dt}</span></div>`;
-      });
-      listEl.innerHTML = html;
+      const newWorker = {
+        id: generateId('worker'),
+        name,
+        role,
+        hourlyWage,
+        phone,
+        createdAt: new Date().toISOString()
+      };
+
+      db.workers.push(newWorker);
+      saveDatabase();
+      renderWorkerSelects();
+      renderWorkersList();
+      updateDashboardStats();
+
+      nameInput.value = '';
+      roleInput.value = '';
+      wageInput.value = '';
+      phoneInput.value = '';
+
+      showToast(`کارگر «${name}» با موفقیت اضافه شد.`, 'success');
     }
 
-    function getPersianDateStr(dateObj) {
-      let jp = getJalaliParts(dateObj);
-      let y = jp.year || 1405;
-      let m = String(jp.month || 1).padStart(2, '0');
-      let d = String(jp.day || 1).padStart(2, '0');
-      return `${y}/${m}/${d}`;
+    function deleteWorker(workerId) {
+      const worker = getWorkerById(workerId);
+      if (!worker) return;
+
+      const confirmed = window.confirm(
+        `آیا از حذف کارگر «${worker.name}» مطمئن هستید؟ تمام ترددها و اطلاعات مرتبط وی نیز حذف خواهند شد.`
+      );
+      if (!confirmed) return;
+
+      db.workers = db.workers.filter(w => w.id !== workerId);
+      db.attendances = db.attendances.filter(a => a.workerId !== workerId);
+      db.advances = db.advances.filter(adv => adv.workerId !== workerId);
+
+      saveDatabase();
+      renderWorkerSelects();
+      renderWorkersList();
+      renderRecentAttendances();
+      renderAdvancesList();
+      updateDashboardStats();
+
+      showToast(`کارگر «${worker.name}» و سوابق وی حذف شدند.`, 'info');
     }
 
-    function generateReport() {
-      let wid = document.getElementById('reportWorkerSelect').value;
-      if(!wid) { alert('لطفاً کارگر گزارش را انتخاب کنید'); return; }
+    /* =========================================
+       ثبت تردد زنده (ورود و خروج کارگران)
+    ========================================= */
+    function handleClockIn() {
+      const workerSelect = document.getElementById('clockWorkerSelect');
+      const locationInput = document.getElementById('clockLocation');
+      const workerId = workerSelect.value;
+      const location = locationInput.value.trim() || 'پروژه اصلی';
 
-      let fY = document.getElementById('fromYear').value;
-      let fM = String(document.getElementById('fromMonth').value).padStart(2, '0');
-      let fD = String(document.getElementById('fromDate').value).padStart(2, '0');
-      let fromStr = `${fY}/${fM}/${fD}`;
-
-      let tY = document.getElementById('toYear').value;
-      let tM = String(document.getElementById('toMonth').value).padStart(2, '0');
-      let tD = String(document.getElementById('toDate').value).padStart(2, '0');
-      let toStr = `${tY}/${tM}/${tD}`;
-
-      if (fromStr > toStr) {
-        alert('تاریخ شروع نمی‌تواند از تاریخ پایان بزرگ‌تر باشد.');
+      if (!workerId) {
+        showToast('لطفاً ابتدا یک کارگر را انتخاب کنید.', 'error');
+        workerSelect.focus();
         return;
       }
 
-      let d = db();
-      let worker = d.workers.find(w => String(w.id) === String(wid));
-      
-      let workerLogs = d.logs.filter(l => {
-        if(String(l.workerId) !== String(wid)) return false;
-        let lPersianDate = getPersianDateStr(new Date(l.time));
-        return lPersianDate >= fromStr && lPersianDate <= toStr;
-      }).sort((a,b) => new Date(a.time) - new Date(b.time));
+      const activeRecord = db.attendances.find(
+        record => record.workerId === workerId && !record.clockOut
+      );
 
-      let workerAdvances = d.advances.filter(a => {
-        if(String(a.workerId) !== String(wid)) return false;
-        let aPersianDate = getPersianDateStr(new Date(a.time));
-        return aPersianDate >= fromStr && aPersianDate <= toStr;
+      if (activeRecord) {
+        showToast('برای این کارگر قبلاً ورود باز ثبت شده و هنوز خروج نزده است!', 'error');
+        return;
+      }
+
+      const now = new Date();
+      const jalaliToday = getJalaliDateFromDate(now);
+
+      const newAttendance = {
+        id: generateId('att'),
+        workerId,
+        date: jalaliToday,
+        clockIn: now.toISOString(),
+        clockOut: null,
+        location,
+        note: 'ثبت زنده'
+      };
+
+      db.attendances.unshift(newAttendance);
+      saveDatabase();
+      renderRecentAttendances();
+      updateDashboardStats();
+
+      const worker = getWorkerById(workerId);
+      showToast(`ورود «${worker ? worker.name : ''}» در ساعت ${getTimeFromISO(newAttendance.clockIn)} ثبت گردید.`, 'success');
+    }
+
+    function handleClockOut() {
+      const workerSelect = document.getElementById('clockWorkerSelect');
+      const workerId = workerSelect.value;
+
+      if (!workerId) {
+        showToast('لطفاً ابتدا یک کارگر را انتخاب کنید.', 'error');
+        workerSelect.focus();
+        return;
+      }
+
+      const activeRecord = db.attendances.find(
+        record => record.workerId === workerId && !record.clockOut
+      );
+
+      if (!activeRecord) {
+        showToast('هیچ ورود بازی برای این کارگر ثبت نشده است!', 'error');
+        return;
+      }
+
+      const now = new Date();
+      activeRecord.clockOut = now.toISOString();
+
+      saveDatabase();
+      renderRecentAttendances();
+      updateDashboardStats();
+
+      const worker = getWorkerById(workerId);
+      const minutes = calculateAttendanceMinutes(activeRecord);
+      showToast(`خروج «${worker ? worker.name : ''}» ثبت شد. کارکرد: ${minutesToReadable(minutes)}`, 'success');
+    }
+
+    function renderRecentAttendances() {
+      const tableBody = document.getElementById('recentAttendanceTableBody');
+      const activeCountBadge = document.getElementById('activeWorkersBadge');
+      if (!tableBody) return;
+
+      const activeCount = db.attendances.filter(a => !a.clockOut).length;
+      if (activeCountBadge) {
+        activeCountBadge.textContent = `${toPersianDigits(activeCount)} نفر در حال کار`;
+      }
+
+      if (db.attendances.length === 0) {
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="7" class="empty-state">
+              هیچ ترددی در سامانه ثبت نشده است.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      // نمایش ۱۰ تردد آخر
+      const recentList = [...db.attendances].slice(0, 10);
+
+      tableBody.innerHTML = recentList
+        .map(att => {
+          const worker = getWorkerById(att.workerId);
+          const workerName = worker ? worker.name : 'کارگر حذف شده';
+          const clockInTime = getTimeFromISO(att.clockIn);
+          const clockOutTime = att.clockOut ? getTimeFromISO(att.clockOut) : '<span class="status-indicator status-active"></span> در حال کار';
+          const duration = att.clockOut ? minutesToReadable(calculateAttendanceMinutes(att)) : '--';
+
+          return `
+            <tr>
+              <td><strong>${escapeHTML(att.date)}</strong></td>
+              <td style="font-weight: 700;">${escapeHTML(workerName)}</td>
+              <td>${toPersianDigits(clockInTime)}</td>
+              <td>${toPersianDigits(clockOutTime)}</td>
+              <td><span class="badge badge-accent">${escapeHTML(att.location || 'کارگاه')}</span></td>
+              <td><strong>${duration}</strong></td>
+              <td>
+                <button type="button" class="btn btn-outline" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;" onclick="openEditAttendanceModal('${escapeHTML(att.id)}')">
+                  ویرایش
+                </button>
+                <button type="button" class="btn btn-outline" style="padding: 0.3rem 0.6rem; font-size: 0.8rem; border-color: #ef4444; color: #ef4444;" onclick="deleteAttendance('${escapeHTML(att.id)}')">
+                  حذف
+                </button>
+              </td>
+            </tr>
+          `;
+        })
+        .join('');
+    }
+
+    function deleteAttendance(attendanceId) {
+      if (!window.confirm('آیا از حذف این تردد اطمینان دارید؟')) return;
+      db.attendances = db.attendances.filter(att => att.id !== attendanceId);
+      saveDatabase();
+      renderRecentAttendances();
+      updateDashboardStats();
+      showToast('تردد با موفقیت حذف گردید.', 'info');
+    }
+
+    /* =========================================
+       ثبت و مدیریت مساعده / بیعانه
+    ========================================= */
+    function handleAddAdvance(event) {
+      event.preventDefault();
+      const workerSelect = document.getElementById('advanceWorkerSelect');
+      const amountInput = document.getElementById('advanceAmount');
+      const dateInput = document.getElementById('advanceDate');
+      const noteInput = document.getElementById('advanceNote');
+
+      const workerId = workerSelect.value;
+      const amount = Number(toEnglishDigits(amountInput.value)) || 0;
+      const date = dateInput.value.trim() || getJalaliDateFromDate(new Date());
+      const note = noteInput.value.trim() || 'مساعده نقدی';
+
+      if (!workerId) {
+        showToast('لطفاً کارگر مورد نظر را انتخاب کنید.', 'error');
+        workerSelect.focus();
+        return;
+      }
+
+      if (amount <= 0) {
+        showToast('لطفاً مبلغ مساعده را به درستی وارد کنید.', 'error');
+        amountInput.focus();
+        return;
+      }
+
+      const newAdvance = {
+        id: generateId('adv'),
+        workerId,
+        amount,
+        date,
+        note,
+        createdAt: new Date().toISOString()
+      };
+
+      db.advances.unshift(newAdvance);
+      saveDatabase();
+      renderAdvancesList();
+      updateDashboardStats();
+
+      amountInput.value = '';
+      noteInput.value = '';
+
+      const worker = getWorkerById(workerId);
+      showToast(`مساعده مبلغ ${formatMoney(amount)} تومان برای «${worker ? worker.name : ''}» ثبت شد.`, 'success');
+    }
+
+    function renderAdvancesList() {
+      const tableBody = document.getElementById('advancesTableBody');
+      const totalAdvancesBadge = document.getElementById('totalAdvancesBadge');
+      if (!tableBody) return;
+
+      const totalSum = db.advances.reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0);
+      if (totalAdvancesBadge) {
+        totalAdvancesBadge.textContent = `${formatMoney(totalSum)} تومان`;
+      }
+
+      if (db.advances.length === 0) {
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="5" class="empty-state">هیچ مساعده‌ای ثبت نشده است.</td>
+          </tr>
+        `;
+        return;
+      }
+
+      tableBody.innerHTML = db.advances
+        .map(adv => {
+          const worker = getWorkerById(adv.workerId);
+          return `
+            <tr>
+              <td>${escapeHTML(adv.date)}</td>
+              <td style="font-weight: 700;">${escapeHTML(worker ? worker.name : 'کارگر حذف شده')}</td>
+              <td style="color: #ef4444; font-weight: 700;">${formatMoney(adv.amount)} تومان</td>
+              <td>${escapeHTML(adv.note || '-')}</td>
+              <td>
+                <button type="button" class="btn btn-outline" style="padding: 0.3rem 0.6rem; font-size: 0.8rem; border-color: #ef4444; color: #ef4444;" onclick="deleteAdvance('${escapeHTML(adv.id)}')">
+                  حذف
+                </button>
+              </td>
+            </tr>
+          `;
+        })
+        .join('');
+    }
+
+    function deleteAdvance(advanceId) {
+      if (!window.confirm('آیا از حذف این مساعده مطمئن هستید؟')) return;
+      db.advances = db.advances.filter(adv => adv.id !== advanceId);
+      saveDatabase();
+      renderAdvancesList();
+      updateDashboardStats();
+      showToast('مساعده مورد نظر حذف شد.', 'info');
+    }
+
+    /* =========================================
+       مدال ویرایش دستی تردد
+    ========================================= */
+    function openEditAttendanceModal(attendanceId) {
+      const attendance = getAttendanceById(attendanceId);
+      if (!attendance) return;
+
+      const editIdInput = document.getElementById('editAttendanceId');
+      const workerSelect = document.getElementById('editWorkerSelect');
+      const dateInput = document.getElementById('editDate');
+      const clockInInput = document.getElementById('editClockIn');
+      const clockOutInput = document.getElementById('editClockOut');
+      const locationInput = document.getElementById('editLocation');
+      const noteInput = document.getElementById('editNote');
+
+      editIdInput.value = attendance.id;
+      workerSelect.value = attendance.workerId;
+      dateInput.value = attendance.date;
+      clockInInput.value = getTimeValueFromISO(attendance.clockIn);
+      clockOutInput.value = getTimeValueFromISO(attendance.clockOut);
+      locationInput.value = attendance.location || '';
+      noteInput.value = attendance.note || '';
+
+      const modal = document.getElementById('editAttendanceModal');
+      if (modal) modal.style.display = 'flex';
+    }
+
+    function closeEditAttendanceModal() {
+      const modal = document.getElementById('editAttendanceModal');
+      if (modal) modal.style.display = 'none';
+    }
+
+    function handleSaveEditedAttendance(event) {
+      event.preventDefault();
+      const attendanceId = document.getElementById('editAttendanceId').value;
+      const workerId = document.getElementById('editWorkerSelect').value;
+      const date = document.getElementById('editDate').value.trim();
+      const clockInTime = document.getElementById('editClockIn').value.trim();
+      const clockOutTime = document.getElementById('editClockOut').value.trim();
+      const location = document.getElementById('editLocation').value.trim() || 'کارگاه';
+      const note = document.getElementById('editNote').value.trim();
+
+      const attendance = getAttendanceById(attendanceId);
+      if (!attendance) return;
+
+      const clockInISO = jalaliDateToTimestamp(date, clockInTime);
+      const clockOutISO = clockOutTime ? jalaliDateToTimestamp(date, clockOutTime) : null;
+
+      if (!clockInISO) {
+        showToast('لطفاً تاریخ و ساعت ورود معتبر وارد کنید.', 'error');
+        return;
+      }
+
+      if (clockOutISO && new Date(clockOutISO) <= new Date(clockInISO)) {
+        showToast('ساعت خروج باید پس از ساعت ورود باشد.', 'error');
+        return;
+      }
+
+      attendance.workerId = workerId;
+      attendance.date = date;
+      attendance.clockIn = clockInISO;
+      attendance.clockOut = clockOutISO;
+      attendance.location = location;
+      attendance.note = note;
+
+      saveDatabase();
+      renderRecentAttendances();
+      updateDashboardStats();
+      closeEditAttendanceModal();
+      showToast('تغییرات تردد با موفقیت ذخیره شد.', 'success');
+    }
+    /* =========================================
+       محاسبات گزارش دوره‌ای و فیلترها
+    ========================================= */
+    function filterAttendancesForReport() {
+      const workerId = document.getElementById('reportWorkerSelect')?.value || '';
+      const fromDate = document.getElementById('reportFromDate')?.value?.trim() || '';
+      const toDate = document.getElementById('reportToDate')?.value?.trim() || '';
+      const project = document.getElementById('reportProject')?.value?.trim() || '';
+      const location = document.getElementById('reportLocation')?.value?.trim() || '';
+
+      return db.attendances.filter(a => {
+        if (workerId && a.workerId !== workerId) return false;
+        if (fromDate && compareJalaliDates(a.date, fromDate) < 0) return false;
+        if (toDate && compareJalaliDates(a.date, toDate) > 0) return false;
+        if (project && !(a.note || '').includes(project)) return false; // اگر پروژه در یادداشت ذخیره شده
+        if (location && (normalizeText(a.location) !== normalizeText(location))) return false;
+        return true;
       });
+    }
 
-      let totalAdvance = workerAdvances.reduce((sum, a) => sum + Number(a.amount), 0);
-      
+    function calculateReport() {
+      const records = filterAttendancesForReport();
+      const workerId = document.getElementById('reportWorkerSelect')?.value || '';
+      const selectedWorker = workerId ? getWorkerById(workerId) : null;
+      const hourlyWage = selectedWorker ? Number(selectedWorker.hourlyWage) || 0 : 0;
+
+      const standardDailyHours = Number(db.settings.dailyStandardHours) || 8;
+      const overtimeRate = Number(db.settings.overtimeRate) || 1.4;
+
       let totalMinutes = 0;
-      let lastIn = null;
-      workerLogs.forEach(l => {
-        if(l.type === 'in') {
-          lastIn = new Date(l.time);
-        } else if(l.type === 'out' && lastIn) {
-          let diff = (new Date(l.time) - lastIn) / 60000;
-          if(diff > 0) totalMinutes += diff;
-          lastIn = null;
-        }
+      let byDay = {}; // date -> { minutes }
+
+      records.forEach(r => {
+        const mins = calculateAttendanceMinutes(r);
+        totalMinutes += mins;
+        byDay[r.date] = (byDay[r.date] || 0) + mins;
       });
 
-      let totalHours = totalMinutes / 60;
-      let standardHours = Math.min(totalHours, 160);
-      let overTimeHours = Math.max(0, totalHours - 160);
+      let totalStandardMinutes = 0;
+      let totalOvertimeMinutes = 0;
 
-      let wage = worker.wage || 0;
-      let totalPayable = (standardHours * wage) + (overTimeHours * wage * 1.4) - totalAdvance;
+      Object.values(byDay).forEach(dayMinutes => {
+        const standard = Math.min(dayMinutes, standardDailyHours * 60);
+        const overtime = Math.max(0, dayMinutes - standard);
+        totalStandardMinutes += standard;
+        totalOvertimeMinutes += overtime;
+      });
 
-      let resDiv = document.getElementById('reportResult');
-      resDiv.style.display = 'block';
-      resDiv.innerHTML = `
-        <b>نام کارگر:</b> ${worker.name}<br>
-        <b>بازه گزارش:</b> از ${fromStr} تا ${toStr}<br>
-        <b>مجموع ساعت کارکرد:</b> ${totalHours.toFixed(1)} ساعت<br>
-        <b>ساعت اضافه‌کار:</b> ${overTimeHours.toFixed(1)} ساعت<br>
-        <b>مجموع مساعده‌های دریافتی:</b> ${totalAdvance.toLocaleString()} تومان<br>
-        <hr style="margin:10px 0; border-color:#cbd5e1;">
-        <b>مبلغ قابل پرداخت نهایی:</b> <span style="color:var(--primary-dark); font-size:1.15rem; font-weight:bold;">${Math.round(totalPayable).toLocaleString()} تومان</span>
+      const totalHours = totalMinutes / 60;
+      const standardHours = totalStandardMinutes / 60;
+      const overtimeHours = totalOvertimeMinutes / 60;
+
+      // دستمزد فقط وقتی کارگر انتخاب شده
+      const basePay = hourlyWage * standardHours;
+      const overtimePay = hourlyWage * overtimeHours * overtimeRate;
+      const grossPay = basePay + overtimePay;
+
+      // مساعده‌های دوره برای همان فیلترها
+      const advancesInRange = db.advances.filter(adv => {
+        if (workerId && adv.workerId !== workerId) return false;
+        const fromDate = document.getElementById('reportFromDate')?.value?.trim() || '';
+        const toDate = document.getElementById('reportToDate')?.value?.trim() || '';
+        if (fromDate && compareJalaliDates(adv.date, fromDate) < 0) return false;
+        if (toDate && compareJalaliDates(adv.date, toDate) > 0) return false;
+        return true;
+      });
+      const advancesSum = advancesInRange.reduce((s, a) => s + (Number(a.amount) || 0), 0);
+
+      const netPay = Math.max(0, grossPay - advancesSum);
+
+      return {
+        records,
+        totalMinutes,
+        standardMinutes: totalStandardMinutes,
+        overtimeMinutes: totalOvertimeMinutes,
+        totalHours,
+        standardHours,
+        overtimeHours,
+        hourlyWage,
+        basePay,
+        overtimePay,
+        grossPay,
+        advancesSum,
+        netPay
+      };
+    }
+
+    function renderReport() {
+      const {
+        records,
+        totalMinutes,
+        standardMinutes,
+        overtimeMinutes,
+        totalHours,
+        standardHours,
+        overtimeHours,
+        hourlyWage,
+        basePay,
+        overtimePay,
+        grossPay,
+        advancesSum,
+        netPay
+      } = calculateReport();
+
+      const tbody = document.getElementById('reportTableBody');
+      const summaryEl = document.getElementById('reportSummary');
+      const countBadge = document.getElementById('reportCountBadge');
+
+      if (countBadge) {
+        countBadge.textContent = `${toPersianDigits(records.length)} رکورد`;
+      }
+
+      if (!tbody) return;
+
+      if (records.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" class="empty-state">هیچ رکوردی مطابق با فیلترهای شما یافت نشد.</td>
+          </tr>
+        `;
+      } else {
+        tbody.innerHTML = records
+          .map(r => {
+            const w = getWorkerById(r.workerId);
+            const name = w ? w.name : 'کارگر حذف شده';
+            const ci = getTimeFromISO(r.clockIn);
+            const co = r.clockOut ? getTimeFromISO(r.clockOut) : '—';
+            const mins = calculateAttendanceMinutes(r);
+            return `
+              <tr>
+                <td><strong>${escapeHTML(r.date)}</strong></td>
+                <td style="font-weight:700">${escapeHTML(name)}</td>
+                <td>${toPersianDigits(ci)}</td>
+                <td>${toPersianDigits(co)}</td>
+                <td>${minutesToReadable(mins)}</td>
+                <td><span class="badge badge-accent">${escapeHTML(r.location || 'کارگاه')}</span></td>
+                <td>${escapeHTML(r.note || '-')}</td>
+              </tr>
+            `;
+          })
+          .join('');
+      }
+
+      if (summaryEl) {
+        summaryEl.innerHTML = `
+          <div class="summary-grid">
+            <div class="card stat">
+              <div class="stat-title">مجموع ساعات</div>
+              <div class="stat-value">${formatHours(totalHours)} ساعت (${minutesToReadable(totalMinutes)})</div>
+            </div>
+            <div class="card stat">
+              <div class="stat-title">ساعات استاندارد</div>
+              <div class="stat-value">${formatHours(standardHours)} ساعت</div>
+            </div>
+            <div class="card stat">
+              <div class="stat-title">اضافه‌کاری</div>
+              <div class="stat-value">${formatHours(overtimeHours)} ساعت</div>
+            </div>
+            <div class="card stat">
+              <div class="stat-title">دستمزد ساعتی</div>
+              <div class="stat-value">${hourlyWage ? formatMoney(hourlyWage) + ' تومان' : '—'}</div>
+            </div>
+            <div class="card stat">
+              <div class="stat-title">حقوق پایه</div>
+              <div class="stat-value">${hourlyWage ? formatMoney(basePay) + ' تومان' : '—'}</div>
+            </div>
+            <div class="card stat">
+              <div class="stat-title">حق اضافه‌کاری</div>
+              <div class="stat-value">${hourlyWage ? formatMoney(overtimePay) + ' تومان' : '—'}</div>
+            </div>
+            <div class="card stat">
+              <div class="stat-title">جمع حقوق ناخالص</div>
+              <div class="stat-value">${hourlyWage ? formatMoney(grossPay) + ' تومان' : '—'}</div>
+            </div>
+            <div class="card stat">
+              <div class="stat-title">جمع مساعده‌ها</div>
+              <div class="stat-value" style="color:#ef4444">${formatMoney(advancesSum)} تومان</div>
+            </div>
+            <div class="card stat">
+              <div class="stat-title">خالص پرداختی</div>
+              <div class="stat-value" style="color:#10b981">${hourlyWage ? formatMoney(netPay) + ' تومان' : '—'}</div>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    /* =========================================
+       خروجی چاپ و PDF
+    ========================================= */
+    function printReport() {
+      // ناحیه چاپ از قبل در HTML با id="printArea" وجود دارد
+      const printArea = document.getElementById('printArea');
+      if (!printArea) return;
+
+      const companyTitle = document.getElementById('appTitle')?.textContent || 'کارت ساعت کارگران';
+      const supportPhone = '09371880982';
+
+      // پارامترهای فیلترها برای نمایش در هدر چاپ
+      const workerId = document.getElementById('reportWorkerSelect')?.value || '';
+      const workerName = workerId ? (getWorkerById(workerId)?.name || '') : 'همه کارگران';
+      const fromDate = document.getElementById('reportFromDate')?.value || '—';
+      const toDate = document.getElementById('reportToDate')?.value || '—';
+      const location = document.getElementById('reportLocation')?.value || '—';
+      const project = document.getElementById('reportProject')?.value || '—';
+
+      const {
+        records,
+        totalMinutes,
+        standardMinutes,
+        overtimeMinutes,
+        totalHours,
+        standardHours,
+        overtimeHours,
+        hourlyWage,
+        basePay,
+        overtimePay,
+        grossPay,
+        advancesSum,
+        netPay
+      } = calculateReport();
+
+      // جدول ساده برای چاپ
+      const rowsHtml = records.map((r, idx) => {
+        const w = getWorkerById(r.workerId);
+        const name = w ? w.name : 'کارگر حذف شده';
+        const ci = getTimeFromISO(r.clockIn);
+        const co = r.clockOut ? getTimeFromISO(r.clockOut) : '—';
+        const mins = calculateAttendanceMinutes(r);
+        return `
+          <tr>
+            <td>${toPersianDigits(idx + 1)}</td>
+            <td>${escapeHTML(r.date)}</td>
+            <td>${escapeHTML(name)}</td>
+            <td>${toPersianDigits(ci)}</td>
+            <td>${toPersianDigits(co)}</td>
+            <td>${minutesToReadable(mins)}</td>
+            <td>${escapeHTML(r.location || 'کارگاه')}</td>
+          </tr>
+        `;
+      }).join('');
+
+      printArea.innerHTML = `
+        <div class="print-wrap">
+          <div class="print-header">
+            <div class="ph-left">
+              <div class="brand">${escapeHTML(companyTitle)}</div>
+              <div class="meta">
+                بازه: ${escapeHTML(fromDate)} تا ${escapeHTML(toDate)} | کارگر: ${escapeHTML(workerName)}
+              </div>
+              <div class="meta">
+                مکان: ${escapeHTML(location)} | پروژه: ${escapeHTML(project)}
+              </div>
+            </div>
+            <div class="ph-right">
+              <div>تاریخ چاپ: ${getJalaliDateFromDate(new Date())}</div>
+              <div>تلفن پشتیبانی: ${supportPhone}</div>
+            </div>
+          </div>
+
+          <table class="print-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>تاریخ</th>
+                <th>کارگر</th>
+                <th>ورود</th>
+                <th>خروج</th>
+                <th>مدت</th>
+                <th>مکان</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rowsHtml || `<tr><td colspan="7" class="empty-state">داده‌ای برای چاپ وجود ندارد.</td></tr>`}
+            </tbody>
+          </table>
+
+          <div class="print-summary">
+            <div>مجموع ساعات: ${formatHours(totalHours)} ساعت (${minutesToReadable(totalMinutes)})</div>
+            <div>ساعات استاندارد: ${formatHours(standardHours)} ساعت</div>
+            <div>اضافه‌کاری: ${formatHours(overtimeHours)} ساعت</div>
+            <div>دستمزد ساعتی: ${hourlyWage ? formatMoney(hourlyWage) + ' تومان' : '—'}</div>
+            <div>حقوق پایه: ${hourlyWage ? formatMoney(basePay) + ' تومان' : '—'}</div>
+            <div>حق اضافه‌کاری: ${hourlyWage ? formatMoney(overtimePay) + ' تومان' : '—'}</div>
+            <div>جمع ناخالص: ${hourlyWage ? formatMoney(grossPay) + ' تومان' : '—'}</div>
+            <div>جمع مساعده‌ها: ${formatMoney(advancesSum)} تومان</div>
+            <div>خالص پرداختی: ${hourlyWage ? formatMoney(netPay) + ' تومان' : '—'}</div>
+          </div>
+
+          <div class="print-sign">
+            <div>امضای کارفرما</div>
+            <div>امضای کارگر</div>
+          </div>
+        </div>
       `;
+
+      window.print();
     }
 
-    function downloadJSON() {
-      let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(localStorage.getItem(DB_KEY));
-      let dlAnchor = document.createElement('a');
-      dlAnchor.setAttribute("href", dataStr);
-      dlAnchor.setAttribute("download", "kart_saat_backup.json");
-      document.body.appendChild(dlAnchor);
-      dlAnchor.click();
-      dlAnchor.remove();
+    /* =========================================
+       پشتیبان‌گیری و بازیابی JSON
+    ========================================= */
+    function exportJSON() {
+      try {
+        const dataStr = JSON.stringify(db, null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        const dateStr = getJalaliDateFromDate(new Date()).replaceAll('/', '-');
+        a.download = `kart-saat-backup-${dateStr}.json`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        showToast('فایل پشتیبان با موفقیت دانلود شد.', 'success');
+      } catch (e) {
+        console.error(e);
+        showToast('خطا در ساخت فایل پشتیبان.', 'error');
+      }
     }
 
-    function importJSON(event) {
-      let file = event.target.files[0];
-      if(!file) return;
-      let reader = new FileReader();
-      reader.onload = function(e) {
+    function importJSON(file) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
         try {
-          let parsed = JSON.parse(e.target.result);
-          if(parsed && parsed.workers && parsed.logs) {
-            localStorage.setItem(DB_KEY, JSON.stringify(parsed));
-            renderWorkers();
-            alert('اطلاعات با موفقیت بازیابی شد.');
-          } else {
-            alert('فرمت فایل پشتیبان معتبر نیست.');
+          const imported = JSON.parse(reader.result);
+          // اعتبارسنجی ساده
+          if (!imported || !Array.isArray(imported.workers) || !Array.isArray(imported.attendances)) {
+            showToast('ساختار فایل نامعتبر است.', 'error');
+            return;
           }
-        } catch(err) {
-          alert('خطا در خواندن فایل JSON.');
+          db = {
+            workers: imported.workers || [],
+            attendances: imported.attendances || [],
+            advances: imported.advances || [],
+            settings: {
+              dailyStandardHours: Number(imported.settings?.dailyStandardHours) || 8,
+              overtimeRate: Number(imported.settings?.overtimeRate) || 1.4
+            }
+          };
+          saveDatabase();
+          // بازآفرینی نماها
+          renderWorkerSelects();
+          renderWorkersList();
+          renderRecentAttendances();
+          renderAdvancesList();
+          renderReport();
+          updateDashboardStats();
+          showToast('بازیابی اطلاعات با موفقیت انجام شد.', 'success');
+        } catch (e) {
+          console.error(e);
+          showToast('خواندن فایل پشتیبان با خطا مواجه شد.', 'error');
         }
       };
-      reader.readAsText(file);
+      reader.readAsText(file, 'utf-8');
     }
 
-    initApp();
+    /* =========================================
+       داشبورد و راه‌اندازی اولیه
+    ========================================= */
+    function updateDashboardStats() {
+      const totalWorkers = db.workers.length;
+      const active = db.attendances.filter(a => !a.clockOut).length;
+      const today = getJalaliDateFromDate(new Date());
+      const todayMinutes = db.attendances
+        .filter(a => a.date === today)
+        .reduce((s, r) => s + calculateAttendanceMinutes(r), 0);
+
+      const wEl = document.getElementById('statTotalWorkers');
+      const aEl = document.getElementById('statActiveWorkers');
+      const tEl = document.getElementById('statTodayMinutes');
+
+      if (wEl) wEl.textContent = toPersianDigits(totalWorkers);
+      if (aEl) aEl.textContent = toPersianDigits(active);
+      if (tEl) tEl.textContent = minutesToReadable(todayMinutes);
+    }
+
+    function bindUIEvents() {
+      // تب‌ها
+      document.querySelectorAll('[data-tab-target]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const target = btn.getAttribute('data-tab-target');
+          document.querySelectorAll('.tab-pane').forEach(p => p.classList.add('hidden'));
+          document.getElementById(target)?.classList.remove('hidden');
+          document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+        });
+      });
+
+      // فرم‌ها و دکمه‌ها
+      document.getElementById('addWorkerForm')?.addEventListener('submit', handleAddWorker);
+      document.getElementById('btnClockIn')?.addEventListener('click', handleClockIn);
+      document.getElementById('btnClockOut')?.addEventListener('click', handleClockOut);
+      document.getElementById('addAdvanceForm')?.addEventListener('submit', handleAddAdvance);
+
+      document.getElementById('btnRenderReport')?.addEventListener('click', renderReport);
+      document.getElementById('btnPrintReport')?.addEventListener('click', printReport);
+
+      document.getElementById('btnExportJSON')?.addEventListener('click', exportJSON);
+      document.getElementById('importJSON')?.addEventListener('change', (e) => importJSON(e.target.files[0]));
+
+      document.getElementById('editAttendanceForm')?.addEventListener('submit', handleSaveEditedAttendance);
+      document.getElementById('btnCloseEditModal')?.addEventListener('click', closeEditAttendanceModal);
+
+      // تقویم جلالی برای ورودی‌ها با data-calendar
+      document.querySelectorAll('input[data-calendar]').forEach(input => {
+        input.addEventListener('focus', () => openCalendar(input));
+      });
+
+      // فیلتر گزارش به صورت زنده
+      ['reportWorkerSelect', 'reportFromDate', 'reportToDate', 'reportLocation', 'reportProject']
+        .forEach(id => document.getElementById(id)?.addEventListener('input', () => renderReport()));
+    }
+
+    function openCalendar(inputEl) {
+      activeCalendarInput = inputEl;
+      const val = parseJalaliDate(inputEl.value) || parseJalaliDate(getJalaliDateFromDate(new Date()));
+      calendarYear = val?.jy || 1403;
+      calendarMonth = val?.jm || 1;
+      selectedCalendarDate = inputEl.value || '';
+      renderCalendar();
+      document.getElementById('jalaliCalendarModal')?.classList.add('show');
+    }
+
+    function closeCalendar() {
+      document.getElementById('jalaliCalendarModal')?.classList.remove('show');
+      activeCalendarInput = null;
+    }
+
+    function renderCalendar() {
+      const title = document.getElementById('calendarTitle');
+      const grid = document.getElementById('calendarGrid');
+      if (!title || !grid) return;
+
+      title.textContent = `${toPersianDigits(calendarYear)} / ${toPersianDigits(padNumber(calendarMonth))}`;
+
+      const firstDayG = toGregorian(calendarYear, calendarMonth, 1);
+      const firstDate = new Date(firstDayG.gy, firstDayG.gm - 1, firstDayG.gd);
+      const startWeekday = (firstDate.getDay() + 1) % 7; // شنبه=0
+
+      const daysInMonth = jalaaliMonthLength(calendarYear, calendarMonth);
+      const cells = [];
+
+      for (let i = 0; i < startWeekday; i++) cells.push('<div class="cell empty"></div>');
+      for (let d = 1; d <= daysInMonth; d++) {
+        const val = `${calendarYear}/${padNumber(calendarMonth)}/${padNumber(d)}`;
+        const isSelected = selectedCalendarDate === val;
+        cells.push(`<button type="button" class="cell day${isSelected ? ' selected' : ''}" data-val="${val}">${toPersianDigits(d)}</button>`);
+      }
+
+      grid.innerHTML = cells.join('');
+
+      grid.querySelectorAll('.cell.day').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const val = btn.getAttribute('data-val');
+          if (activeCalendarInput) {
+            activeCalendarInput.value = val;
+            selectedCalendarDate = val;
+          }
+          closeCalendar();
+        });
+      });
+
+      document.getElementById('btnPrevMonth')?.addEventListener('click', () => {
+        calendarMonth--;
+        if (calendarMonth < 1) {
+          calendarMonth = 12;
+          calendarYear--;
+        }
+        renderCalendar();
+      });
+      document.getElementById('btnNextMonth')?.addEventListener('click', () => {
+        calendarMonth++;
+        if (calendarMonth > 12) {
+          calendarMonth = 1;
+          calendarYear++;
+        }
+        renderCalendar();
+      });
+      document.getElementById('btnCloseCalendar')?.addEventListener('click', closeCalendar);
+    }
+
+    function initApp() {
+      // ساعت زنده
+      updateLiveClock();
+      setInterval(updateLiveClock, 1000);
+
+      // رندر اولیه
+      renderWorkerSelects();
+      renderWorkersList();
+      renderRecentAttendances();
+      renderAdvancesList();
+      renderReport();
+      updateDashboardStats();
+
+      bindUIEvents();
+
+      showToast('برنامه با موفقیت بارگذاری شد.', 'success');
+    }
+
+    // راه‌اندازی هنگام آماده شدن DOM
+    document.addEventListener('DOMContentLoaded', initApp);
   </script>
-</body>
-</html>
