@@ -1,464 +1,283 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>کارت ساعت | حضور، اضافه‌کاری و تسویه قانونی</title>
-  <style>
-    :root {
-      --primary: #1976d2; --primary-dark: #115293;
-      --success: #2e7d32; --danger: #c62828; --warning: #f57f17;
-      --bg: #f4f6f8; --card: #ffffff; --text: #212121; --border: #e0e0e0;
-    }
-    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Tahoma, sans-serif; }
-    body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 70px; }
-    header { background: var(--primary); color: #fff; padding: 14px 18px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
-    header h1 { margin: 0; font-size: 1.25rem; }
-    header p { margin: 4px 0 0; font-size: 0.8rem; opacity: 0.9; }
-
-    .container { max-width: 760px; margin: 0 auto; padding: 12px; }
-    .card { background: var(--card); border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); border: 1px solid var(--border); }
-    .card h2 { font-size: 1rem; margin: 0 0 12px; color: var(--primary-dark); display: flex; align-items: center; gap: 6px; }
-
-    label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; color: #424242; }
-    input, select, button { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border); font-size: 0.95rem; margin-bottom: 10px; }
-    input:focus, select:focus { outline: none; border-color: var(--primary); }
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
-    .btn { cursor: pointer; border: none; font-weight: bold; transition: 0.2s; color: #fff; border-radius: 8px; }
-    .btn-primary { background: var(--primary); } .btn-success { background: var(--success); }
-    .btn-danger { background: var(--danger); } .btn-warning { background: var(--warning); }
-    .btn-outline { background:#eee; color:#333; }
-    .btn:active { transform: scale(0.98); }
-    .camera-box { background: #000; border-radius: 8px; overflow: hidden; position: relative; margin-bottom: 10px; aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center; }
-    video, #capturedPhoto { width: 100%; height: 100%; object-fit: cover; }
-    .canvas-hidden { display: none; }
-    .location-badge { background: #e8f5e9; color: #2e7d32; padding: 8px; border-radius: 6px; font-size: 0.8rem; margin-bottom: 10px; border: 1px dashed #81c784; text-align: center; }
-    .record-item { background: #fafafa; border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 10px; }
-    .record-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 6px; }
-    .badge { font-size: 0.75rem; padding: 3px 8px; border-radius: 12px; color: #fff; }
-    .badge-in { background: var(--success); } .badge-out { background: var(--danger); }
-    #sigCanvas { border: 2px dashed #999; border-radius: 8px; width: 100%; height: 130px; background: #fff; touch-action: none; cursor: crosshair; }
-    .small { font-size: .8rem; color:#666; }
-    .table { width:100%; border-collapse: collapse; }
-    .table th, .table td { border:1px solid #ddd; padding:8px; font-size:.9rem; }
-    .table th { background:#f6f6f6; }
-    @media print {
-      body * { visibility: hidden; }
-      #printableSettlement, #printableSettlement * { visibility: visible; }
-      #printableSettlement { position: absolute; left: 0; top: 0; width: 100%; padding: 20px; font-size: 12pt; }
-      .no-print { display: none !important; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>کارت ساعت - حضور غیاب و حقوق کارگران</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" />
+    <style>
+        body { font-family: 'Vazirmatn', sans-serif; }
+    </style>
 </head>
-<body>
+<body class="bg-slate-50 text-slate-800 min-h-screen pb-20">
 
-<header>
-  <h1>کارت ساعت ⏱️</h1>
-  <p>ثبت حضور، لوکیشن، اضافه‌کاری، مساعده و تسویه‌قانونی کارگران</p>
-</header>
-
-<div class="container">
-
-  <!-- Backup / Restore -->
-  <div class="card">
-    <h2>🛡️ پشتیبان‌گیری و بازگردانی داده‌ها</h2>
-    <div class="grid-2">
-      <button class="btn btn-primary" onclick="downloadBackup()">📥 خروجی پشتیبان (JSON)</button>
-      <label class="btn btn-warning" style="text-align:center; padding:10px;">
-        📤 بازگردانی از فایل
-        <input type="file" id="restoreFile" accept=".json" style="display:none" onchange="restoreBackup(event)">
-      </label>
-    </div>
-    <div class="small">توصیه: ماهی یک‌بار خروجی بگیرید و در پیام‌رسان خودتان ذخیره کنید.</div>
-  </div>
-
-  <!-- Worker Select / Add -->
-  <div class="card">
-    <h2>👤 انتخاب یا افزودن کارگر</h2>
-    <div class="grid-3">
-      <input type="text" id="workerName" placeholder="نام و نام خانوادگی">
-      <input type="number" id="dailyWage" placeholder="دستمزد روزانه (تومان)">
-      <input type="number" id="hourlyOT" placeholder="نرخ اضافه‌کاری ساعتی (تومان)">
-    </div>
-    <button class="btn btn-primary" onclick="addWorker()">+ ثبت کارگر جدید</button>
-    <label for="workerSelect">کارگر فعلی جهت ثبت ساعت:</label>
-    <select id="workerSelect" onchange="loadWorkerSummary();renderRecords();"></select>
-  </div>
-
-  <!-- Timecard Clock-In / Out with Camera & GPS -->
-  <div class="card">
-    <h2>📸 ثبت ورود / خروج با عکس و GPS</h2>
-    <div class="camera-box">
-      <video id="webcam" autoplay playsinline></video>
-      <img id="capturedPhoto" style="display:none;" />
-    </div>
-    <div class="grid-2">
-      <button class="btn btn-warning" onclick="startCamera()">📷 روشن کردن دوربین</button>
-      <button class="btn btn-primary" onclick="getGPS()">📍 دریافت لوکیشن (GPS)</button>
-    </div>
-    <div id="gpsStatus" class="location-badge">GPS هنوز دریافت نشده است.</div>
-    <div class="grid-2" style="margin-top: 6px;">
-      <button class="btn btn-success" onclick="punchClock('ورود')">✅ ثبت ساعت ورود</button>
-      <button class="btn btn-danger" onclick="punchClock('خروج')">🚪 ثبت ساعت خروج</button>
-    </div>
-    <canvas id="photoCanvas" class="canvas-hidden"></canvas>
-  </div>
-
-  <!-- Advance / Musaedeh -->
-  <div class="card">
-    <h2>💰 ثبت مساعده و پرداختی نقد</h2>
-    <div class="grid-2">
-      <input type="number" id="musaedehAmount" placeholder="مبلغ مساعده (تومان)">
-      <button class="btn btn-warning" onclick="addMusaedeh()">کسر به عنوان مساعده</button>
-    </div>
-  </div>
-
-  <!-- Monthly Report -->
-  <div class="card">
-    <h2>📆 گزارش ماهانه</h2>
-    <div class="grid-2">
-      <input type="month" id="gregMonth" onchange="renderMonthlyReport()" />
-      <select id="reportWorker" onchange="renderMonthlyReport()"></select>
-    </div>
-    <div id="monthlyBox">ماه و کارگر را انتخاب کنید.</div>
-  </div>
-
-  <!-- Summary & Legal Settlement -->
-  <div class="card">
-    <h2>📋 خلاصه کارکرد و برگه تسویه</h2>
-    <div id="summaryBox" style="font-size: 0.9rem; line-height: 1.8;">کارگری انتخاب نشده است.</div>
-
-    <label style="margin-top: 10px;">امضای دیجیتال کارگر (روی کادر زیر بکشید):</label>
-    <canvas id="sigCanvas"></canvas>
-    <button class="btn btn-outline" onclick="clearSignature()">پاک کردن امضا</button>
-
-    <button class="btn btn-primary" style="margin-top: 8px;" onclick="generateSettlement()">📄 صدور و چاپ برگه تسویه قانونی</button>
-  </div>
-
-  <!-- Records Log -->
-  <div class="card">
-    <h2>📜 ترددها و لاگ‌های ثبت‌شده</h2>
-    <div id="recordsList">هنوز ترددی ثبت نشده است.</div>
-  </div>
-
-</div>
-
-<!-- Printable Paper Template -->
-<div id="printableSettlement" style="display: none;"></div>
-
-<script>
-  // Local DB
-  let db = JSON.parse(localStorage.getItem('kart_saat_db')) || { workers: [], logs: [], musaedeh: [] };
-  function saveDB(){ localStorage.setItem('kart_saat_db', JSON.stringify(db)); }
-
-  // Backup / Restore
-  function downloadBackup(){
-    const blob = new Blob([JSON.stringify(db,null,2)], {type:'application/json'});
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `kart-saat-backup-${new Date().toISOString().slice(0,10)}.json`;
-    a.click();
-  }
-  function restoreBackup(e){
-    const file = e.target.files[0]; if(!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      try {
-        const data = JSON.parse(reader.result);
-        if(!data.workers || !data.logs || !data.musaedeh) throw new Error('ساختار فایل پشتیبان نامعتبر است.');
-        db = data; saveDB();
-        renderWorkerSelect(); renderRecords(); loadWorkerSummary(); renderMonthlyReport();
-        alert('بازگردانی با موفقیت انجام شد.');
-      } catch(err){ alert('خطا در خواندن فایل پشتیبان: '+err.message); }
-    };
-    reader.readAsText(file);
-  }
-
-  // Camera
-  const video = document.getElementById('webcam');
-  const photoCanvas = document.getElementById('photoCanvas');
-  let currentStream = null;
-  async function startCamera(){
-    try {
-      if(currentStream) currentStream.getTracks().forEach(t=>t.stop());
-      currentStream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:'user' }, audio:false });
-      video.srcObject = currentStream; video.style.display='block'; document.getElementById('capturedPhoto').style.display='none';
-    } catch(err){ alert('دسترسی به دوربین داده نشد یا دستگاه پشتیبانی نمی‌کند.'); }
-  }
-  function snapPhoto(){
-    if(!video.videoWidth) return null;
-    photoCanvas.width = video.videoWidth; photoCanvas.height = video.videoHeight;
-    const ctx = photoCanvas.getContext('2d'); ctx.drawImage(video,0,0);
-    return photoCanvas.toDataURL('image/jpeg',0.6);
-  }
-
-  // GPS
-  let currentLocation = null;
-  function getGPS(){
-    const status = document.getElementById('gpsStatus'); status.innerText='در حال گرفتن موقعیت ماهواره‌ای...';
-    if(!navigator.geolocation){ status.innerText='دستگاه شما از GPS پشتیبانی نمی‌کند.'; return; }
-    navigator.geolocation.getCurrentPosition(
-      (pos)=>{ currentLocation = { lat: pos.coords.latitude.toFixed(5), lng: pos.coords.longitude.toFixed(5), accuracy: Math.round(pos.coords.accuracy) };
-               status.innerHTML = `موقعیت ثبت شد: عرض ${currentLocation.lat}، طول ${currentLocation.lng} (دقت: ±${currentLocation.accuracy} متر)`; },
-      (err)=>{ status.innerText='خطا در دریافت لوکیشن: لطفاً GPS را روشن کنید.'; },
-      { enableHighAccuracy:true, timeout:10000 }
-    );
-  }
-
-  // Workers
-  function addWorker(){
-    const name = document.getElementById('workerName').value.trim();
-    const wage = Number(document.getElementById('dailyWage').value);
-    const ot = Number(document.getElementById('hourlyOT').value || 0);
-    if(!name || !wage) return alert('نام و دستمزد روزانه را وارد کنید.');
-    const worker = { id: Date.now(), name, wage, hourlyOT: ot };
-    db.workers.push(worker); saveDB();
-    renderWorkerSelect();
-    document.getElementById('workerName').value=''; document.getElementById('dailyWage').value=''; document.getElementById('hourlyOT').value='';
-    alert('کارگر با موفقیت ثبت شد.');
-  }
-  function renderWorkerSelect(){
-    const select = document.getElementById('workerSelect');
-    const reportSelect = document.getElementById('reportWorker');
-    select.innerHTML = '<option value="">-- انتخاب کنید --</option>';
-    reportSelect.innerHTML = '<option value="">همه کارگران</option>';
-    db.workers.forEach(w=>{
-      const label = `${w.name} (روزی ${w.wage.toLocaleString('fa-IR')} | OT ${w.hourlyOT.toLocaleString('fa-IR')})`;
-      select.innerHTML += `<option value="${w.id}">${label}</option>`;
-      reportSelect.innerHTML += `<option value="${w.id}">${w.name}</option>`;
-    });
-  }
-
-  // Punch Clock with automatic duration and OT calculation
-  function punchClock(type){
-    const workerId = document.getElementById('workerSelect').value;
-    if(!workerId) return alert('ابتدا کارگر را انتخاب کنید.');
-    const photo = snapPhoto();
-    const now = new Date();
-    const record = {
-      id: Date.now(), workerId: Number(workerId), type,
-      timestamp: now.toLocaleString('fa-IR'), rawTime: now.getTime(),
-      location: currentLocation || { lat:'نامشخص', lng:'نامشخص' }, photo: photo || null
-    };
-    db.logs.push(record); saveDB();
-
-    // When checkout, try to compute duration with last open check-in
-    if(type === 'خروج'){
-      const logs = db.logs.filter(l=>l.workerId===Number(workerId)).sort((a,b)=>a.rawTime-b.rawTime);
-      const lastIn = [...logs].reverse().find(l=>l.type==='ورود');
-      if(lastIn){
-        const durationMs = record.rawTime - lastIn.rawTime;
-        const hours = Math.max(0, durationMs / (1000*60*60));
-        record.durationHours = Number(hours.toFixed(2)); // store on خروج
-        // compute overtime if over 8h
-        const worker = db.workers.find(w=>w.id===Number(workerId));
-        const baseHours = Math.min(8, record.durationHours || 0);
-        const otHours = Math.max(0, (record.durationHours || 0) - 8);
-        record.baseHours = Number(baseHours.toFixed(2));
-        record.otHours = Number(otHours.toFixed(2));
-        record.otPay = Number((otHours * (worker?.hourlyOT || 0)).toFixed(0));
-        saveDB();
-      }
-    }
-
-    renderRecords(); loadWorkerSummary();
-    alert(`ساعت ${type} ثبت شد.`);
-  }
-
-  // Musaedeh
-  function addMusaedeh(){
-    const workerId = document.getElementById('workerSelect').value;
-    const amount = Number(document.getElementById('musaedehAmount').value);
-    if(!workerId || !amount) return alert('کارگر و مبلغ مساعده را مشخص کنید.');
-    db.musaedeh.push({ id: Date.now(), workerId: Number(workerId), amount, date: new Date().toLocaleDateString('fa-IR') });
-    saveDB(); document.getElementById('musaedehAmount').value='';
-    loadWorkerSummary(); renderMonthlyReport();
-    alert('مساعده ثبت شد.');
-  }
-
-  // Records list
-  function renderRecords(){
-    const list = document.getElementById('recordsList');
-    const workerId = Number(document.getElementById('workerSelect').value);
-    const logs = workerId ? db.logs.filter(l=>l.workerId===workerId) : db.logs;
-    if(!logs.length){ list.innerHTML='هنوز ترددی ثبت نشده است.'; return; }
-    list.innerHTML = logs.slice().reverse().map(l=>{
-      const worker = db.workers.find(w=>w.id===l.workerId);
-      const workerName = worker ? worker.name : 'نامشخص';
-      const otText = (l.type==='خروج' && (l.durationHours || 0)>0)
-        ? `<div>⏱️ مدت کار: ${l.durationHours} ساعت | OT: ${l.otHours || 0} ساعت | پرداخت OT: ${ (l.otPay||0).toLocaleString('fa-IR') } تومان</div>` : '';
-      return `
-        <div class="record-item">
-          <div class="record-header">
-            <strong>${workerName}</strong>
-            <span class="badge ${l.type==='ورود'?'badge-in':'badge-out'}">${l.type}</span>
-          </div>
-          <div>⏰ زمان: ${l.timestamp}</div>
-          <div>📍 لوکیشن: ${l.location.lat}, ${l.location.lng}</div>
-          ${otText}
-          ${l.photo ? `<div style="margin-top:6px;"><img src="${l.photo}" style="width:70px; height:70px; border-radius:6px; object-fit:cover;"></div>` : ''}
+    <!-- Header -->
+    <header class="bg-indigo-600 text-white p-4 shadow-md sticky top-0 z-50">
+        <div class="max-w-md mx-auto flex justify-between items-center">
+            <h1 class="text-lg font-bold">⏱️ کارت ساعت (حساب‌وکتاب کارگران)</h1>
+            <button onclick="openBackupModal()" class="bg-indigo-700 px-3 py-1.5 rounded-lg text-xs font-semibold">پشتیبان / بازیابی</button>
         </div>
-      `;
-    }).join('');
-  }
+    </header>
 
-  // Summary calculation
-  function loadWorkerSummary(){
-    const workerId = Number(document.getElementById('workerSelect').value);
-    const box = document.getElementById('summaryBox');
-    if(!workerId){ box.innerHTML='کارگری انتخاب نشده است.'; return; }
-    const worker = db.workers.find(w=>w.id===workerId);
-    const logs = db.logs.filter(l=>l.workerId===workerId);
-    const musaedehs = db.musaedeh.filter(m=>m.workerId===workerId);
-
-    const daysWorked = logs.filter(l=>l.type==='ورود').length || 0;
-    const grossDaysPay = daysWorked * worker.wage;
-    const totalOTPay = logs.filter(l=>l.type==='خروج').reduce((acc,cur)=> acc + (cur.otPay||0), 0);
-    const totalMusaedeh = musaedehs.reduce((acc,cur)=> acc + cur.amount, 0);
-    const netPay = grossDaysPay + totalOTPay - totalMusaedeh;
-
-    box.innerHTML = `
-      <strong>نام کارگر:</strong> ${worker.name}<br>
-      <strong>نرخ روزمزد:</strong> ${worker.wage.toLocaleString('fa-IR')} تومان | <strong>OT ساعتی:</strong> ${worker.hourlyOT.toLocaleString('fa-IR')} تومان<br>
-      <strong>تعداد روزهای حاضر:</strong> ${daysWorked} روز<br>
-      <strong>حقوق روزمزد:</strong> ${grossDaysPay.toLocaleString('fa-IR')} تومان<br>
-      <strong>جمع پرداخت اضافه‌کاری:</strong> ${totalOTPay.toLocaleString('fa-IR')} تومان<br>
-      <strong>مجموع مساعده‌ها:</strong> ${totalMusaedeh.toLocaleString('fa-IR')} تومان<br>
-      <hr style="border:none; border-top:1px solid #ccc;">
-      <strong style="color:var(--success); font-size:1.05rem;">مبلغ خالص قابل پرداخت: ${netPay.toLocaleString('fa-IR')} تومان</strong>
-    `;
-  }
-
-  // Signature Pad
-  const sigCanvas = document.getElementById('sigCanvas');
-  const sigCtx = sigCanvas.getContext('2d');
-  let writing = false;
-  function resizeSigCanvas(){ sigCanvas.width = sigCanvas.offsetWidth; sigCanvas.height = sigCanvas.offsetHeight; }
-  window.addEventListener('load', ()=>{
-    resizeSigCanvas(); renderWorkerSelect(); renderRecords(); startCamera();
-    // populate report worker list initially
-    renderMonthlyReport();
-  });
-  sigCanvas.addEventListener('pointerdown', (e)=>{ writing=true; sigCtx.beginPath(); sigCtx.moveTo(e.offsetX, e.offsetY); });
-  sigCanvas.addEventListener('pointermove', (e)=>{ if(writing){ sigCtx.lineTo(e.offsetX, e.offsetY); sigCtx.stroke(); } });
-  window.addEventListener('pointerup', ()=> writing=false);
-  function clearSignature(){ sigCtx.clearRect(0,0,sigCanvas.width,sigCanvas.height); }
-
-  // Printable Legal Settlement
-  function generateSettlement(){
-    const workerId = Number(document.getElementById('workerSelect').value);
-    if(!workerId) return alert('ابتدا کارگر را انتخاب کنید.');
-    const worker = db.workers.find(w=>w.id===workerId);
-    const musaedehs = db.musaedeh.filter(m=>m.workerId===workerId);
-    const logs = db.logs.filter(l=>l.workerId===workerId);
-    const days = logs.filter(l=>l.type==='ورود').length || 0;
-    const totalMusaedeh = musaedehs.reduce((acc,cur)=> acc + cur.amount, 0);
-    const grossDays = days * worker.wage;
-    const totalOTPay = logs.filter(l=>l.type==='خروج').reduce((acc,cur)=> acc + (cur.otPay||0), 0);
-    const net = grossDays + totalOTPay - totalMusaedeh;
-    const sigData = sigCanvas.toDataURL();
-
-    const paper = document.getElementById('printableSettlement');
-    paper.innerHTML = `
-      <div style="border: 2px solid #000; padding: 24px; border-radius: 8px; font-family: Tahoma; direction: rtl;">
-        <h2 style="text-align: center; margin: 0 0 10px;">برگه رسمی تسویه‌حساب قطعی کارگر روزمزد</h2>
-        <p style="text-align: center; font-size: 0.9rem; margin-bottom: 20px;">تنظیم‌شده بر اساس ماده ۳۷ قانون کار جمهوری اسلامی ایران</p>
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;" border="1" cellpadding="8">
-          <tr><td><strong>نام کارگر:</strong> ${worker.name}</td><td><strong>تاریخ تنظیم:</strong> ${new Date().toLocaleDateString('fa-IR')}</td></tr>
-          <tr><td><strong>روزهای کارکرد:</strong> ${days} روز</td><td><strong>مبنای دستمزد روزانه:</strong> ${worker.wage.toLocaleString('fa-IR')} تومان</td></tr>
-          <tr><td><strong>اضافه‌کاری ساعتی (جمع):</strong> ${totalOTPay.toLocaleString('fa-IR')} تومان</td><td><strong>کسورات (مساعده):</strong> ${totalMusaedeh.toLocaleString('fa-IR')} تومان</td></tr>
-          <tr style="background:#f5f5f5;">
-            <td colspan="2" style="font-size: 1.1rem; text-align: center;">
-              <strong>مبلغ قطعی پرداخت‌شده و تسویه‌شده:</strong> ${net.toLocaleString('fa-IR')} تومان
-            </td>
-          </tr>
-        </table>
-        <p style="font-size: 0.85rem; line-height: 1.8; text-align: justify;">
-          اینجانب <strong>${worker.name}</strong> اقرار می‌نمایم کلیه دستمزد، حق‌الزحمه و مطالبات ایام کارکرد خود را تا تاریخ فوق به‌طور کامل و نقداً/واریزی دریافت نموده و هیچ‌گونه ادعا یا اعتراضی در خصوص دستمزد، اضافه‌کاری یا سنوات نزد کارفرما و اداره تعاون، کار و رفاه اجتماعی ندارم و این سند به منزله تسویه‌حساب نهایی و قطعی می‌باشد.
-        </p>
-        <div style="display: flex; justify-content: space-between; margin-top: 40px; align-items: flex-end;">
-          <div style="text-align: center; width: 45%;">
-            <strong>امضا و اثر انگشت کارفرما:</strong>
-            <div style="height: 80px;"></div>
-          </div>
-          <div style="text-align: center; width: 45%;">
-            <strong>امضای دیجیتال و تایید کارگر:</strong><br>
-            <img src="${sigData}" style="max-height: 80px; margin-top: 10px; border-bottom: 1px solid #000;">
-          </div>
+    <main class="max-w-md mx-auto p-4 space-y-4">
+        
+        <!-- Tabs -->
+        <div class="flex bg-white rounded-xl p-1 shadow-sm border border-slate-200">
+            <button onclick="switchTab('workers')" id="tab-workers" class="flex-1 py-2 text-sm font-bold rounded-lg bg-indigo-600 text-white">کارگران</button>
+            <button onclick="switchTab('attendance')" id="tab-attendance" class="flex-1 py-2 text-sm font-bold rounded-lg text-slate-600">ثبت حضور</button>
+            <button onclick="switchTab('reports')" id="tab-reports" class="flex-1 py-2 text-sm font-bold rounded-lg text-slate-600">گزارش و تسویه</button>
         </div>
-      </div>
-    `;
-    paper.style.display='block'; window.print(); paper.style.display='none';
-  }
 
-  // Monthly report
-  function renderMonthlyReport(){
-    const box = document.getElementById('monthlyBox');
-    const monthStr = document.getElementById('gregMonth').value; // YYYY-MM
-    const workerFilter = Number(document.getElementById('reportWorker').value || 0);
-    if(!monthStr){ box.innerHTML='ماه را انتخاب کنید.'; return; }
+        <!-- 1. WORKERS SECTION -->
+        <section id="section-workers" class="space-y-4">
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3">
+                <h2 class="font-bold text-slate-700">افزودن کارگر جدید</h2>
+                <input type="text" id="workerName" placeholder="نام و نام خانوادگی کارگر" class="w-full p-2.5 border rounded-lg text-sm">
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="number" id="workerDailyRate" placeholder="دستمزد روزانه (تومان)" class="w-full p-2.5 border rounded-lg text-sm">
+                    <input type="number" id="workerHourlyRate" placeholder="نرخ اضافه‌کاری هر ساعت" class="w-full p-2.5 border rounded-lg text-sm">
+                </div>
+                <button onclick="addWorker()" class="w-full bg-indigo-600 text-white py-2.5 rounded-lg font-bold text-sm">ثبت کارگر</button>
+            </div>
 
-    const [Y,M] = monthStr.split('-').map(Number);
-    const start = new Date(Y, M-1, 1).getTime();
-    const end = new Date(Y, M, 0, 23, 59, 59).getTime();
+            <div class="space-y-2" id="workersList"></div>
+        </section>
 
-    const logs = db.logs.filter(l=>{
-      const t = l.rawTime; const inRange = t>=start && t<=end;
-      const matchWorker = workerFilter ? l.workerId===workerFilter : true;
-      return inRange && matchWorker;
-    });
+        <!-- 2. ATTENDANCE SECTION -->
+        <section id="section-attendance" class="hidden space-y-4">
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3">
+                <h2 class="font-bold text-slate-700">ثبت حضور و غیاب، مساعده و خروج</h2>
+                
+                <div>
+                    <label class="text-xs text-slate-500">انتخاب کارگر</label>
+                    <select id="attWorkerSelect" class="w-full p-2.5 border rounded-lg text-sm mt-1"></select>
+                </div>
 
-    const grouped = {};
-    logs.forEach(l=>{
-      grouped[l.workerId] = grouped[l.workerId] || { days:0, otPay:0, name:'', wage:0 };
-      const w = db.workers.find(x=>x.id===l.workerId);
-      grouped[l.workerId].name = w?.name || 'نامشخص';
-      grouped[l.workerId].wage = w?.wage || 0;
-      if(l.type==='ورود') grouped[l.workerId].days += 1;
-      if(l.type==='خروج') grouped[l.workerId].otPay += (l.otPay||0);
-    });
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-xs text-slate-500">ساعت ورود</label>
+                        <input type="time" id="attCheckIn" class="w-full p-2.5 border rounded-lg text-sm mt-1">
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-500">ساعت خروج</label>
+                        <input type="time" id="attCheckOut" class="w-full p-2.5 border rounded-lg text-sm mt-1">
+                    </div>
+                </div>
 
-    const musa = db.musaedeh.filter(m=>{
-      const t = new Date(m.date).getTime(); // m.date is fa-IR display; safer approach:
-      // fallback: compare by created id timestamp if needed
-      const idTime = Number(m.id);
-      const inRange = (idTime>=start && idTime<=end);
-      const matchWorker = workerFilter ? m.workerId===workerFilter : true;
-      return inRange && matchWorker;
-    });
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-xs text-slate-500">اضافه‌کاری (ساعت)</label>
+                        <input type="number" id="attOvertime" value="0" step="0.5" class="w-full p-2.5 border rounded-lg text-sm mt-1">
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-500">مساعده دریافتی (تومان)</label>
+                        <input type="number" id="attAdvance" value="0" class="w-full p-2.5 border rounded-lg text-sm mt-1">
+                    </div>
+                </div>
 
-    const musaByWorker = {};
-    musa.forEach(m=>{
-      musaByWorker[m.workerId] = (musaByWorker[m.workerId]||0) + m.amount;
-    });
+                <!-- Camera Selfie & GPS -->
+                <div class="border-2 border-dashed border-slate-300 p-3 rounded-xl text-center space-y-2">
+                    <button type="button" onclick="capturePhoto()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg text-xs font-bold">📸 ثبت عکس سلفی در محل</button>
+                    <div id="photoPreview" class="text-xs text-emerald-600 font-semibold"></div>
+                    <input type="hidden" id="capturedImageBase64">
+                </div>
 
-    const rows = Object.keys(grouped).map(k=>{
-      const g = grouped[k];
-      const daysPay = g.days * g.wage;
-      const totalM = musaByWorker[k] || 0;
-      const net = daysPay + g.otPay - totalM;
-      return `<tr>
-        <td>${g.name}</td>
-        <td>${g.days}</td>
-        <td>${g.wage.toLocaleString('fa-IR')}</td>
-        <td>${daysPay.toLocaleString('fa-IR')}</td>
-        <td>${g.otPay.toLocaleString('fa-IR')}</td>
-        <td>${totalM.toLocaleString('fa-IR')}</td>
-        <td><strong>${net.toLocaleString('fa-IR')}</strong></td>
-      </tr>`;
-    }).join('');
+                <div class="bg-slate-50 p-3 rounded-lg text-xs text-slate-600 flex justify-between items-center">
+                    <span id="gpsStatus">📍 موقعیت مکانی: ثبت نشده</span>
+                    <button type="button" onclick="getGPS()" class="text-indigo-600 font-bold underline">دریافت لوکیشن</button>
+                </div>
 
-    box.innerHTML = rows
-      ? `<table class="table">
-          <thead><tr>
-            <th>کارگر</th><th>روزهای کارکرد</th><th>نرخ روزانه</th>
-            <th>جمع روزمزد</th><th>جمع OT</th><th>جمع مساعده</th><th>خالص پرداخت</th>
-          </tr></thead>
-          <tbody>${rows}</tbody>
-        </table>`
-      : 'برای این ماه گزارشی ثبت نشده است.';
-  }
-</script>
+                <button onclick="saveAttendance()" class="w-full bg-emerald-600 text-white py-2.5 rounded-lg font-bold text-sm">ثبت روزکاری</button>
+            </div>
+        </section>
+
+        <!-- 3. REPORTS SECTION -->
+        <section id="section-reports" class="hidden space-y-4">
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3">
+                <h2 class="font-bold text-slate-700">گزارش و تسویه حساب قانونی</h2>
+                <select id="reportWorkerSelect" class="w-full p-2.5 border rounded-lg text-sm" onchange="generateReport()"></select>
+                <div id="reportContent" class="space-y-3 text-sm"></div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Backup Modal -->
+    <div id="backupModal" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white p-5 rounded-2xl w-full max-w-sm space-y-4">
+            <h3 class="font-bold text-base">پشتیبان‌گیری و بازیابی اطلاعات</h3>
+            <button onclick="exportData()" class="w-full bg-indigo-50 text-indigo-600 py-2.5 rounded-xl font-bold text-sm">دریافت فایل پشتیبان (JSON)</button>
+            <input type="file" id="importFile" onchange="importData(event)" class="w-full text-xs text-slate-500">
+            <button onclick="closeBackupModal()" class="w-full bg-slate-200 py-2 rounded-xl text-xs font-bold">بستن</button>
+        </div>
+    </div>
+
+    <script>
+        let db = JSON.parse(localStorage.getItem('kart_saat_db')) || { workers: [], logs: [] };
+        let currentLat = null, currentLng = null, currentPhoto = '';
+
+        function saveData() {
+            localStorage.setItem('kart_saat_db', JSON.stringify(db));
+        }
+
+        function switchTab(tab) {
+            ['workers', 'attendance', 'reports'].forEach(t => {
+                document.getElementById('section-' + t).classList.add('hidden');
+                document.getElementById('tab-' + t).className = 'flex-1 py-2 text-sm font-bold rounded-lg text-slate-600';
+            });
+            document.getElementById('section-' + tab).classList.remove('hidden');
+            document.getElementById('tab-' + tab).className = 'flex-1 py-2 text-sm font-bold rounded-lg bg-indigo-600 text-white';
+            if(tab === 'attendance' || tab === 'reports') updateSelects();
+        }
+
+        function addWorker() {
+            const name = document.getElementById('workerName').value.trim();
+            const daily = Number(document.getElementById('workerDailyRate').value);
+            const hourly = Number(document.getElementById('workerHourlyRate').value);
+            if(!name || !daily) return alert('لطفا نام و دستمزد روزانه را وارد کنید.');
+            
+            db.workers.push({ id: Date.now(), name, daily, hourly });
+            saveData();
+            document.getElementById('workerName').value = '';
+            document.getElementById('workerDailyRate').value = '';
+            document.getElementById('workerHourlyRate').value = '';
+            renderWorkers();
+            alert('کارگر با موفقیت ثبت شد.');
+        }
+
+        function renderWorkers() {
+            const list = document.getElementById('workersList');
+            list.innerHTML = db.workers.length === ? '<p class="text-xs text-slate-400 text-center py-4">هنوز کارگری ثبت نشده است.</p>' : '';
+            db.workers.forEach(w => {
+                list.innerHTML += `<div class="bg-white p-3 rounded-xl border border-slate-200 flex justify-between items-center">
+                    <div>
+                        <h4 class="font-bold text-sm">${w.name}</h4>
+                        <p class="text-xs text-slate-500">روزانه: ${w.daily.toLocaleString()} ت | اضافه‌کاری: ${(w.hourly||0).toLocaleString()} ت/ساعت</p>
+                    </div>
+                    <button onclick="deleteWorker(${w.id})" class="text-rose-500 text-xs font-bold">حذف</button>
+                </div>`;
+            });
+        }
+
+        function deleteWorker(id) {
+            db.workers = db.workers.filter(w => w.id !== id);
+            saveData();
+            renderWorkers();
+        }
+
+        function updateSelects() {
+            ['attWorkerSelect', 'reportWorkerSelect'].forEach(id => {
+                const sel = document.getElementById(id);
+                sel.innerHTML = db.workers.map(w => `<option value="${w.id}">${w.name}</option>`).join('');
+            });
+            if(id === 'reportWorkerSelect') generateReport();
+        }
+
+        function capturePhoto() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.capture = 'environment';
+            input.onchange = e => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = event => {
+                    currentPhoto = event.target.result;
+                    document.getElementById('photoPreview').innerText = '✓ عکس با موفقیت ثبت شد';
+                };
+                reader.readAsDataURL(file);
+            };
+            input.click();
+        }
+
+        function getGPS() {
+            if(navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(pos => {
+                    currentLat = pos.coords.latitude;
+                    currentLng = pos.coords.longitude;
+                    document.getElementById('gpsStatus').innerText = `📍 ثبت شد: ${currentLat.toFixed(4)}, ${currentLng.toFixed(4)}`;
+                }, () => alert('خطا در دریافت موقعیت مکانی. لطفا GPS را روشن کنید.'));
+            } else {
+                alert('مرورگر شما از GPS پشتیبانی نمی‌کند.');
+            }
+        }
+
+        function saveAttendance() {
+            const workerId = Number(document.getElementById('attWorkerSelect').value);
+            if(!workerId) return alert('لطفا یک کارگر انتخاب کنید.');
+            
+            const log = {
+                id: Date.now(),
+                workerId,
+                date: new Date().toLocaleDateString('fa-IR'),
+                checkIn: document.getElementById('attCheckIn').value,
+                checkOut: document.getElementById('attCheckOut').value,
+                overtime: Number(document.getElementById('attOvertime').value),
+                advance: Number(document.getElementById('attAdvance').value),
+                photo: currentPhoto,
+                lat: currentLat,
+                lng: currentLng
+            };
+
+            db.logs.push(log);
+            saveData();
+            alert('حضور و غیاب ثبت شد.');
+            currentPhoto = '';
+            currentLat = null; currentLng = null;
+            document.getElementById('photoPreview').innerText = '';
+            document.getElementById('gpsStatus').innerText = '📍 موقعیت مکانی: ثبت نشده';
+        }
+
+        function generateReport() {
+            const workerId = Number(document.getElementById('reportWorkerSelect').value);
+            const worker = db.workers.find(w => w.id === workerId);
+            const container = document.getElementById('reportContent');
+            if(!worker) { container.innerHTML = 'کارگری انتخاب نشده است.'; return; }
+
+            const logs = db.logs.filter(l => l.workerId === workerId);
+            let totalDays = logs.length;
+            let totalAdvance = logs.reduce((sum, l) => sum + (l.advance || 0), 0);
+            let totalOvertimeHours = logs.reduce((sum, l) => sum + (l.overtime || 0), 0);
+            let grossPay = (totalDays * worker.daily) + (totalOvertimeHours * (worker.hourly || 0));
+            let netPay = grossPay - totalAdvance;
+
+            container.innerHTML = `
+                <div class="bg-slate-50 p-3 rounded-lg space-y-1 text-xs">
+                    <p>تعداد روز کارکرد: <b>${totalDays} روز</b></p>
+                    <p>مجموع اضافه‌کاری: <b>${totalOvertimeHours} ساعت</b></p>
+                    <p>مساعده‌های دریافتی: <b class="text-rose-600">${totalAdvance.toLocaleString()} تومان</b></p>
+                    <hr>
+                    <p class="text-sm font-bold text-indigo-600">مبلغ قابل پرداخت نهایی: ${netPay.toLocaleString()} تومان</p>
+                </div>
+                <button onclick="window.print()" class="w-full bg-slate-800 text-white py-2 rounded-lg text-xs font-bold">🖨️ چاپ برگ تسویه حساب قانونی</button>
+            `;
+        }
+
+        function openBackupModal() { document.getElementById('backupModal').classList.remove('hidden'); }
+        function closeBackupModal() { document.getElementById('backupModal').classList.add('hidden'); }
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
+            const dlAnchor = document.createElement('a');
+            dlAnchor.setAttribute("href", dataStr);
+            dlAnchor.setAttribute("download", "kart-saat-backup.json");
+            document.body.appendChild(dlAnchor);
+            dlAnchor.click();
+            dlAnchor.remove();
+        }
+        function importData(e) {
+            const reader = new FileReader();
+            reader.onload = event => {
+                db = JSON.parse(event.target.result);
+                saveData();
+                renderWorkers();
+                alert('اطلاعات با موفقیت بازیابی شد.');
+                closeBackupModal();
+            };
+            reader.readAsText(e.target.files[0]);
+        }
+
+        renderWorkers();
+    </script>
 </body>
 </html>
