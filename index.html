@@ -20,11 +20,22 @@
                 <h1 class="text-lg font-extrabold tracking-tight">⏱️ کارت ساعت</h1>
                 <p class="text-xs text-emerald-100 mt-0.5">حساب‌وکتاب دقیق حضور و حقوق کارگران</p>
             </div>
-            <span class="text-xs bg-white/20 px-3 py-1.5 rounded-full font-medium backdrop-blur-sm">نسخه ۲.۱ حرفه‌ای</span>
+            <span class="text-xs bg-white/20 px-3 py-1.5 rounded-full font-medium backdrop-blur-sm">نسخه ۲.۲ حرفه‌ای</span>
         </div>
     </header>
 
     <main class="max-w-md mx-auto p-4 space-y-5">
+
+        <!-- بخش پشتیبان‌گیری و بازیابی اطلاعات -->
+        <section class="bg-white p-4 rounded-3xl shadow-sm border border-slate-200/60 flex gap-2">
+            <button onclick="exportBackup()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-2.5 rounded-2xl text-xs font-semibold flex items-center justify-center gap-1.5 transition">
+                <span>📥 دانلود پشتیبان</span>
+            </button>
+            <input type="file" id="importFile" accept=".json" class="hidden" onchange="importBackup(event)">
+            <button onclick="document.getElementById('importFile').click()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-2.5 rounded-2xl text-xs font-semibold flex items-center justify-center gap-1.5 transition">
+                <span>📤 بازیابی پشتیبان</span>
+            </button>
+        </section>
 
         <!-- بخش انتخاب/افزودن کارگر -->
         <section class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200/60 space-y-4">
@@ -41,7 +52,7 @@
                 </button>
             </div>
             
-            <div id="workerSummary" class="bg-gradient-to-br from-slate-50 to-emerald-50/30 p-4 rounded-2xl hidden space-y-2 border border-emerald-100/60">
+            <div id="workerSummary" class="bg-gradient-to-br from-slate-50 to-emerald-50/30 p-4 rounded-2xl hidden space-y-3 border border-emerald-100/60">
                 <div class="flex justify-between text-xs text-slate-600">
                     <span>مزد هر ساعت:</span>
                     <span id="summaryRate" class="font-bold text-slate-800">0 تومان</span>
@@ -50,6 +61,9 @@
                     <span>کل ساعت کارکرد:</span>
                     <span id="summaryHours" class="font-bold text-emerald-700">0 ساعت</span>
                 </div>
+                <button onclick="exportWorkerReport()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl text-xs font-bold transition shadow-sm shadow-emerald-600/30 flex items-center justify-center gap-1.5">
+                    <span>📄 استخراج و اشتراک گزارش کارکرد کارگر</span>
+                </button>
             </div>
         </section>
 
@@ -57,7 +71,6 @@
         <section class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200/60 space-y-4">
             <h2 class="text-xs font-bold text-slate-500 uppercase tracking-wider">📍 ثبت حضور و موقعیت</h2>
             
-            <!-- فیلد نام محل کار / پروژه -->
             <div>
                 <label class="block text-xs font-semibold text-slate-600 mb-1.5">نام محل کار / پروژه:</label>
                 <input type="text" id="workLocationName" placeholder="مثلاً: باغ احمدآباد یا پروژه ساختمان مرکزی" class="w-full border border-slate-200 rounded-2xl px-4 py-3 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-emerald-500">
@@ -133,6 +146,18 @@
 
     </main>
 
+    <!-- Modal گزارش متنی استخراج شده -->
+    <div id="reportModal" class="fixed inset-0 bg-black/60 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
+        <div class="bg-white w-full max-w-md p-6 rounded-3xl space-y-4 shadow-2xl border border-slate-100 max-h-[90vh] flex flex-col">
+            <h3 class="font-bold text-slate-800 text-sm">گزارش رسمی کارکرد کارگر</h3>
+            <textarea id="reportTextContent" readonly class="w-full h-64 border border-slate-200 rounded-2xl p-3 text-xs bg-slate-50 font-mono focus:outline-none"></textarea>
+            <div class="flex gap-2 pt-2">
+                <button onclick="copyReport()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-2xl text-xs font-bold shadow-md shadow-emerald-600/30">کپی متن گزارش</button>
+                <button onclick="closeReportModal()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 py-3 rounded-2xl text-xs font-medium">بستن</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal افزودن کارگر -->
     <div id="workerModal" class="fixed inset-0 bg-black/60 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
         <div class="bg-white w-full max-w-sm p-6 rounded-3xl space-y-4 shadow-2xl border border-slate-100">
@@ -152,7 +177,6 @@
         let currentLng = null;
         let currentPhotoBase64 = null;
 
-        // نمایش زنده ساعت بالای صفحه
         function updateClock() {
             const now = new Date();
             document.getElementById('currentTimeDisplay').innerText = now.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -163,6 +187,40 @@
         function saveData() {
             localStorage.setItem('kart_saat_db', JSON.stringify(db));
             updateUI();
+        }
+
+        // پشتیبان‌گیری
+        function exportBackup() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db, null, 2));
+            const dlAnchor = document.createElement('a');
+            dlAnchor.setAttribute("href", dataStr);
+            dlAnchor.setAttribute("download", `kart_saat_backup_${new Date().toISOString().slice(0,10)}.json`);
+            document.body.appendChild(dlAnchor);
+            dlAnchor.click();
+            dlAnchor.remove();
+        }
+
+        // بازیابی پشتیبان
+        function importBackup(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (imported && imported.workers && imported.logs) {
+                        db = imported;
+                        saveData();
+                        loadWorkersToSelect();
+                        alert('✅ اطلاعات با موفقیت بازیابی شد.');
+                    } else {
+                        alert('❌ ساختار فایل پشتیبان نامعتبر است.');
+                    }
+                } catch(err) {
+                    alert('❌ خطا در خواندن فایل.');
+                }
+            };
+            reader.readAsText(file);
         }
 
         function openAddWorkerModal() {
@@ -218,9 +276,9 @@
                 },
                 function(err) {
                     let msg = 'خطا در دریافت موقعیت';
-                    if(err.code === 1) msg = 'دسترسی به GPS رد شد. مجوز موقعیت را فعال کنید.';
-                    else if(err.code === 2) msg = 'موقعیت در دسترس نیست. GPS گوشی را روشن کنید.';
-                    else if(err.code === 3) msg = 'زمان دریافت موقعیت تمام شد.';
+                    if(err.code === 1) msg = 'دسترسی به GPS رد شد.';
+                    else if(err.code === 2) msg = 'GPS گوشی را روشن کنید.';
+                    else if(err.code === 3) msg = 'زمان دریافت تمام شد.';
                     status.innerText = '📍 ' + msg;
                 },
                 { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
@@ -300,6 +358,8 @@
             alert('💵 مساعده با موفقیت ثبت شد.');
         }
 
+        let lastCalculatedData = null;
+
         function updateUI() {
             const workerId = document.getElementById('workerSelect').value;
             const summaryBox = document.getElementById('workerSummary');
@@ -326,28 +386,25 @@
             let totalMilliseconds = 0;
             let lastInTime = null;
             let logsHtml = '';
+            let logDetailsText = [];
 
             workerLogs.forEach(l => {
                 const dt = new Date(l.time);
                 const timeStr = dt.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
                 const dateStr = dt.toLocaleDateString('fa-IR');
                 const locStr = l.locationName ? `📍 ${l.locationName}` : '';
-                const coordStr = (l.lat && l.lng) ? `<span class="font-mono text-[10px] text-slate-500">(${l.lat.toFixed(4)}, ${l.lng.toFixed(4)})</span>` : '';
+                const coordStr = (l.lat && l.lng) ? `(${l.lat.toFixed(4)}, ${l.lng.toFixed(4)})` : '';
 
                 if (l.type === 'IN') {
                     lastInTime = dt;
                     logsHtml += `<div class="bg-emerald-50/70 p-3 rounded-2xl space-y-1 border border-emerald-100">
-                        <div class="flex justify-between items-center">
-                            <span class="font-bold text-emerald-800">🟢 ورود: ${dateStr} - ${timeStr}</span>
-                            ${l.photo ? '<span class="text-[10px] bg-sky-100 text-sky-700 px-2 py-0.5 rounded-md font-medium">📷 عکس</span>' : ''}
-                        </div>
-                        <div class="text-[11px] text-slate-600 flex justify-between items-center">
-                            <span>${locStr}</span>
-                            ${coordStr}
-                        </div>
+                        <div class="flex justify-between items-center"><span class="font-bold text-emerald-800">🟢 ورود: ${dateStr} - ${timeStr}</span></div>
+                        <div class="text-[11px] text-slate-600 flex justify-between"><span>${locStr}</span><span class="font-mono text-slate-500">${coordStr}</span></div>
                     </div>`;
+                    logDetailsText.push(`[ورود] تاریخ: ${dateStr} ساعت: ${timeStr} - محل: ${l.locationName || 'نامشخص'}`);
                 } else {
                     let durationText = '';
+                    let diffHours = 0;
                     if (lastInTime) {
                         const diff = dt - lastInTime;
                         if (diff > 0) {
@@ -359,30 +416,71 @@
                         lastInTime = null;
                     }
                     logsHtml += `<div class="bg-rose-50/70 p-3 rounded-2xl space-y-1 border border-rose-100">
-                        <div class="flex justify-between items-center">
-                            <span class="font-bold text-rose-800">🔴 خروج: ${dateStr} - ${timeStr} <span class="text-emerald-700 font-semibold">${durationText}</span></span>
-                            ${l.photo ? '<span class="text-[10px] bg-sky-100 text-sky-700 px-2 py-0.5 rounded-md font-medium">📷 عکس</span>' : ''}
-                        </div>
-                        <div class="text-[11px] text-slate-600 flex justify-between items-center">
-                            <span>${locStr}</span>
-                            ${coordStr}
-                        </div>
+                        <div class="flex justify-between items-center"><span class="font-bold text-rose-800">🔴 خروج: ${dateStr} - ${timeStr} <span class="text-emerald-700">${durationText}</span></span></div>
+                        <div class="text-[11px] text-slate-600 flex justify-between"><span>${locStr}</span><span class="font-mono text-slate-500">${coordStr}</span></div>
                     </div>`;
+                    logDetailsText.push(`[خروج] تاریخ: ${dateStr} ساعت: ${timeStr} ${durationText}`);
                 }
             });
 
-            document.getElementById('logsList').innerHTML = logsHtml || '<p class="text-slate-400 text-center py-2">هنوز ترردی ثبت نشده است.</p>';
+            document.getElementById('logsList').innerHTML = logsHtml || '<p class="text-slate-400 text-center py-2">هنوز ترددی ثبت نشده است.</p>';
 
             let totalHours = totalMilliseconds / (1000 * 60 * 60);
             document.getElementById('summaryHours').innerText = totalHours.toFixed(1) + ' ساعت';
 
             let totalEarnings = totalHours * worker.rate;
-            let workerAdvances = (db.advances || []).filter(a => a.workerId == workerId).reduce((sum, a) => sum + a.amount, 0);
+            let workerAdvancesList = (db.advances || []).filter(a => a.workerId == workerId);
+            let workerAdvances = workerAdvancesList.reduce((sum, a) => sum + a.amount, 0);
             let finalBalance = totalEarnings - workerAdvances;
 
             document.getElementById('totalEarnings').innerText = Math.round(totalEarnings).toLocaleString() + ' تومان';
             document.getElementById('totalAdvances').innerText = workerAdvances.toLocaleString() + ' تومان';
             document.getElementById('finalBalance').innerText = Math.round(finalBalance).toLocaleString() + ' تومان';
+
+            lastCalculatedData = {
+                workerName: worker.name,
+                rate: worker.rate,
+                totalHours: totalHours.toFixed(1),
+                totalEarnings: Math.round(totalEarnings),
+                workerAdvances,
+                finalBalance: Math.round(finalBalance),
+                logDetailsText,
+                advancesList: workerAdvancesList
+            };
+        }
+
+        function exportWorkerReport() {
+            if (!lastCalculatedData) return;
+            const d = lastCalculatedData;
+            let text = `📄 گزارش رسمی کارکرد و حقوق\n`;
+            text += `------------------------------------\n`;
+            text += `👤 نام کارگر: ${d.workerName}\n`;
+            text += `💰 مزد هر ساعت: ${d.rate.toLocaleString()} تومان\n`;
+            text += `⏱️ کل ساعت کارکرد: ${d.totalHours} ساعت\n`;
+            text += `💵 مجموع حقوق کارکرد: ${d.totalEarnings.toLocaleString()} تومان\n`;
+            text += `💸 مجموع مساعده‌ها: ${d.workerAdvances.toLocaleString()} تومان\n`;
+            text += `====================================\n`;
+            text += `🟢 قابل پرداخت نهایی: ${d.finalBalance.toLocaleString()} تومان\n`;
+            text += `------------------------------------\n`;
+            text += `📋 ریز ترددها:\n` + (d.logDetailsText.length ? d.logDetailsText.join('\n') : 'موردی ثبت نشده است') + `\n`;
+            text += `------------------------------------\n`;
+            text += `📞 پشتیبانی: 09371880982 (کارت ساعت)`;
+
+            document.getElementById('reportTextContent').value = text;
+            document.getElementById('reportModal').classList.remove('hidden');
+            document.getElementById('reportModal').classList.add('flex');
+        }
+
+        function closeReportModal() {
+            document.getElementById('reportModal').classList.remove('flex');
+            document.getElementById('reportModal').classList.add('hidden');
+        }
+
+        function copyReport() {
+            const textarea = document.getElementById('reportTextContent');
+            textarea.select();
+            document.execCommand('copy');
+            alert('✅ گزارش با موفقیت کپی شد. می‌توانید آن را در واتساپ یا تلگرام برای کارگر ارسال کنید.');
         }
 
         loadWorkersToSelect();
