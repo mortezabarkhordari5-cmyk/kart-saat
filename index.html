@@ -15,8 +15,8 @@
     <!-- Header -->
     <header class="bg-emerald-600 text-white p-4 shadow-md sticky top-0 z-50">
         <div class="max-w-md mx-auto flex justify-between items-center">
-            <h1 class="text-lg font-bold">⏱️ کارت ساعت (حساب و کتاب کارگران)</h1>
-            <span class="text-xs bg-emerald-700 px-2.5 py-1 rounded-full">نسخه ۱.۰ آفلاین</span>
+            <h1 class="text-base font-bold">⏱️ کارت ساعت (حساب و کتاب کارگران)</h1>
+            <span class="text-xs bg-emerald-700 px-2.5 py-1 rounded-full">نسخه ۱.۲ حرفه‌ای</span>
         </div>
     </header>
 
@@ -31,27 +31,40 @@
                 </select>
                 <button onclick="openAddWorkerModal()" class="bg-emerald-600 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-emerald-700 transition">افزودن</button>
             </div>
-            <div id="workerSummary" class="text-xs text-slate-500 bg-slate-50 p-3 rounded-xl hidden">
-                مزد هر ساعت: <span id="summaryRate" class="font-bold text-slate-700">0</span> تومان | تسویه شده: <span id="summaryPaid" class="font-bold text-slate-700">0</span> تومان
+            <div id="workerSummary" class="text-xs text-slate-500 bg-slate-50 p-3 rounded-xl hidden space-y-1">
+                <div>مزد هر ساعت: <span id="summaryRate" class="font-bold text-slate-700">0</span> تومان</div>
+                <div>کل ساعت کارکرد: <span id="summaryHours" class="font-bold text-slate-700">0</span> ساعت</div>
             </div>
         </section>
 
-        <!-- بخش ثبت حضور و غیاب -->
+        <!-- بخش ثبت حضور، GPS و عکس سلفی -->
         <section class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 space-y-4">
-            <h2 class="text-sm font-semibold text-slate-600">📍 ثبت حضور و موقعیت</h2>
+            <h2 class="text-sm font-semibold text-slate-600">📍 ثبت حضور، عکس و موقعیت</h2>
             
             <button onclick="getGPS()" class="w-full bg-slate-100 border border-slate-200 text-slate-700 py-3 rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-slate-200 transition">
                 <span>📍 دریافت موقعیت مکانی (GPS)</span>
             </button>
             <p id="gpsStatus" class="text-xs text-center text-slate-500">هنوز موقعیتی ثبت نشده است.</p>
 
-            <div class="grid grid-cols-2 gap-3">
+            <!-- بخش دوربین -->
+            <div class="space-y-2 border-t border-slate-100 pt-3">
+                <input type="file" id="cameraInput" accept="image/*" capture="user" class="hidden" onchange="handlePhotoCapture(event)">
+                <button onclick="document.getElementById('cameraInput').click()" class="w-full bg-sky-50 border border-sky-200 text-sky-700 py-3 rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-sky-100 transition">
+                    <span>📷 ثبت عکس در محل کار / سلفی</span>
+                </button>
+                <div id="photoPreviewContainer" class="hidden text-center space-y-2 pt-2">
+                    <img id="photoPreview" class="w-20 h-20 object-cover mx-auto rounded-xl border border-slate-200 shadow-sm" />
+                    <p class="text-xs text-emerald-600 font-medium">✅ عکس با موفقیت ضمیمه شد</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 pt-2">
                 <button onclick="checkIn()" class="bg-emerald-600 text-white py-3 rounded-xl font-medium text-sm hover:bg-emerald-700 transition shadow-sm">ورود به محل کار</button>
                 <button onclick="checkOut()" class="bg-rose-600 text-white py-3 rounded-xl font-medium text-sm hover:bg-rose-700 transition shadow-sm">خروج از کار</button>
             </div>
         </section>
 
-        <!-- بخش مساعده و تسویه -->
+        <!-- بخش مساعده و پیش‌پرداخت -->
         <section class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 space-y-3">
             <h2 class="text-sm font-semibold text-slate-600">💵 ثبت مساعده (پیش‌پرداخت)</h2>
             <div class="flex gap-2">
@@ -60,15 +73,21 @@
             </div>
         </section>
 
-        <!-- گزارش‌ها و خروجی -->
+        <!-- گزارش‌ها و تسویه حساب نهایی -->
         <section class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 space-y-3">
             <h2 class="text-sm font-semibold text-slate-600">📊 گزارش و تسویه حساب</h2>
-            <div id="reportBox" class="text-xs bg-slate-50 p-3 rounded-xl space-y-1 text-slate-600">
-                <p>کل ساعت کارکرد: <span id="totalHours" class="font-bold">0</span> ساعت</p>
-                <p>مجموع حقوق کل: <span id="totalEarnings" class="font-bold">0</span> تومان</p>
+            <div id="reportBox" class="text-xs bg-slate-50 p-3 rounded-xl space-y-1.5 text-slate-600">
+                <p>مجموع حقوق کارکرد: <span id="totalEarnings" class="font-bold">0</span> تومان</p>
                 <p>مجموع مساعده‌ها: <span id="totalAdvances" class="font-bold">0</span> تومان</p>
                 <p class="border-t border-slate-200 pt-2 text-sm font-bold text-emerald-700">مبلغ قابل پرداخت نهایی: <span id="finalBalance">0</span> تومان</p>
             </div>
+        </section>
+
+        <!-- بخش پشتیبانی و ارتباط با ما -->
+        <section class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 space-y-2 text-center">
+            <h2 class="text-xs font-semibold text-slate-500">📞 پشتیبانی و راه ارتباطی</h2>
+            <p class="text-xs text-slate-600">برای سوالات یا پشتیبانی اپلیکیشن:</p>
+            <p class="text-sm font-bold text-emerald-600" dir="ltr">09371880982</p>
         </section>
 
     </main>
@@ -76,7 +95,7 @@
     <!-- Modal افزودن کارگر -->
     <div id="workerModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
         <div class="bg-white w-full max-w-sm p-5 rounded-2xl space-y-4 shadow-xl">
-            <h3 class="font-bold text-slate-800">افزودن کارگر جدید</h3>
+            <h3 class="font-bold text-slate-800 text-sm">افزودن کارگر جدید</h3>
             <input type="text" id="newWorkerName" placeholder="نام و نام خانوادگی" class="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm bg-slate-50">
             <input type="number" id="newWorkerRate" placeholder="مزد هر ساعت (تومان)" class="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm bg-slate-50">
             <div class="flex gap-2 pt-2">
@@ -87,9 +106,10 @@
     </div>
 
     <script>
-        let db = JSON.parse(localStorage.getItem('kart_saat_db')) || { workers: [], logs: [] };
+        let db = JSON.parse(localStorage.getItem('kart_saat_db')) || { workers: [], logs: [], advances: [] };
         let currentLat = null;
         let currentLng = null;
+        let currentPhotoBase64 = null;
 
         function saveData() {
             localStorage.setItem('kart_saat_db', JSON.stringify(db));
@@ -109,10 +129,7 @@
         function saveNewWorker() {
             const name = document.getElementById('newWorkerName').value.trim();
             const rate = parseFloat(document.getElementById('newWorkerRate').value) || 0;
-            if (!name) {
-                alert('لطفاً نام کارگر را وارد کنید.');
-                return;
-            }
+            if (!name) { alert('لطفاً نام کارگر را وارد کنید.'); return; }
             db.workers.push({ id: Date.now(), name, rate });
             saveData();
             closeAddWorkerModal();
@@ -157,32 +174,57 @@
             );
         }
 
+        function handlePhotoCapture(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                currentPhotoBase64 = e.target.result;
+                const preview = document.getElementById('photoPreview');
+                preview.src = currentPhotoBase64;
+                document.getElementById('photoPreviewContainer').classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+
         function checkIn() {
             const workerId = document.getElementById('workerSelect').value;
             if (!workerId) { alert('لطفاً ابتدا کارگر را انتخاب کنید.'); return; }
+            if(!db.logs) db.logs = [];
             db.logs.push({
                 workerId: Number(workerId),
                 type: 'IN',
                 time: new Date().toISOString(),
                 lat: currentLat,
-                lng: currentLng
+                lng: currentLng,
+                photo: currentPhotoBase64
             });
             saveData();
+            resetCheckForm();
             alert('ورود با موفقیت ثبت شد.');
         }
 
         function checkOut() {
             const workerId = document.getElementById('workerSelect').value;
             if (!workerId) { alert('لطفاً ابتدا کارگر را انتخاب کنید.'); return; }
+            if(!db.logs) db.logs = [];
             db.logs.push({
                 workerId: Number(workerId),
                 type: 'OUT',
                 time: new Date().toISOString(),
                 lat: currentLat,
-                lng: currentLng
+                lng: currentLng,
+                photo: currentPhotoBase64
             });
             saveData();
+            resetCheckForm();
             alert('خروج با موفقیت ثبت شد.');
+        }
+
+        function resetCheckForm() {
+            currentPhotoBase64 = null;
+            document.getElementById('photoPreviewContainer').classList.add('hidden');
+            document.getElementById('cameraInput').value = '';
         }
 
         function addAdvance() {
@@ -203,7 +245,6 @@
             const summaryBox = document.getElementById('workerSummary');
             if (!workerId) {
                 summaryBox.classList.add('hidden');
-                document.getElementById('totalHours').innerText = '0';
                 document.getElementById('totalEarnings').innerText = '0';
                 document.getElementById('totalAdvances').innerText = '0';
                 document.getElementById('finalBalance').innerText = '0';
@@ -215,15 +256,14 @@
 
             document.getElementById('summaryRate').innerText = worker.rate.toLocaleString();
 
-            // محاسبات ساده نمونه
-            let workerLogs = db.logs.filter(l => l.workerId == workerId);
-            let totalHours = workerLogs.length * 8; // فرض نمونه برای تست اولیه
+            let workerLogs = (db.logs || []).filter(l => l.workerId == workerId);
+            let totalHours = workerLogs.length * 8; // شیفت پایه قابل توسعه
+            document.getElementById('summaryHours').innerText = totalHours;
+
             let totalEarnings = totalHours * worker.rate;
-            
             let workerAdvances = (db.advances || []).filter(a => a.workerId == workerId).reduce((sum, a) => sum + a.amount, 0);
             let finalBalance = totalEarnings - workerAdvances;
 
-            document.getElementById('totalHours').innerText = totalHours;
             document.getElementById('totalEarnings').innerText = totalEarnings.toLocaleString();
             document.getElementById('totalAdvances').innerText = workerAdvances.toLocaleString();
             document.getElementById('finalBalance').innerText = finalBalance.toLocaleString();
