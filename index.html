@@ -1,353 +1,283 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>کارت ساعت — حساب‌وکتاب و ساعت‌زن قانونی کارگران</title>
-  <style>
-    :root {
-      --primary: #065f46;
-      --primary-dark: #047857;
-      --accent: #f59e0b;
-      --danger: #dc2626;
-      --bg: #f3f4f6;
-      --card-bg: #ffffff;
-      --text: #1f2937;
-      --text-muted: #6b7280;
-      --border: #e5e7eb;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Tahoma, Arial, sans-serif; }
-    body { background-color: var(--bg); color: var(--text); padding: 10px; max-width: 600px; margin: 0 auto; direction: rtl; }
-    header { background: var(--primary); color: white; padding: 15px; border-radius: 12px; text-align: center; margin-bottom: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-    header h1 { font-size: 1.25rem; margin-bottom: 5px; }
-    header p { font-size: 0.85rem; opacity: 0.9; }
-    .clock-box { background: var(--primary-dark); color: white; padding: 10px; border-radius: 8px; text-align: center; font-size: 1rem; font-weight: bold; margin-bottom: 12px; }
-    .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 15px; margin-bottom: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-    .card-title { font-size: 1rem; font-weight: bold; color: var(--primary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; border-bottom: 2px solid var(--border); padding-bottom: 8px; }
-    .form-group { margin-bottom: 12px; }
-    label { display: block; font-size: 0.85rem; margin-bottom: 5px; color: var(--text-muted); }
-    select, input { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.95rem; background: #fff; }
-    .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; text-align: center; display: inline-block; transition: background 0.2s; }
-    .btn-primary { background: var(--primary); color: white; }
-    .btn-primary:hover { background: var(--primary-dark); }
-    .btn-success { background: #059669; color: white; }
-    .btn-danger { background: var(--danger); color: white; }
-    .btn-danger:hover { background: #b91c1c; }
-    .btn-warning { background: var(--accent); color: #fff; }
-    .btn-row { display: flex; gap: 10px; }
-    .btn-row .btn { flex: 1; }
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; padding: 15px; }
-    .modal-content { background: white; padding: 20px; border-radius: 12px; width: 100%; max-width: 400px; max-height: 90vh; overflow-y: auto; }
-    .logs-list { max-height: 200px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; padding: 5px; margin-top: 10px; font-size: 0.85rem; }
-    .log-item { padding: 8px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-    .log-item:last-child { border-bottom: none; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>کارت ساعت - حضور غیاب و حقوق کارگران</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" />
+    <style>
+        body { font-family: 'Vazirmatn', sans-serif; }
+    </style>
 </head>
-<body>
+<body class="bg-slate-50 text-slate-800 min-h-screen pb-20">
 
-  <header>
-    <h1>کارت ساعت کارگران</h1>
-    <p>حساب‌وکتاب و ساعت‌زن قانونی • پشتیبانی: 09371880982</p>
-  </header>
+    <!-- Header -->
+    <header class="bg-indigo-600 text-white p-4 shadow-md sticky top-0 z-50">
+        <div class="max-w-md mx-auto flex justify-between items-center">
+            <h1 class="text-lg font-bold">⏱️ کارت ساعت (حساب‌وکتاب کارگران)</h1>
+            <button onclick="openBackupModal()" class="bg-indigo-700 px-3 py-1.5 rounded-lg text-xs font-semibold">پشتیبان / بازیابی</button>
+        </div>
+    </header>
 
-  <div class="clock-box" id="liveClock">در حال بارگذاری ساعت...</div>
+    <main class="max-w-md mx-auto p-4 space-y-4">
+        
+        <!-- Tabs -->
+        <div class="flex bg-white rounded-xl p-1 shadow-sm border border-slate-200">
+            <button onclick="switchTab('workers')" id="tab-workers" class="flex-1 py-2 text-sm font-bold rounded-lg bg-indigo-600 text-white">کارگران</button>
+            <button onclick="switchTab('attendance')" id="tab-attendance" class="flex-1 py-2 text-sm font-bold rounded-lg text-slate-600">ثبت حضور</button>
+            <button onclick="switchTab('reports')" id="tab-reports" class="flex-1 py-2 text-sm font-bold rounded-lg text-slate-600">گزارش و تسویه</button>
+        </div>
 
-  <!-- بخش انتخاب و مدیریت کارگر -->
-  <div class="card">
-    <div class="card-title">👤 انتخاب یا مدیریت کارگر</div>
-    <div class="form-group">
-      <select id="workerSelect" onchange="onWorkerChange()">
-        <option value="">-- لطفاً ابتدا کارگر را انتخاب کنید --</option>
-      </select>
+        <!-- 1. WORKERS SECTION -->
+        <section id="section-workers" class="space-y-4">
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3">
+                <h2 class="font-bold text-slate-700">افزودن کارگر جدید</h2>
+                <input type="text" id="workerName" placeholder="نام و نام خانوادگی کارگر" class="w-full p-2.5 border rounded-lg text-sm">
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="number" id="workerDailyRate" placeholder="دستمزد روزانه (تومان)" class="w-full p-2.5 border rounded-lg text-sm">
+                    <input type="number" id="workerHourlyRate" placeholder="نرخ اضافه‌کاری هر ساعت" class="w-full p-2.5 border rounded-lg text-sm">
+                </div>
+                <button onclick="addWorker()" class="w-full bg-indigo-600 text-white py-2.5 rounded-lg font-bold text-sm">ثبت کارگر</button>
+            </div>
+
+            <div class="space-y-2" id="workersList"></div>
+        </section>
+
+        <!-- 2. ATTENDANCE SECTION -->
+        <section id="section-attendance" class="hidden space-y-4">
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3">
+                <h2 class="font-bold text-slate-700">ثبت حضور و غیاب، مساعده و خروج</h2>
+                
+                <div>
+                    <label class="text-xs text-slate-500">انتخاب کارگر</label>
+                    <select id="attWorkerSelect" class="w-full p-2.5 border rounded-lg text-sm mt-1"></select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-xs text-slate-500">ساعت ورود</label>
+                        <input type="time" id="attCheckIn" class="w-full p-2.5 border rounded-lg text-sm mt-1">
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-500">ساعت خروج</label>
+                        <input type="time" id="attCheckOut" class="w-full p-2.5 border rounded-lg text-sm mt-1">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-xs text-slate-500">اضافه‌کاری (ساعت)</label>
+                        <input type="number" id="attOvertime" value="0" step="0.5" class="w-full p-2.5 border rounded-lg text-sm mt-1">
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-500">مساعده دریافتی (تومان)</label>
+                        <input type="number" id="attAdvance" value="0" class="w-full p-2.5 border rounded-lg text-sm mt-1">
+                    </div>
+                </div>
+
+                <!-- Camera Selfie & GPS -->
+                <div class="border-2 border-dashed border-slate-300 p-3 rounded-xl text-center space-y-2">
+                    <button type="button" onclick="capturePhoto()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg text-xs font-bold">📸 ثبت عکس سلفی در محل</button>
+                    <div id="photoPreview" class="text-xs text-emerald-600 font-semibold"></div>
+                    <input type="hidden" id="capturedImageBase64">
+                </div>
+
+                <div class="bg-slate-50 p-3 rounded-lg text-xs text-slate-600 flex justify-between items-center">
+                    <span id="gpsStatus">📍 موقعیت مکانی: ثبت نشده</span>
+                    <button type="button" onclick="getGPS()" class="text-indigo-600 font-bold underline">دریافت لوکیشن</button>
+                </div>
+
+                <button onclick="saveAttendance()" class="w-full bg-emerald-600 text-white py-2.5 rounded-lg font-bold text-sm">ثبت روزکاری</button>
+            </div>
+        </section>
+
+        <!-- 3. REPORTS SECTION -->
+        <section id="section-reports" class="hidden space-y-4">
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3">
+                <h2 class="font-bold text-slate-700">گزارش و تسویه حساب قانونی</h2>
+                <select id="reportWorkerSelect" class="w-full p-2.5 border rounded-lg text-sm" onchange="generateReport()"></select>
+                <div id="reportContent" class="space-y-3 text-sm"></div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Backup Modal -->
+    <div id="backupModal" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white p-5 rounded-2xl w-full max-w-sm space-y-4">
+            <h3 class="font-bold text-base">پشتیبان‌گیری و بازیابی اطلاعات</h3>
+            <button onclick="exportData()" class="w-full bg-indigo-50 text-indigo-600 py-2.5 rounded-xl font-bold text-sm">دریافت فایل پشتیبان (JSON)</button>
+            <input type="file" id="importFile" onchange="importData(event)" class="w-full text-xs text-slate-500">
+            <button onclick="closeBackupModal()" class="w-full bg-slate-200 py-2 rounded-xl text-xs font-bold">بستن</button>
+        </div>
     </div>
-    
-    <div id="workerSummary" style="display:none; margin-bottom:12px; font-size:0.9rem; background:var(--bg); padding:10px; border-radius:8px;">
-      <div id="workerDetailsText"></div>
-    </div>
 
-    <!-- دو دکمه درخواست شده: افزودن کارگر و حذف کارگر -->
-    <div class="btn-row">
-      <button class="btn btn-primary" onclick="openAddWorkerModal()">➕ افزودن کارگر</button>
-      <button class="btn btn-danger" onclick="deleteCurrentWorker()">❌ حذف کارگر انتخاب‌شده</button>
-    </div>
-  </div>
+    <script>
+        let db = JSON.parse(localStorage.getItem('kart_saat_db')) || { workers: [], logs: [] };
+        let currentLat = null, currentLng = null, currentPhoto = '';
 
-  <!-- ثبت ورود و خروج -->
-  <div class="card">
-    <div class="card-title">⏱ ثبت ورود و خروج</div>
-    <div class="btn-row">
-      <button class="btn btn-success" onclick="recordAction('in')">🟢 ثبت ورود به کار</button>
-      <button class="btn btn-danger" onclick="recordAction('out')">🔴 ثبت خروج</button>
-    </div>
-    <div class="logs-list" id="logsList">
-      <div style="text-align:center; color:var(--text-muted); padding:15px;">هیچ سوابقی ثبت نشده است</div>
-    </div>
-  </div>
-
-  <!-- ثبت مساعده نقدی -->
-  <div class="card">
-    <div class="card-title">💵 ثبت مساعده نقدی</div>
-    <div class="form-group">
-      <label>مبلغ مساعده به تومان</label>
-      <input type="number" id="advanceAmount" placeholder="مثلاً ۵۰۰۰۰۰">
-    </div>
-    <button class="btn btn-warning" onclick="recordAdvance()">ثبت مساعده</button>
-  </div>
-
-  <!-- پشتیبان‌گیری و بازیابی اطلاعات -->
-  <div class="card">
-    <div class="card-title">💾 پشتیبان‌گیری و بازیابی اطلاعات</div>
-    <div class="btn-row">
-      <button class="btn btn-primary" onclick="downloadJSON()">دانلود پشتیبان JSON</button>
-      <button class="btn btn-warning" onclick="document.getElementById('importFile').click()">بارگذاری پشتیبان</button>
-      <input type="file" id="importFile" style="display:none" accept=".json" onchange="importJSON(event)">
-    </div>
-  </div>
-
-  <!-- مودال افزودن کارگر جدید -->
-  <div class="modal" id="workerModal">
-    <div class="modal-content">
-      <h3 style="margin-bottom:12px; color:var(--primary);">افزودن کارگر جدید</h3>
-      <div class="form-group">
-        <label>نام و نام خانوادگی</label>
-        <input type="text" id="newWorkerName" placeholder="مثلاً رضا رضایی">
-      </div>
-      <div class="form-group">
-        <label>مزایای ساعتی (تومان)</label>
-        <input type="number" id="newWorkerWage" placeholder="مثلاً ۵۰۰۰۰">
-      </div>
-      <div class="btn-row">
-        <button class="btn btn-primary" onclick="saveNewWorker()">ذخیره کارگر</button>
-        <button class="btn" style="background:var(--border);" onclick="closeAddWorkerModal()">انصراف</button>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    const DB_KEY = 'kart_saat_db_v3';
-
-    function db() {
-      let data = localStorage.getItem(DB_KEY);
-      if (!data) {
-        let initial = { workers: [], logs: [], advances: [] };
-        localStorage.setItem(DB_KEY, JSON.stringify(initial));
-        return initial;
-      }
-      return JSON.parse(data);
-    }
-
-    function save(data) {
-      localStorage.setItem(DB_KEY, JSON.stringify(data));
-    }
-
-    // به‌روزرسانی ساعت و تاریخ شمسی با استفاده از منطقه زمانی ایران
-    function updateClock(){
-      var now = new Date();
-
-      var parts = new Intl.DateTimeFormat('fa-IR-u-ca-persian', {
-        timeZone: 'Asia/Tehran',
-        weekday: 'long',
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric'
-      }).formatToParts(now);
-
-      var values = {};
-      parts.forEach(function(part){
-        if(part.type !== 'literal') values[part.type] = part.value;
-      });
-
-      var timeStr = new Intl.DateTimeFormat('fa-IR', {
-        timeZone: 'Asia/Tehran',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hourCycle: 'h23'
-      }).format(now);
-
-      var elClock = document.getElementById('liveClock');
-      if(elClock){
-        elClock.textContent =
-          (values.weekday || '') + ' ' +
-          (values.day || '') + ' ' +
-          (values.month || '') + ' ' +
-          (values.year || '') + ' — ' +
-          timeStr;
-      }
-    }
-    setInterval(updateClock, 1000);
-    updateClock();
-
-    function initApp() {
-      renderWorkers();
-    }
-
-    function renderWorkers() {
-      let d = db();
-      let select = document.getElementById('workerSelect');
-      let currentVal = select.value;
-      select.innerHTML = '<option value="">-- انتخاب کارگر --</option>';
-      d.workers.forEach(w => {
-        let opt = document.createElement('option');
-        opt.value = w.id;
-        opt.textContent = w.name + ' (مزد ساعت: ' + Number(w.wage || 0).toLocaleString() + ' تومان)';
-        select.appendChild(opt);
-      });
-      if(currentVal) select.value = currentVal;
-      onWorkerChange();
-    }
-
-    function openAddWorkerModal() {
-      document.getElementById('newWorkerName').value = '';
-      document.getElementById('newWorkerWage').value = '';
-      document.getElementById('workerModal').style.display = 'flex';
-    }
-
-    function closeAddWorkerModal() {
-      document.getElementById('workerModal').style.display = 'none';
-    }
-
-    function saveNewWorker() {
-      let name = document.getElementById('newWorkerName').value.trim();
-      let wage = Number(document.getElementById('newWorkerWage').value);
-      if(!name) { alert('لطفاً نام کارگر را وارد کنید'); return; }
-
-      let d = db();
-      let newId = Date.now().toString();
-      d.workers.push({ id: newId, name: name, wage: wage });
-      save(d);
-      closeAddWorkerModal();
-      renderWorkers();
-      document.getElementById('workerSelect').value = newId;
-      onWorkerChange();
-    }
-
-    function onWorkerChange() {
-      let wid = document.getElementById('workerSelect').value;
-      let summaryDiv = document.getElementById('workerSummary');
-      let detailsText = document.getElementById('workerDetailsText');
-      
-      if(!wid) {
-        summaryDiv.style.display = 'none';
-        renderLogs();
-        return;
-      }
-
-      let d = db();
-      let worker = d.workers.find(w => String(w.id) === String(wid));
-      if(worker) {
-        summaryDiv.style.display = 'block';
-        detailsText.innerHTML = `<b>نام:</b> ${worker.name} | <b>مزد ساعتی:</b> ${Number(worker.wage || 0).toLocaleString()} تومان`;
-      }
-      renderLogs();
-    }
-
-    function deleteCurrentWorker() {
-      let wid = document.getElementById('workerSelect').value;
-      if(!wid) { alert('لطفاً ابتدا کارگری را از منوی کشویی انتخاب کنید'); return; }
-      if(!confirm('آیا از حذف کامل این کارگر و تمام سوابق، ورودها و مساعده‌های مرتبط با او اطمینان دارید؟')) return;
-
-      let d = db();
-      d.workers = d.workers.filter(w => String(w.id) !== String(wid));
-      d.logs = d.logs.filter(l => String(l.workerId) !== String(wid));
-      d.advances = d.advances.filter(a => String(a.workerId) !== String(wid));
-      save(d);
-      renderWorkers();
-      alert('کارگر و تمام سوابق مربوط به او فوراً از حافظه محلی پاک شد.');
-    }
-
-    function recordAction(type) {
-      let wid = document.getElementById('workerSelect').value;
-      if(!wid) { alert('لطفاً ابتدا کارگر را انتخاب کنید'); return; }
-
-      let d = db();
-      let nowIso = new Date().toISOString();
-      d.logs.push({
-        id: Date.now().toString(),
-        workerId: wid,
-        type: type,
-        time: nowIso
-      });
-      save(d);
-      renderLogs();
-      alert(type === 'in' ? 'ورود با موفقیت ثبت شد' : 'خروج با موفقیت ثبت شد');
-    }
-
-    function recordAdvance() {
-      let wid = document.getElementById('workerSelect').value;
-      if(!wid) { alert('لطفاً ابتدا کارگر را انتخاب کنید'); return; }
-      let amount = Number(document.getElementById('advanceAmount').value);
-      if(!amount || amount <= 0) { alert('لطفاً مبلغ معتبری وارد کنید'); return; }
-
-      let d = db();
-      d.advances.push({
-        id: Date.now().toString(),
-        workerId: wid,
-        amount: amount,
-        time: new Date().toISOString()
-      });
-      save(d);
-      document.getElementById('advanceAmount').value = '';
-      alert('مساعده نقدی با موفقیت ثبت شد');
-    }
-
-    function renderLogs() {
-      let wid = document.getElementById('workerSelect').value;
-      let listEl = document.getElementById('logsList');
-      if(!wid) {
-        listEl.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:15px;">لطفاً کارگری را انتخاب کنید</div>';
-        return;
-      }
-
-      let d = db();
-      let workerLogs = d.logs.filter(l => String(l.workerId) === String(wid)).sort((a,b) => new Date(b.time) - new Date(a.time));
-
-      if(workerLogs.length === 0) {
-        listEl.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:15px;">هیچ سوابقی ثبت نشده است</div>';
-        return;
-      }
-
-      let html = '';
-      workerLogs.forEach(l => {
-        let dt = new Date(l.time).toLocaleString('fa-IR', { timeZone: 'Asia/Tehran' });
-        let badge = l.type === 'in' ? '<span style="color:#059669; font-weight:bold;">ورود</span>' : '<span style="color:var(--danger); font-weight:bold;">خروج</span>';
-        html += `<div class="log-item"><span>${badge} — ${dt}</span></div>`;
-      });
-      listEl.innerHTML = html;
-    }
-
-    function downloadJSON() {
-      let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(localStorage.getItem(DB_KEY));
-      let dlAnchor = document.createElement('a');
-      dlAnchor.setAttribute("href", dataStr);
-      dlAnchor.setAttribute("download", "kart_saat_backup.json");
-      document.body.appendChild(dlAnchor);
-      dlAnchor.click();
-      dlAnchor.remove();
-    }
-
-    function importJSON(event) {
-      let file = event.target.files[0];
-      if(!file) return;
-      let reader = new FileReader();
-      reader.onload = function(e) {
-        try {
-          let parsed = JSON.parse(e.target.result);
-          if(parsed && parsed.workers && parsed.logs) {
-            localStorage.setItem(DB_KEY, JSON.stringify(parsed));
-            renderWorkers();
-            alert('اطلاعات با موفقیت بازیابی شد.');
-          } else {
-            alert('فرمت فایل پشتیبان معتبر نیست.');
-          }
-        } catch(err) {
-          alert('خطا در خواندن فایل JSON.');
+        function saveData() {
+            localStorage.setItem('kart_saat_db', JSON.stringify(db));
         }
-      };
-      reader.readAsText(file);
-    }
 
-    initApp();
-  </script>
+        function switchTab(tab) {
+            ['workers', 'attendance', 'reports'].forEach(t => {
+                document.getElementById('section-' + t).classList.add('hidden');
+                document.getElementById('tab-' + t).className = 'flex-1 py-2 text-sm font-bold rounded-lg text-slate-600';
+            });
+            document.getElementById('section-' + tab).classList.remove('hidden');
+            document.getElementById('tab-' + tab).className = 'flex-1 py-2 text-sm font-bold rounded-lg bg-indigo-600 text-white';
+            if(tab === 'attendance' || tab === 'reports') updateSelects();
+        }
+
+        function addWorker() {
+            const name = document.getElementById('workerName').value.trim();
+            const daily = Number(document.getElementById('workerDailyRate').value);
+            const hourly = Number(document.getElementById('workerHourlyRate').value);
+            if(!name || !daily) return alert('لطفا نام و دستمزد روزانه را وارد کنید.');
+            
+            db.workers.push({ id: Date.now(), name, daily, hourly });
+            saveData();
+            document.getElementById('workerName').value = '';
+            document.getElementById('workerDailyRate').value = '';
+            document.getElementById('workerHourlyRate').value = '';
+            renderWorkers();
+            alert('کارگر با موفقیت ثبت شد.');
+        }
+
+        function renderWorkers() {
+            const list = document.getElementById('workersList');
+            list.innerHTML = db.workers.length === 0 ? '<p class="text-xs text-slate-400 text-center py-4">هنوز کارگری ثبت نشده است.</p>' : '';
+            db.workers.forEach(w => {
+                list.innerHTML += `<div class="bg-white p-3 rounded-xl border border-slate-200 flex justify-between items-center">
+                    <div>
+                        <h4 class="font-bold text-sm">${w.name}</h4>
+                        <p class="text-xs text-slate-500">روزانه: ${w.daily.toLocaleString()} ت | اضافه‌کاری: ${(w.hourly||0).toLocaleString()} ت/ساعت</p>
+                    </div>
+                    <button onclick="deleteWorker(${w.id})" class="text-rose-500 text-xs font-bold">حذف</button>
+                </div>`;
+            });
+        }
+
+        function deleteWorker(id) {
+            db.workers = db.workers.filter(w => w.id !== id);
+            saveData();
+            renderWorkers();
+        }
+
+        function updateSelects() {
+            ['attWorkerSelect', 'reportWorkerSelect'].forEach(id => {
+                const sel = document.getElementById(id);
+                sel.innerHTML = db.workers.map(w => `<option value="${w.id}">${w.name}</option>`).join('');
+            });
+            generateReport();
+        }
+
+        function capturePhoto() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.capture = 'environment';
+            input.onchange = e => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = event => {
+                    currentPhoto = event.target.result;
+                    document.getElementById('photoPreview').innerText = '✓ عکس با موفقیت ثبت شد';
+                };
+                reader.readAsDataURL(file);
+            };
+            input.click();
+        }
+
+        function getGPS() {
+            if(navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(pos => {
+                    currentLat = pos.coords.latitude;
+                    currentLng = pos.coords.longitude;
+                    document.getElementById('gpsStatus').innerText = `📍 ثبت شد: ${currentLat.toFixed(4)}, ${currentLng.toFixed(4)}`;
+                }, () => alert('خطا در دریافت موقعیت مکانی. لطفا GPS را روشن کنید.'));
+            } else {
+                alert('مرورگر شما از GPS پشتیبانی نمی‌کند.');
+            }
+        }
+
+        function saveAttendance() {
+            const workerId = Number(document.getElementById('attWorkerSelect').value);
+            if(!workerId) return alert('لطفا یک کارگر انتخاب کنید.');
+            
+            const log = {
+                id: Date.now(),
+                workerId,
+                date: new Date().toLocaleDateString('fa-IR'),
+                checkIn: document.getElementById('attCheckIn').value,
+                checkOut: document.getElementById('attCheckOut').value,
+                overtime: Number(document.getElementById('attOvertime').value),
+                advance: Number(document.getElementById('attAdvance').value),
+                photo: currentPhoto,
+                lat: currentLat,
+                lng: currentLng
+            };
+
+            db.logs.push(log);
+            saveData();
+            alert('حضور و غیاب ثبت شد.');
+            currentPhoto = '';
+            currentLat = null; currentLng = null;
+            document.getElementById('photoPreview').innerText = '';
+            document.getElementById('gpsStatus').innerText = '📍 موقعیت مکانی: ثبت نشده';
+        }
+
+        function generateReport() {
+            const workerId = Number(document.getElementById('reportWorkerSelect').value);
+            const worker = db.workers.find(w => w.id === workerId);
+            const container = document.getElementById('reportContent');
+            if(!worker) { container.innerHTML = 'کارگری انتخاب نشده است.'; return; }
+
+            const logs = db.logs.filter(l => l.workerId === workerId);
+            let totalDays = logs.length;
+            let totalAdvance = logs.reduce((sum, l) => sum + (l.advance || 0), 0);
+            let totalOvertimeHours = logs.reduce((sum, l) => sum + (l.overtime || 0), 0);
+            let grossPay = (totalDays * worker.daily) + (totalOvertimeHours * (worker.hourly || 0));
+            let netPay = grossPay - totalAdvance;
+
+            container.innerHTML = `
+                <div class="bg-slate-50 p-3 rounded-lg space-y-1 text-xs">
+                    <p>تعداد روز کارکرد: <b>${totalDays} روز</b></p>
+                    <p>مجموع اضافه‌کاری: <b>${totalOvertimeHours} ساعت</b></p>
+                    <p>مساعده‌های دریافتی: <b class="text-rose-600">${totalAdvance.toLocaleString()} تومان</b></p>
+                    <hr>
+                    <p class="text-sm font-bold text-indigo-600">مبلغ قابل پرداخت نهایی: ${netPay.toLocaleString()} تومان</p>
+                </div>
+                <button onclick="window.print()" class="w-full bg-slate-800 text-white py-2 rounded-lg text-xs font-bold">🖨️ چاپ برگ تسویه حساب قانونی</button>
+            `;
+        }
+
+        function openBackupModal() { document.getElementById('backupModal').classList.remove('hidden'); }
+        function closeBackupModal() { document.getElementById('backupModal').classList.add('hidden'); }
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
+            const dlAnchor = document.createElement('a');
+            dlAnchor.setAttribute("href", dataStr);
+            dlAnchor.setAttribute("download", "kart-saat-backup.json");
+            document.body.appendChild(dlAnchor);
+            dlAnchor.click();
+            dlAnchor.remove();
+        }
+        function importData(e) {
+            const reader = new FileReader();
+            reader.onload = event => {
+                db = JSON.parse(event.target.result);
+                saveData();
+                renderWorkers();
+                alert('اطلاعات با موفقیت بازیابی شد.');
+                closeBackupModal();
+            };
+            reader.readAsText(e.target.files[0]);
+        }
+
+        renderWorkers();
+    </script>
 </body>
 </html>
