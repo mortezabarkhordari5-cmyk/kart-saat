@@ -8,127 +8,140 @@
 :root{--primary:#065f46;--primary-dark:#047857;--accent:#f59e0b;--bg:#f8fafc;--card:#ffffff;--text:#0f172a;--border:#cbd5e1;--danger:#dc2626}
 *{box-sizing:border-box;margin:0;padding:0;font-family:Tahoma,Vazirmatn,sans-serif}
 body{background:var(--bg);color:var(--text);padding:12px;max-width:480px;margin:auto;font-size:14px}
-header{background:var(--primary);color:#fff;padding:16px;border-radius:16px;text-align:center;margin-bottom:14px;box-shadow:0 4px 12px rgba(6,95,70,0.2)}
+header{background:var(--primary);color:#fff;padding:16px;border-radius:12px;margin-bottom:12px;text-align:center;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1)}
 header h1{font-size:18px;margin-bottom:4px}
 header p{font-size:12px;opacity:0.9}
-.card{background:var(--card);border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.05);border:1px solid var(--border)}
-h2{font-size:15px;color:var(--primary);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.clock-box{background:#047857;color:#fff;padding:8px 12px;border-radius:8px;font-size:13px;text-align:center;margin-bottom:12px;font-weight:bold;letter-spacing:0.5px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,0.05)}
+h2{font-size:14px;color:var(--primary);margin-bottom:10px;display:flex;align-items:center;gap:6px}
 label{display:block;font-size:12px;color:#475569;margin-bottom:4px}
-select,input{width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;font-size:14px;margin-bottom:10px;background:#fff}
-button{width:100%;padding:12px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;transition:0.2s}
+select,input{width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:14px;margin-bottom:10px;background:#fff}
+button{width:100%;padding:11px;border:0;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:0.2s}
 .btn-primary{background:var(--primary);color:#fff}
 .btn-primary:active{background:var(--primary-dark)}
 .btn-accent{background:var(--accent);color:#fff}
 .btn-danger{background:var(--danger);color:#fff}
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.summary-box{display:grid;grid-template-columns:1fr 1fr;gap:8px;background:#f0fdfa;border:1px solid #a7f3d0;border-radius:10px;padding:10px;margin-bottom:10px}
-.summary-item{font-size:12px;color:#065f46}
-.summary-item b{display:block;font-size:16px;color:#047857}
+.btn-outline{background:#fff;color:var(--primary);border:1px solid var(--primary)}
+.row{display:flex;gap:8px}
+.row > *{flex:1}
+.summary-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:10px}
+.stat-box{background:#f0fdfa;border:1px solid #a7f3d0;border-radius:8px;padding:10px;text-align:center}
+.stat-box span{font-size:11px;color:#047857;display:block}
+.stat-box b{font-size:15px;color:#065f46}
+.status-line{font-size:12px;padding:8px 12px;border-radius:8px;background:#fef3c7;color:#b45309;margin-bottom:10px;text-align:center;font-weight:bold}
 .logitem{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:12px}
-.tag{padding:2px 8px;border-radius:6px;font-size:11px;font-weight:bold}
-.tag.in{background:#d1fae5;color:#065f46}
+.logitem:last-child{border-bottom:0}
+.tag{padding:3px 8px;border-radius:6px;font-size:10px;font-weight:bold}
+.tag.in{background:#dcfce7;color:#166534}
 .tag.out{background:#fee2e2;color:#991b1b}
-.tag.adv{background:#fef3c7;color:#b45309}
+.tag.adv{background:#fef3c7;color:#92400e}
 .hint{font-size:11px;color:#64748b}
-.status-line{font-size:12px;padding:8px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;margin-bottom:10px;color:#b45309;text-align:center}
-.modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;padding:16px;z-index:99}
-.modal-content{background:#fff;border-radius:14px;padding:16px;width:100%;max-width:400px}
-.footer-info{text-align:center;font-size:11px;color:#64748b;margin-top:20px;line-height:1.6}
+.modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;padding:16px;z-index:100}
+.modal-content{background:#fff;width:100%;max-width:400px;border-radius:12px;padding:16px;max-height:90vh;overflow-y:auto}
+.backup-row{display:flex;gap:8px;margin-top:8px}
+.date-row{display:flex;gap:6px;margin-bottom:8px}
+.date-row input{text-align:center}
+.foot{text-align:center;font-size:11px;color:#64748b;margin-top:16px}
 </style>
 </head>
 <body>
+
 <header>
-<h1>کارت ساعت کارگران</h1>
-<p>حساب‌وکتاب و ساعت‌زن قانونی • پشتیبانی: 09371880982</p>
+ <h1>کارت ساعت</h1>
+ <p>حساب‌وکتاب و ساعت‌زن قانونی کارگران</p>
 </header>
 
-<div class="card">
-<h2>👤 انتخاب یا مدیریت کارگر</h2>
-<div class="grid-2">
-<select id="workerSelect"><option value="">-- انتخاب کارگر --</option></select>
-<button class="btn-primary" onclick="openModal(true)">+ کارگر جدید</button>
-</div>
-</div>
+<!-- ساعت زنده بالای صفحه -->
+<div id="liveClock" class="clock-box">درحال بارگذاری ساعت...</div>
 
 <div class="card">
-<h2>⏱ ثبت ورود و خروج</h2>
-<div id="statusLine" class="status-line"></div>
-<div class="grid-2">
-<button class="btn-primary" onclick="checkIn()">🟢 ثبت ورود به کار</button>
-<button class="btn-danger" onclick="checkOut()">🔴 ثبت خروج</button>
-</div>
-</div>
-
-<div class="card" id="workerSummary" style="display:none">
-<h2>📊 خلاصه حساب کارگر</h2>
-<div class="summary-box">
-<div class="summary-item">مزد هر ساعت:<b id="summaryRate">0</b></div>
-<div class="summary-item">مجموع ساعت:<b id="summaryHours">0</b></div>
-<div class="summary-item">حقوق کل:<b id="summaryEarn">0</b></div>
-<div class="summary-item">دریافتی نهایی:<b id="summaryFinal">0</b></div>
-</div>
-<div style="font-size:11px;color:#64748b;margin-bottom:10px">تاریخچه ورود و خروج‌ها:</div>
-<div id="history" style="max-height:150px;overflow-y:auto"></div>
-<hr style="margin:10px 0;border:0;border-top:1px solid var(--border)">
-<div style="font-size:11px;color:#64748b;margin-bottom:6px">تاریخچه مساعده‌ها:</div>
-<div id="advHistory" style="max-height:100px;overflow-y:auto"></div>
-<button class="btn-danger" style="margin-top:12px;padding:10px;font-size:13px" onclick="deleteCurrentWorker()">🗑 حذف این کارگر و تمام سوابق آن</button>
+ <h2>👥 مدیریت کارگران</h2>
+ <div class="row">
+  <select id="workerSelect"><option value="">-- انتخاب کارگر --</option></select>
+  <button class="btn-primary" onclick="openModal(true)" style="width:auto;padding:0 14px">➕ جدید</button>
+ </div>
 </div>
 
-<div class="card">
-<h2>💵 ثبت مساعده نقدی</h2>
-<input type="number" id="advanceAmount" placeholder="مبلغ مساعده به تومان">
-<button class="btn-accent" onclick="addAdvance()">ثبت مساعده</button>
-</div>
-
-<div class="card">
-<h2>📥 پشتیبان‌گیری و بازیابی اطلاعات</h2>
-<div class="grid-2">
-<button class="btn-primary" onclick="downloadBackup()">دانلود پشتیبان JSON</button>
-<label style="background:var(--accent);color:#fff;text-align:center;padding:12px;border-radius:10px;cursor:pointer;font-weight:bold;margin:0">
-بارگذاری پشتیبان<input type="file" accept=".json" style="display:none" onchange="restoreBackup(this)">
-</label>
-</div>
+<div id="workerSummary" class="card" style="display:none">
+ <h2>📋 خلاصه حساب کارگر</h2>
+ <div id="statusLine" class="status-line"></div>
+ <div class="summary-grid">
+  <div class="stat-box"><span>مزد هر ساعت</span><b id="summaryRate">0</b></div>
+  <div class="stat-box"><span>مجموع ساعت</span><b id="summaryHours">0</b></div>
+  <div class="stat-box"><span>حقوق کل</span><b id="summaryEarn">0</b></div>
+  <div class="stat-box"><span>تراز (پس از مساعده)</span><b id="summaryFinal" style="color:#b45309">0</b></div>
+ </div>
+ <div class="row" style="margin-bottom:10px">
+  <button class="btn-primary" onclick="checkIn()">🟢 ورود به کار</button>
+  <button class="btn-accent" onclick="checkOut()">🔴 خروج از کار</button>
+ </div>
+ <div style="margin-top:12px;border-top:1px dashed var(--border);padding-top:10px">
+  <label style="font-weight:bold;margin-bottom:6px">پرداخت مساعده:</label>
+  <div class="row">
+   <input type="number" id="advanceAmount" placeholder="مبلغ مساعده (تومان)" style="margin:0">
+   <button class="btn-primary" onclick="addAdvance()" style="width:auto;padding:0 14px">ثبت مساعده</button>
+  </div>
+ </div>
+ <div style="margin-top:14px">
+  <span class="hint" style="font-weight:bold;display:block;margin-bottom:4px">سوابق اخیر ورود/خروج:</span>
+  <div id="history" style="max-height:140px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:6px"></div>
+ </div>
+ <div style="margin-top:10px">
+  <span class="hint" style="font-weight:bold;display:block;margin-bottom:4px">مساعده‌های ثبت‌شده:</span>
+  <div id="advHistory" style="max-height:100px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:6px"></div>
+ </div>
+ <!-- دکمه حذف کارگر داخل خلاصه حساب -->
+ <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:10px">
+  <button class="btn-danger" onclick="deleteCurrentWorker()">🗑 حذف کامل این کارگر و سوابق او</button>
+ </div>
 </div>
 
 <div class="card">
-<h2>📑 گزارش دوره‌ای کارکرد کارگر (شمسی)</h2>
-<label>انتخاب کارگر برای گزارش:</label>
-<select id="reportWorker"><option value="">-- کارگر گزارش --</option></select>
-<label>از تاریخ شمسی (سال / ماه / روز):</label>
-<div class="grid-2">
-<input type="number" id="fromY" placeholder="سال (مثال 1403)" value="1403">
-<div class="grid-2"><input type="number" id="fromM" placeholder="ماه" value="01"><input type="number" id="fromD" placeholder="روز" value="01"></div>
-</div>
-<div id="fromDisp" style="font-size:11px;color:#047857;margin-bottom:8px"></div>
-
-<label>تا تاریخ شمسی (سال / ماه / روز):</label>
-<div class="grid-2">
-<input type="number" id="toY" placeholder="سال (مثال 1403)" value="1403">
-<div class="grid-2"><input type="number" id="toM" placeholder="ماه" value="12"><input type="number" id="toD" placeholder="روز" value="29"></div>
-</div>
-<div id="toDisp" style="font-size:11px;color:#047857;margin-bottom:10px"></div>
-
-<button class="btn-primary" onclick="buildReport()">ساخت و دانلود گزارش HTML کارکرد</button>
-<div id="reportOut" style="margin-top:10px;font-size:12px;background:#f0fdfa;border:1px solid #a7f3d0;border-radius:8px;padding:10px;display:none"></div>
-</div>
-
-<div class="modal" id="workerModal">
-<div class="modal-content">
-<h2>افزودن کارگر جدید</h2>
-<input type="text" id="newWorkerName" placeholder="نام و نام خانوادگی کارگر">
-<input type="number" id="newWorkerRate" placeholder="مزد هر ساعت (تومان)">
-<div class="grid-2">
-<button class="btn-primary" onclick="saveNewWorker()">ذخیره</button>
-<button class="btn-danger" onclick="openModal(false)">انصراف</button>
-</div>
-</div>
+ <h2>🧾 گزارش‌گیری دوره‌ای</h2>
+ <select id="reportWorker" style="margin-bottom:8px"><option value="">-- کارگر گزارش --</option></select>
+ <label>از تاریخ شمسی (روز / ماه / سال):</label>
+ <div class="date-row">
+  <input type="number" id="fromD" placeholder="روز" min="1" max="31" value="1">
+  <input type="number" id="fromM" placeholder="ماه" min="1" max="12" value="1">
+  <input type="number" id="fromY" placeholder="سال (مثلا 1403)" min="1300" max="1500" value="1403">
+ </div>
+ <div id="fromDisp" class="hint" style="margin-bottom:6px"></div>
+ <label>تا تاریخ شمسی (روز / ماه / سال):</label>
+ <div class="date-row">
+  <input type="number" id="toD" placeholder="روز" min="1" max="31" value="30">
+  <input type="number" id="toM" placeholder="ماه" min="1" max="12" value="12">
+  <input type="number" id="toY" placeholder="سال (مثلا 1403)" min="1300" max="1500" value="1403">
+ </div>
+ <div id="toDisp" class="hint" style="margin-bottom:8px"></div>
+ <button class="btn-primary" onclick="buildReport()">📄 ساخت و دانلود گزارش HTML</button>
+ <div id="reportOut" class="card" style="display:none;margin-top:10px;background:#f0fdfa;border:1px solid #a7f3d0;font-size:12px"></div>
 </div>
 
-<div class="footer-info">
-کارت ساعت نسخه کامل موبایل<br>
-پشتیبانی: 09371880982
+<div class="card">
+ <h2>💾 پشتیبان‌گیری و بازیابی داده‌ها</h2>
+ <div class="backup-row">
+  <button class="btn-outline" onclick="downloadBackup()">📥 دانلود فایل پشتیبان (JSON)</button>
+  <button class="btn-outline" onclick="document.getElementById('restoreFile').click()">📤 بازیابی فایل</button>
+  <input type="file" id="restoreFile" style="display:none" accept=".json" onchange="restoreBackup(this)">
+ </div>
 </div>
+
+<!-- مودال ثبت کارگر جدید -->
+<div id="workerModal" class="modal">
+ <div class="modal-content">
+  <h2>➕ افزودن کارگر جدید</h2>
+  <label>نام و نام خانوادگی:</label>
+  <input type="text" id="newWorkerName" placeholder="مثلاً: علی اصغری">
+  <label>مزد هر ساعت (تومان):</label>
+  <input type="number" id="newWorkerRate" placeholder="مثلاً: 50000">
+  <div class="row" style="margin-top:12px">
+   <button class="btn-primary" onclick="saveNewWorker()">ذخیره</button>
+   <button class="btn-outline" onclick="openModal(false)">انصراف</button>
+  </div>
+ </div>
+</div>
+
+<p class="foot">کارت ساعت v3.4 — پشتیبانی: 09371880982</p>
 <script>
 var DB_KEY='kart_saat_db_v3';
 function db(){try{return JSON.parse(localStorage.getItem(DB_KEY))||{workers:[],logs:[],advances:[]};}catch(e){return {workers:[],logs:[],advances:[]};}}
@@ -139,6 +152,18 @@ function openModal(o){document.getElementById('workerModal').style.display=o?'fl
 var currentLat=null,currentLng=null,currentPhotoBase64=null;
 function resetPhoto(){currentLat=null;currentLng=null;currentPhotoBase64=null;}
 if(navigator.geolocation){navigator.geolocation.getCurrentPosition(function(p){currentLat=p.coords.latitude;currentLng=p.coords.longitude;},function(){},{enableHighAccuracy:true,timeout:10000});}
+
+// Live Clock
+function updateClock(){
+ var now=new Date();
+ var j=toJalali(now.getFullYear(),now.getMonth()+1,now.getDate());
+ var timeStr=now.toTimeString().slice(0,8);
+ var days=['یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنج‌شنبه','جمعه','شنبه'];
+ var dayName=days[now.getDay()];
+ var elClock=document.getElementById('liveClock');
+ if(elClock) elClock.textContent=dayName+' '+pad(j[2])+'/'+pad(j[1])+'/'+j[0]+' — '+timeStr;
+}
+setInterval(updateClock,1000);updateClock();
 
 function toJalali(gy,gm,gd){var g_d_m=[0,31,59,90,120,151,181,212,243,273,304,334];var gy2=(gm>2)?(gy+1):gy;var days=355668+(365*gy)+Math.floor((gy2+3)/4)-Math.floor((gy2+99)/100)+Math.floor((gy2+399)/400)+gd+g_d_m[gm-1];var jy=-1595+(33*Math.floor(days/12053));days%=12053;jy+=4*Math.floor(days/1461);days%=1461;if(days>365){jy+=Math.floor((days-1)/365);days=(days-1)%365;}var jm=(days<186)?1+Math.floor(days/31):7+Math.floor((days-186)/30);var jd=1+((days<186)?(days%31):((days-186)%30));return[jy,jm,jd];}
 function fmtDate(iso){var d=new Date(iso);if(isNaN(d))return'—';var j=toJalali(d.getFullYear(),d.getMonth()+1,d.getDate());return pad(j[0])+'/'+pad(j[1])+'/'+pad(j[2])+' — '+d.toTimeString().slice(0,5);}
@@ -187,7 +212,7 @@ function deleteCurrentWorker(){
  d.logs=d.logs.filter(function(l){return l.workerId!==wid});
  d.advances=d.advances.filter(function(a){return a.workerId!==wid});
  save(d);
- document.getElementById('workerSelect.value')='';
+ document.getElementById('workerSelect').value='';
  refresh();
  toast('🗑 کارگر و تمام سوابق او حذف شدند');
 }
@@ -214,7 +239,7 @@ function render(d){
  hist.textContent='';advH.textContent='';
  if(!wid){box.style.display='none';hist.textContent='برای مشاهده تاریخچه، کارگر را انتخاب کنید.';advH.textContent='مساعده‌ای ثبت نشده است.';statusLine.textContent='';return;}
  var w=d.workers.find(function(x){return x.id===wid});if(!w){box.style.display='none';return;}
- box.style.display='grid';
+ box.style.display='block';
  var logs=d.logs.filter(function(l){return l.workerId===wid}).slice().sort(function(a,b){return new Date(a.time)-new Date(b.time)});
  var open=null,ms=0,pairs=0,openSec=null;
  logs.forEach(function(l){
