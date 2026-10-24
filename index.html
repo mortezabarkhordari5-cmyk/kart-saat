@@ -24,7 +24,6 @@
     header h1 { font-size: 1.3rem; margin-bottom: 6px; font-weight: 800; }
     header p { font-size: 0.8rem; opacity: 0.9; }
 
-    /* تب‌های ناوبری مدرن */
     .tabs-nav { display: flex; background: #e2e8f0; padding: 6px; border-radius: 12px; margin-bottom: 15px; gap: 6px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); }
     .tab-btn { flex: 1; padding: 10px 4px; border: none; background: transparent; font-size: 0.85rem; font-weight: bold; color: var(--text-muted); cursor: pointer; border-radius: 8px; text-align: center; transition: all 0.3s ease; }
     .tab-btn.active { background: white; color: var(--primary); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
@@ -51,12 +50,42 @@
     
     .btn-row-sm .btn { padding: 8px 10px; font-size: 0.8rem; flex: 1; }
 
-    .date-row { display: flex; gap: 8px; }
-    .date-row input { text-align: center; }
+    /* دکمه انتخاب تاریخ سفارشی */
+    .date-picker-trigger {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 12px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 0.95rem;
+      color: var(--text);
+      cursor: pointer;
+      text-align: right;
+    }
+    .date-picker-trigger:hover {
+      border-color: var(--primary);
+    }
 
+    /* مودال تقویم شمسی */
     .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 1000; padding: 15px; backdrop-filter: blur(4px); }
-    .modal-content { background: white; padding: 22px; border-radius: 16px; width: 100%; max-width: 400px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); }
+    .modal-content { background: white; padding: 20px; border-radius: 16px; width: 100%; max-width: 360px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); }
     
+    .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+    .cal-header button { background: #f1f5f9; border: none; font-size: 1.1rem; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; color: var(--primary-dark); font-weight: bold; }
+    .cal-header button:hover { background: #e2e8f0; }
+    .cal-title { font-size: 1.05rem; font-weight: bold; color: var(--primary-dark); }
+
+    .cal-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 0.8rem; font-weight: bold; color: var(--text-muted); margin-bottom: 8px; }
+    .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+    .cal-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; border-radius: 8px; cursor: pointer; background: #f8fafc; color: var(--text); font-weight: 600; }
+    .cal-day:hover { background: #e2e8f0; color: var(--primary); }
+    .cal-day.selected { background: var(--primary); color: white; }
+    .cal-day.today { border: 2px solid var(--accent); }
+    .cal-day.empty { background: transparent; cursor: default; }
+
     .logs-list { max-height: 220px; overflow-y: auto; border: 1px solid var(--border); border-radius: 10px; padding: 8px; margin-top: 10px; font-size: 0.85rem; background: #f8fafc; }
     .log-item { padding: 10px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; background: white; margin-bottom: 6px; border-radius: 8px; }
     .log-item:last-child { margin-bottom: 0; }
@@ -71,7 +100,6 @@
 
   <div class="clock-box" id="liveClock">در حال بارگذاری ساعت...</div>
 
-  <!-- تب‌های ناوبری -->
   <div class="tabs-nav">
     <button class="tab-btn active" onclick="switchTab('workersTab', this)">👤 کارگران</button>
     <button class="tab-btn" onclick="switchTab('attendanceTab', this)">⏱ ثبت حضور</button>
@@ -122,7 +150,7 @@
     </div>
   </div>
 
-  <!-- تب ۳: گزارش و تسویه با تقویم شمسی (سال / ماه / روز) -->
+  <!-- تب ۳: گزارش و تسویه با تقویم شمسی داخلی -->
   <div id="reportTab" class="card">
     <div class="card-title">📄 گزارش دوره‌ای کارکرد کارگر (شمسی)</div>
     <div class="form-group">
@@ -132,22 +160,24 @@
       </select>
     </div>
 
+    <!-- فیلدهای مخفی برای حفظ ساختار محاسباتی قبلی -->
+    <input type="hidden" id="fromYear"><input type="hidden" id="fromMonth"><input type="hidden" id="fromDate">
+    <input type="hidden" id="toYear"><input type="hidden" id="toMonth"><input type="hidden" id="toDate">
+
     <div class="form-group">
-      <label>از تاریخ شمسی (سال / ماه / روز):</label>
-      <div class="date-row">
-        <input type="number" id="fromYear" placeholder="سال" value="1405">
-        <input type="number" id="fromMonth" placeholder="ماه" value="08">
-        <input type="number" id="fromDate" placeholder="روز" value="01">
-      </div>
+      <label>از تاریخ شمسی:</label>
+      <button type="button" class="date-picker-trigger" id="fromDateBtn" onclick="openCalendar('from')">
+        <span id="fromDateText">انتخاب تاریخ شروع</span>
+        <span>📅</span>
+      </button>
     </div>
 
     <div class="form-group">
-      <label>تا تاریخ شمسی (سال / ماه / روز):</label>
-      <div class="date-row">
-        <input type="number" id="toYear" placeholder="سال" value="1405">
-        <input type="number" id="toMonth" placeholder="ماه" value="08">
-        <input type="number" id="toDate" placeholder="روز" value="30">
-      </div>
+      <label>تا تاریخ شمسی:</label>
+      <button type="button" class="date-picker-trigger" id="toDateBtn" onclick="openCalendar('to')">
+        <span id="toDateText">انتخاب تاریخ پایان</span>
+        <span>📅</span>
+      </button>
     </div>
 
     <button class="btn btn-primary" onclick="generateReport()" style="margin-bottom: 14px;">ساخت و محاسبه گزارش کارکرد</button>
@@ -185,6 +215,22 @@
     </div>
   </div>
 
+  <!-- مودال تقویم شمسی داخلی -->
+  <div class="modal" id="jalaliCalModal">
+    <div class="modal-content">
+      <div class="cal-header">
+        <button onclick="changeCalMonth(-1)">‹</button>
+        <div class="cal-title" id="calMonthTitle">آبان ۱۴۰۵</div>
+        <button onclick="changeCalMonth(1)">›</button>
+      </div>
+      <div class="cal-weekdays">
+        <div>ش</div><div>ی</div><div>د</div><div>س</div><div>چ</div><div>پ</div><div>ج</div>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+      <button class="btn btn-primary" style="margin-top: 15px;" onclick="closeCalendarModal()">بستن تقویم</button>
+    </div>
+  </div>
+
   <script>
     const DB_KEY = 'kart_saat_db_v3';
 
@@ -212,7 +258,6 @@
       btn.classList.add('active');
     }
 
-    // به‌روزرسانی ساعت و تاریخ شمسی زنده در هدر
     function updateClock(){
       var now = new Date();
       var parts = new Intl.DateTimeFormat('fa-IR-u-ca-persian', {
@@ -235,30 +280,134 @@
     setInterval(updateClock, 1000);
     updateClock();
 
-    function initApp() {
-      renderWorkers();
-      // تنظیم خودکار تاریخ امروز شمسی در فیلترها
-      let now = new Date();
+    // موتور تقویم شمسی داخلی
+    let currentCalTarget = null;
+    let calYear = 1405, calMonth = 8, calDay = 1;
+
+    function getJalaliParts(dateObj) {
       let parts = new Intl.DateTimeFormat('fa-IR-u-ca-persian', {
         timeZone: 'Asia/Tehran', year: 'numeric', month: 'numeric', day: 'numeric'
-      }).formatToParts(now);
-      
-      let pValues = {};
-      parts.forEach(p => { if(p.type !== 'literal') pValues[p.type] = p.value; });
+      }).formatToParts(dateObj);
+      let p = {};
+      parts.forEach(el => { if(el.type !== 'literal') p[el.type] = Number(el.value); });
+      return p;
+    }
 
-      if(pValues.year) {
-        document.getElementById('fromYear').value = pValues.year;
-        document.getElementById('toYear').value = pValues.year;
+    function isLeapJalali(jy) {
+      let rem = jy % 33;
+      return rem === 1 || rem === 5 || rem === 9 || rem === 13 || rem === 17 || rem === 22 || rem === 26 || rem === 30;
+    }
+
+    function getJalaliDaysInMonth(jy, jm) {
+      if (jm <= 6) return 31;
+      if (jm <= 11) return 30;
+      return isLeapJalali(jy) ? 30 : 29;
+    }
+
+    function jalaliToGregorian(jy, jm, jd) {
+      let gy = (jy <= 979) ? 621 : 1600;
+      let jy2 = (jy <= 979) ? jy - 0 : jy - 979;
+      let days = (365 * jy2) + (Math.floor(jy2 / 33) * 8) + Math.floor(((jy2 % 33) + 3) / 4) + 78 + jd + ((jm < 7) ? (jm - 1) * 31 : ((jm - 7) * 30) + 186);
+      gy += 400 * Math.floor(days / 146097);
+      days %= 146097;
+      if (days > 36524) { gy += 100 * Math.floor(--days / 36524); days %= 36524; if (days >= 365) days++; }
+      gy += 4 * Math.floor(days / 1461);
+      days %= 1461;
+      if (days > 365) { gy += Math.floor((days - 1) / 365); days = (days - 1) % 365; }
+      let gd = days + 1;
+      let sal_a = [0, 31, ((gy % 4 === 0 && gy % 100 !== 0) || (gy % 400 === 0)) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+      let gm = 0;
+      for (gm = 0; gm < 13; gm++) {
+        let v = sal_a[gm];
+        if (gd <= v) break;
+        gd -= v;
       }
-      if(pValues.month) {
-        let m = String(pValues.month).padStart(2, '0');
-        document.getElementById('fromMonth').value = m;
-        document.getElementById('toMonth').value = m;
+      return new Date(gy, gm - 1, gd, 12, 0, 0);
+    }
+
+    const persianMonths = ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور", "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"];
+
+    function initApp() {
+      renderWorkers();
+      let now = new Date();
+      let jp = getJalaliParts(now);
+      if(jp.year) {
+        setJalaliDateValue('from', jp.year, jp.month, jp.day);
+        setJalaliDateValue('to', jp.year, jp.month, jp.day);
       }
-      if(pValues.day) {
-        let d = String(pValues.day).padStart(2, '0');
-        document.getElementById('fromDate').value = d;
-        document.getElementById('toDate').value = d;
+    }
+
+    function setJalaliDateValue(target, y, m, d) {
+      document.getElementById(target + 'Year').value = y;
+      document.getElementById(target + 'Month').value = String(m).padStart(2, '0');
+      document.getElementById(target + 'Date').value = String(d).padStart(2, '0');
+      
+      let faNum = (n) => String(n).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+      let text = `${faNum(y)}/${faNum(m)}/${faNum(d)}`;
+      document.getElementById(target + 'DateText').textContent = text;
+    }
+
+    function openCalendar(target) {
+      currentCalTarget = target;
+      let y = Number(document.getElementById(target + 'Year').value) || 1405;
+      let m = Number(document.getElementById(target + 'Month').value) || 8;
+      let d = Number(document.getElementById(target + 'Date').value) || 1;
+      calYear = y; calMonth = m; calDay = d;
+      renderCalendarGrid();
+      document.getElementById('jalaliCalModal').style.display = 'flex';
+    }
+
+    function closeCalendarModal() {
+      document.getElementById('jalaliCalModal').style.display = 'none';
+    }
+
+    function changeCalMonth(dir) {
+      calMonth += dir;
+      if(calMonth > 12) { calMonth = 1; calYear++; }
+      else if(calMonth < 1) { calMonth = 12; calYear--; }
+      renderCalendarGrid();
+    }
+
+    function renderCalendarGrid() {
+      document.getElementById('calMonthTitle').textContent = `${persianMonths[calMonth - 1]} ${calYear}`;
+      let grid = document.getElementById('calGrid');
+      grid.innerHTML = '';
+
+      let firstGDate = jalaliToGregorian(calYear, calMonth, 1);
+      let gDay = firstGDate.getDay(); // 0: Sun, 1: Mon, ... 6: Sat
+      // تنظیم برای شروع هفته از شنبه
+      let startDayOffset = (gDay + 1) % 7;
+
+      for(let i=0; i<startDayOffset; i++) {
+        let emptyDiv = document.createElement('div');
+        emptyDiv.className = 'cal-day empty';
+        grid.appendChild(emptyDiv);
+      }
+
+      let totalDays = getJalaliDaysInMonth(calYear, calMonth);
+      let selectedY = Number(document.getElementById(currentCalTarget + 'Year').value);
+      let selectedM = Number(document.getElementById(currentCalTarget + 'Month').value);
+      let selectedD = Number(document.getElementById(currentCalTarget + 'Date').value);
+      let todayJp = getJalaliParts(new Date());
+
+      for(let d=1; d<=totalDays; d++) {
+        let dayDiv = document.createElement('div');
+        dayDiv.className = 'cal-day';
+        dayDiv.textContent = String(d).replace(/\d/g, x => '۰۱۲۳۴۵۶۷۸۹'[x]);
+        
+        if(calYear === selectedY && calMonth === selectedM && d === selectedD) {
+          dayDiv.classList.add('selected');
+        }
+        if(calYear === todayJp.year && calMonth === todayJp.month && d === todayJp.day) {
+          dayDiv.classList.add('today');
+        }
+
+        dayDiv.onclick = function() {
+          setJalaliDateValue(currentCalTarget, calYear, calMonth, d);
+          closeCalendarModal();
+        };
+
+        grid.appendChild(dayDiv);
       }
     }
 
@@ -402,16 +551,11 @@
       listEl.innerHTML = html;
     }
 
-    // تابع کمکی برای تبدیل تاریخ میلادی ثبت شده به رشته شمسی (YYYY/MM/DD) جهت مقایسه در گزارش
     function getPersianDateStr(dateObj) {
-      let parts = new Intl.DateTimeFormat('fa-IR-u-ca-persian', {
-        timeZone: 'Asia/Tehran', year: 'numeric', month: 'numeric', day: 'numeric'
-      }).formatToParts(dateObj);
-      let p = {};
-      parts.forEach(el => { if(el.type !== 'literal') p[el.type] = el.value; });
-      let y = p.year || '1405';
-      let m = String(p.month || '1').padStart(2, '0');
-      let d = String(p.day || '1').padStart(2, '0');
+      let jp = getJalaliParts(dateObj);
+      let y = jp.year || 1405;
+      let m = String(jp.month || 1).padStart(2, '0');
+      let d = String(jp.day || 1).padStart(2, '0');
       return `${y}/${m}/${d}`;
     }
 
@@ -428,6 +572,11 @@
       let tM = String(document.getElementById('toMonth').value).padStart(2, '0');
       let tD = String(document.getElementById('toDate').value).padStart(2, '0');
       let toStr = `${tY}/${tM}/${tD}`;
+
+      if (fromStr > toStr) {
+        alert('تاریخ شروع نمی‌تواند از تاریخ پایان بزرگ‌تر باشد.');
+        return;
+      }
 
       let d = db();
       let worker = d.workers.find(w => String(w.id) === String(wid));
