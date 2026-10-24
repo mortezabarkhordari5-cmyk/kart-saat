@@ -153,7 +153,7 @@ if(navigator.geolocation){
  navigator.geolocation.getCurrentPosition(function(p){currentLat=p.coords.latitude;currentLng=p.coords.longitude;},function(){},{enableHighAccuracy:true,timeout:10000});
 }
 
-// ساعت زنده بالای صفحه با روز هفته و تاریخ شمسی
+// ساعت و تاریخ زنده بالای صفحه با تبدیل دقیق شمسی
 function updateClock(){
  var now=new Date();
  var j=toJalali(now.getFullYear(),now.getMonth()+1,now.getDate());
@@ -168,10 +168,10 @@ setInterval(updateClock,1000);updateClock();
 function toJalali(gy,gm,gd){var g_d_m=[0,31,59,90,120,151,181,212,243,273,304,334];var gy2=(gm>2)?(gy+1):gy;var days=355668+(365*gy)+Math.floor((gy2+3)/4)-Math.floor((gy2+99)/100)+Math.floor((gy2+399)/400)+gd+g_d_m[gm-1];var jy=-1595+(33*Math.floor(days/12053));days%=12053;jy+=4*Math.floor(days/1461);days%=1461;if(days>365){jy+=Math.floor((days-1)/365);days=(days-1)%365;}var jm=(days<186)?1+Math.floor(days/31):7+Math.floor((days-186)/30);var jd=1+((days<186)?(days%31):((days-186)%30));return[jy,jm,jd];}
 function fmtDate(iso){var d=new Date(iso);if(isNaN(d))return'—';var j=toJalali(d.getFullYear(),d.getMonth()+1,d.getDate());return pad(j[0])+'/'+pad(j[1])+'/'+pad(j[2])+' — '+d.toTimeString().slice(0,5);}
 function durText(ms){var m=Math.floor(ms/60000),h=Math.floor(m/60);m%=60;return (h?(h+' ساعت و '):'')+(m+' دقیقه');}
-function openLogFor(d,wid){var open=null;(d.logs||[]).forEach(function(l){if(l.workerId===wid&&l.type==='IN')open=l;});return open;}
+function openLogFor(d,wid){var open=null;(d.logs||[]).forEach(function(l){if(String(l.workerId)===String(wid)&&l.type==='IN')open=l;});return open;}
 
 function checkIn(){
- var wid=num(document.getElementById('workerSelect').value);
+ var wid=document.getElementById('workerSelect').value;
  if(!wid){toast('لطفاً ابتدا کارگر را انتخاب کنید');return;}
  var d=db();d.workers=d.workers||[];d.logs=d.logs||[];d.advances=d.advances||[];
  var open=openLogFor(d,wid);
@@ -181,7 +181,7 @@ function checkIn(){
 }
 
 function checkOut(){
- var wid=num(document.getElementById('workerSelect').value);
+ var wid=document.getElementById('workerSelect').value;
  if(!wid){toast('لطفاً ابتدا کارگر را انتخاب کنید');return;}
  var d=db();d.workers=d.workers||[];d.logs=d.logs||[];d.advances=d.advances||[];
  var open=openLogFor(d,wid);
@@ -193,7 +193,7 @@ function checkOut(){
 }
 
 function addAdvance(){
- var wid=num(document.getElementById('workerSelect').value),a=num(document.getElementById('advanceAmount').value);
+ var wid=document.getElementById('workerSelect').value,a=num(document.getElementById('advanceAmount').value);
  if(!wid){toast('لطفاً کارگر را انتخاب کنید');return;}
  if(a<=0){toast('مبلغ مساعده نامعتبر است');return;}
  var d=db();d.workers=d.workers||[];d.logs=d.logs||[];d.advances=d.advances||[];
@@ -205,25 +205,32 @@ function saveNewWorker(){
  var name=document.getElementById('newWorkerName').value.trim(),rate=num(document.getElementById('newWorkerRate').value);
  if(!name){toast('لطفاً نام کارگر را وارد کنید');return;}
  var d=db();d.workers=d.workers||[];d.logs=d.logs||[];d.advances=d.advances||[];
- d.workers.push({id:Date.now(),name:name,rate:rate});save(d);
+ d.workers.push({id:String(Date.now()),name:name,rate:rate});save(d);
  document.getElementById('newWorkerName').value='';document.getElementById('newWorkerRate').value='';
  openModal(false);refresh();toast('کارگر افزوده شد');
 }
 
-// حذف کامل کارگر
+// حذف کامل کارگر (اصلاح‌شده و تضمینی)
 function deleteCurrentWorker(){
- var wid=num(document.getElementById('workerSelect').value);
- if(!wid){toast('کارگری انتخاب نشده است');return;}
+ var sel=document.getElementById('workerSelect');
+ var wid=sel.value;
+ if(!wid){toast('⚠️ کارگری انتخاب نشده است');return;}
  var d=db();
- var w=d.workers.find(function(x){return x.id===wid});
+ d.workers=Array.isArray(d.workers)?d.workers:[];
+ d.logs=Array.isArray(d.logs)?d.logs:[];
+ d.advances=Array.isArray(d.advances)?d.advances:[];
+
+ var w=d.workers.find(function(x){return String(x.id)===String(wid);});
  var wName=w?w.name:'این کارگر';
+ 
  if(!confirm('⚠️ هشدار جدی:\nآیا از حذف کارگر «'+wName+'» و تمام سوابق ورود، خروج و مساعده‌های او اطمینان دارید؟ این عمل غیرقابل بازگشت است!'))return;
  
- d.workers=d.workers.filter(function(x){return x.id!==wid});
- d.logs=d.logs.filter(function(l){return l.workerId!==wid});
- d.advances=d.advances.filter(function(a){return a.workerId!==wid});
+ d.workers=d.workers.filter(function(x){return String(x.id)!==String(wid);});
+ d.logs=d.logs.filter(function(l){return String(l.workerId)!==String(wid);});
+ d.advances=d.advances.filter(function(a){return String(a.workerId)!==String(wid);});
+ 
  save(d);
- document.getElementById('workerSelect').value='';
+ sel.value='';
  refresh();
  toast('🗑 کارگر و تمام سوابق او حذف شدند');
 }
@@ -245,20 +252,20 @@ function refresh(){
 }
 function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e;}
 function render(d){
- var wid=num(document.getElementById('workerSelect').value);
+ var wid=document.getElementById('workerSelect').value;
  var box=document.getElementById('workerSummary'),hist=document.getElementById('history'),advH=document.getElementById('advHistory'),statusLine=document.getElementById('statusLine');
  hist.textContent='';advH.textContent='';
  if(!wid){box.style.display='none';hist.textContent='برای مشاهده تاریخچه، کارگر را انتخاب کنید.';advH.textContent='مساعده‌ای ثبت نشده است.';statusLine.textContent='';return;}
- var w=d.workers.find(function(x){return x.id===wid});if(!w){box.style.display='none';return;}
+ var w=d.workers.find(function(x){return String(x.id)===String(wid);});if(!w){box.style.display='none';return;}
  box.style.display='block';
- var logs=d.logs.filter(function(l){return l.workerId===wid}).slice().sort(function(a,b){return new Date(a.time)-new Date(b.time)});
+ var logs=d.logs.filter(function(l){return String(l.workerId)===String(wid)}).slice().sort(function(a,b){return new Date(a.time)-new Date(b.time)});
  var open=null,ms=0,pairs=0;
  logs.forEach(function(l){
   if(l.type==='IN'){if(open)ms+=0;open=l;}
   else if(l.type==='OUT'&&open){var dt=new Date(l.time)-new Date(open.time);if(dt>0){ms+=dt;pairs++;}open=null;}
  });
  var hours=ms/3600000,earn=hours*w.rate;
- var adv=d.advances.filter(function(a){return a.workerId===wid}).reduce(function(s,a){return s+num(a.amount)},0);
+ var adv=d.advances.filter(function(a){return String(a.workerId)===String(wid)}).reduce(function(s,a){return s+num(a.amount)},0);
  document.getElementById('summaryRate').textContent=fmt(w.rate);
  document.getElementById('summaryHours').textContent=hours.toLocaleString('fa-IR',{maximumFractionDigits:2});
  document.getElementById('summaryEarn').textContent=fmt(earn);
@@ -289,7 +296,7 @@ function render(d){
   hist.appendChild(row);
  });
 
- var av=d.advances.filter(function(a){return a.workerId===wid}).slice().reverse();
+ var av=d.advances.filter(function(a){return String(a.workerId)===String(wid)}).slice().reverse();
  if(!av.length)advH.textContent='مساعده‌ای ثبت نشده است.';
  av.forEach(function(a){var row=el('div','logitem');row.appendChild(el('div','',fmtDate(a.time)));row.appendChild(el('span','tag adv',fmt(a.amount)+' تومان'));advH.appendChild(row);});
 }
