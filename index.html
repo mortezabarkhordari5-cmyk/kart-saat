@@ -569,6 +569,40 @@
         .calendar-day.selected { background: linear-gradient(135deg, #0f766e, #149b88); }
         .calendar-day.today { border-color: #f59e0b; color: #0f766e; }
 
+
+        /* Modern responsive visual system */
+        :root { --primary:#0f766e; --primary-dark:#115e59; --background:#f0fdfa; --surface:rgba(255,255,255,.78); --text-main:#12332f; --text-secondary:#59716d; --border:rgba(15,118,110,.14); --radius:18px; --shadow:0 18px 50px rgba(15,118,110,.10),0 4px 14px rgba(15,23,42,.06); }
+        html { scroll-behavior:smooth; }
+        body { min-height:100vh; background:radial-gradient(circle at 10% 0%,#ccfbf1 0,transparent 32%),linear-gradient(135deg,#f0fdfa 0%,#f8fafc 55%,#ecfdf5 100%); padding:clamp(12px,3vw,32px); }
+        .container { max-width:1240px; }
+        header,.section-card,.stat-card,.modal-content { background:rgba(255,255,255,.78); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); border:1px solid rgba(255,255,255,.8); box-shadow:var(--shadow); }
+        header { padding:clamp(16px,3vw,26px); border-radius:24px; }
+        header h1 { font-size:clamp(1.15rem,2.5vw,1.6rem); }
+        .tabs { gap:8px; scrollbar-width:none; }
+        .tab-btn,.btn { min-height:44px; border-radius:13px; }
+        .tab-btn { padding:11px 16px; }
+        .section-card { padding:clamp(16px,3vw,30px); border-radius:24px; }
+        h2 { font-size:clamp(1.1rem,2vw,1.35rem); border-bottom:0; display:flex; align-items:center; gap:10px; }
+        h2::before { content:''; width:5px; height:24px; border-radius:5px; background:linear-gradient(#0f766e,#2dd4bf); }
+        .stat-card { border-top:0; border-right:4px solid var(--primary); border-radius:18px; padding:20px; transition:transform .2s,box-shadow .2s; }
+        .stat-card:hover { transform:translateY(-3px); box-shadow:0 20px 40px rgba(15,118,110,.15); }
+        .stat-card .value { font-size:clamp(1.35rem,3vw,1.8rem); }
+        input,select { min-height:46px; border-radius:13px; background:rgba(255,255,255,.8); border-color:rgba(15,118,110,.16); }
+        .report-print-card { background:linear-gradient(145deg,rgba(236,253,245,.92),rgba(255,255,255,.82)) !important; border:1px solid rgba(20,184,166,.18) !important; box-shadow:0 12px 30px rgba(15,118,110,.08); }
+        .calendar-modal-content { max-width:430px; padding:clamp(18px,4vw,28px); border-radius:26px; }
+        .modal { background:rgba(6, 78, 59, .42); backdrop-filter:blur(7px); }
+        .calendar-header { margin-bottom:20px; }
+        .calendar-header h3 { font-size:1.2rem; }
+        .calendar-nav-btn { width:42px; height:42px; border-radius:13px; background:#ecfdf5; color:var(--primary); }
+        .calendar-days { gap:7px; }
+        .calendar-day { border-radius:13px; background:rgba(240,253,250,.8); min-height:40px; }
+        .calendar-day.selected { box-shadow:0 8px 18px rgba(15,118,110,.25); }
+        .calendar-day.today { box-shadow:inset 0 0 0 2px #f59e0b; }
+        .calendar-quick-actions { display:flex; gap:8px; margin-top:18px; }
+        .quick-date-btn { flex:1; border:1px solid rgba(15,118,110,.16); background:#ecfdf5; color:var(--primary-dark); border-radius:11px; padding:10px; cursor:pointer; font:inherit; transition:.2s; }
+        .quick-date-btn:hover { background:#ccfbf1; transform:translateY(-1px); }
+        .calendar-footer { margin-top:14px; }
+        @media (max-width:600px) { body{padding:10px}.tabs{margin-bottom:14px}.section-card{margin-bottom:14px}.form-grid{grid-template-columns:1fr;gap:14px}.calendar-day{min-height:36px;font-size:.82rem}.calendar-footer{gap:10px;align-items:stretch;flex-direction:column}.calendar-actions{width:100%}.calendar-actions .btn{flex:1}table{font-size:.82rem}th,td{padding:11px 10px} }
     </style>
 </head>
 <body>
@@ -592,26 +626,6 @@
         <div id="dashboard" class="section-card active">
             <h2>ثبت ورود، خروج و مساعده</h2>
             
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <span class="title">تعداد کل کارگران فعال</span>
-                    <span class="value" id="statTotalWorkers">۰</span>
-                </div>
-                <div class="stat-card">
-                    <span class="title">کارگران حاضر امروز</span>
-                    <span class="value" id="statPresentToday">۰</span>
-                </div>
-                <div class="stat-card">
-                    <span class="title">ثبت خروج‌شده‌های امروز</span>
-                    <span class="value" id="statLeftToday">۰</span>
-                </div>
-                <div class="stat-card">
-                    <span class="title">مجموع ساعت کارکرد امروز</span>
-                    <span class="value" id="statTotalHoursToday">۰:۰۰</span>
-                </div>
-            </div>
-
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
                 <!-- Clock In/Out Box -->
                 <div class="report-print-card" data-worker-id="${selectedWorkerId}" style="background: var(--background); padding: 20px; border-radius: var(--radius); border: 1px solid var(--border);">
                     <h3 style="margin-bottom: 15px; font-size: 1.1rem; color: var(--primary);">ثبت تردد آنی</h3>
@@ -637,6 +651,27 @@
                     </div>
                 </div>
 
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="title">تعداد کل کارگران فعال</span>
+                    <span class="value" id="statTotalWorkers">۰</span>
+                </div>
+                <div class="stat-card">
+                    <span class="title">کارگران حاضر امروز</span>
+                    <span class="value" id="statPresentToday">۰</span>
+                </div>
+                <div class="stat-card">
+                    <span class="title">ثبت خروج‌شده‌های امروز</span>
+                    <span class="value" id="statLeftToday">۰</span>
+                </div>
+                <div class="stat-card">
+                    <span class="title">مجموع ساعت کارکرد امروز</span>
+                    <span class="value" id="statTotalHoursToday">۰:۰۰</span>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
                 <!-- Advance Payment Box -->
                 <div style="background: var(--background); padding: 20px; border-radius: var(--radius); border: 1px solid var(--border);">
                     <h3 style="margin-bottom: 15px; font-size: 1.1rem; color: var(--warning);">پرداخت مساعده / علی‌الحساب</h3>
@@ -829,6 +864,10 @@
             <div class="calendar-days" id="calendarDaysGrid">
                 <!-- Days generated by JS -->
             </div>
+            <div class="calendar-quick-actions" aria-label="انتخاب سریع تاریخ">
+                <button type="button" class="quick-date-btn" id="calendarTodayBtn">امروز</button>
+                <button type="button" class="quick-date-btn" id="calendarYesterdayBtn">دیروز</button>
+            </div>
             <div class="calendar-footer">
                 <div class="calendar-selected-info" id="calendarSelectedDateText">انتخاب نشده</div>
                 <div class="calendar-actions">
@@ -919,14 +958,37 @@
             }
             return { year: gy1 + gm, month: gm, day: gd };
         }
-        function getTodayJalali() {
-            let gDate = new Date();
-            let gy = gDate.getFullYear();
-            let gm = gDate.getMonth() + 1;
-            let gd = gDate.getDate();
-            // Approximate current jalali year for testing/default
-            let jy = gy - 621;
-            return { year: jy, month: 1, day: 1 };
+        function getTodayJalali(date = new Date()) {
+            // Intl is timezone-aware and uses the browser's Persian calendar implementation.
+            try {
+                const parts = new Intl.DateTimeFormat('en-US-u-ca-persian-nu-latn', {
+                    year: 'numeric', month: '2-digit', day: '2-digit'
+                }).formatToParts(date);
+                const values = Object.fromEntries(parts.map(p => [p.type, p.value]));
+                const result = { year: Number(values.year), month: Number(values.month), day: Number(values.day) };
+                if (result.year && result.month && result.day) return result;
+            } catch (error) {
+                console.warn('Persian calendar Intl unavailable; using conversion fallback.', error);
+            }
+            return gregorianToJalali(date.getFullYear(), date.getMonth() + 1, date.getDate());
+        }
+
+        // Accurate arithmetic fallback for browsers without the Persian Intl calendar.
+        function gregorianToJalali(gy, gm, gd) {
+            const gDaysInMonth = [31, ((gy % 4 === 0 && gy % 100 !== 0) || gy % 400 === 0) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+            let gy2 = gy - 1600, gm2 = gm - 1, gd2 = gd - 1;
+            let gDayNo = 365 * gy2 + Math.floor((gy2 + 3) / 4) - Math.floor((gy2 + 99) / 100) + Math.floor((gy2 + 399) / 400);
+            for (let i = 0; i < gm2; i++) gDayNo += gDaysInMonth[i];
+            gDayNo += gd2;
+            let jDayNo = gDayNo - 79;
+            const jNp = Math.floor(jDayNo / 12053);
+            jDayNo %= 12053;
+            let jy = 979 + 33 * jNp + 4 * Math.floor(jDayNo / 1461);
+            jDayNo %= 1461;
+            if (jDayNo >= 366) { jy += Math.floor((jDayNo - 1) / 365); jDayNo = (jDayNo - 1) % 365; }
+            const jm = jDayNo < 186 ? 1 + Math.floor(jDayNo / 31) : 7 + Math.floor((jDayNo - 186) / 30);
+            const jd = 1 + (jDayNo < 186 ? jDayNo % 31 : (jDayNo - 186) % 30);
+            return { year: jy, month: jm, day: jd };
         }
 
         function formatJalali(j) {
@@ -1127,15 +1189,25 @@
         }
 
         function renderDashboardStats() {
-            let totalW = db.workers.length;
-            let todayStr = formatJalali(getTodayJalali());
-            let presentToday = db.attendance.filter(a => a.date === todayStr && !a.clockOut).length;
-            let leftToday = db.attendance.filter(a => a.date === todayStr && a.clockOut).length;
-
-            document.getElementById('statTotalWorkers').textContent = totalW.toLocaleString('fa-IR');
+            const todayStr = formatJalali(getTodayJalali());
+            const todayRecords = db.attendance.filter(a => a.date === todayStr);
+            const presentToday = todayRecords.filter(a => !a.clockOut).length;
+            const leftToday = todayRecords.filter(a => a.clockOut).length;
+            const now = new Date();
+            const nowMinutes = now.getHours() * 60 + now.getMinutes();
+            const workedMinutes = todayRecords.reduce((total, a) => {
+                if (!a.clockIn) return total;
+                const [inH, inM] = String(a.clockIn).split(':').map(Number);
+                const start = inH * 60 + inM;
+                const end = a.clockOut ? String(a.clockOut).split(':').map(Number).reduce((h, m) => h * 60 + m, 0) : nowMinutes;
+                return total + Math.max(0, end - start);
+            }, 0);
+            const hours = Math.floor(workedMinutes / 60);
+            const minutes = workedMinutes % 60;
+            document.getElementById('statTotalWorkers').textContent = db.workers.length.toLocaleString('fa-IR');
             document.getElementById('statPresentToday').textContent = presentToday.toLocaleString('fa-IR');
             document.getElementById('statLeftToday').textContent = leftToday.toLocaleString('fa-IR');
-            document.getElementById('statTotalHoursToday').textContent = '۰:۰۰';
+            document.getElementById('statTotalHoursToday').textContent = `${hours.toLocaleString('fa-IR')}:${String(minutes).padStart(2, '0').replace(/[0-9]/g, d => '۰۱۲۳۴۵۶۷۸۹'[d])}`;
         }
 
         function handleClockIn() {
@@ -1452,6 +1524,8 @@
                     selectedCalendarDate.day === d) {
                     dayDiv.classList.add('selected');
                 }
+                const today = getTodayJalali();
+                if (today.year === viewingCalendarDate.year && today.month === viewingCalendarDate.month && today.day === d) dayDiv.classList.add('today');
 
                 dayDiv.addEventListener('click', () => {
                     selectedCalendarDate = { year: viewingCalendarDate.year, month: viewingCalendarDate.month, day: d };
@@ -1486,6 +1560,17 @@
             document.querySelectorAll('input[data-calendar]').forEach(input => {
                 input.addEventListener('focus', () => openCalendar(input));
             });
+
+            const chooseQuickDate = (offset) => {
+                if (!activeCalendarInput) return;
+                const base = new Date();
+                base.setDate(base.getDate() + offset);
+                selectedCalendarDate = getTodayJalali(base);
+                viewingCalendarDate = { year: selectedCalendarDate.year, month: selectedCalendarDate.month };
+                renderCalendar();
+            };
+            document.getElementById('calendarTodayBtn')?.addEventListener('click', () => chooseQuickDate(0));
+            document.getElementById('calendarYesterdayBtn')?.addEventListener('click', () => chooseQuickDate(-1));
 
             document.getElementById('prevMonthBtn')?.addEventListener('click', () => {
                 viewingCalendarDate.month--;
