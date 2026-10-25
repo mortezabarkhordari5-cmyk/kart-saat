@@ -151,8 +151,8 @@
         <div class="card-title">محاسبه و صدور فیش حقوقی رسمی</div>
         <div class="form-group"><label>کارگر:</label><select id="reportWorkerSelect"></select></div>
         <div class="form-row">
-          <div class="form-group"><label>از تاریخ (شمسی):</label><input type="text" id="reportStartDate" placeholder="1405/03/01" style="direction:ltr; text-align:right;"></div>
-          <div class="form-group"><label>تا تاریخ (شمسی):</label><input type="text" id="reportEndDate" placeholder="1405/03/31" style="direction:ltr; text-align:right;"></div>
+          <div class="form-group"><label>از تاریخ (شمسی):</label><input type="text" id="reportStartDate" placeholder="1405/03/01" maxlength="10" style="direction:ltr; text-align:right;"></div>
+          <div class="form-group"><label>تا تاریخ (شمسی):</label><input type="text" id="reportEndDate" placeholder="1405/03/31" maxlength="10" style="direction:ltr; text-align:right;"></div>
         </div>
         <button class="btn btn-primary" onclick="generatePayslip()">📄 صدور فیش حقوقی رسمی</button>
       </div>
@@ -267,14 +267,12 @@
     }
     setInterval(updateHeaderDate, 1000);
 
-    // مقداردهی اولیه تاریخ شمسی جاری
     window.addEventListener('DOMContentLoaded', () => {
       const now = new Date();
       const persianToday = getPersianDateStr(now);
       const startInput = document.getElementById('reportStartDate');
       const endInput = document.getElementById('reportEndDate');
       if (startInput && !startInput.value) {
-        // مثلاً اول ماه جاری شمسی
         const parts = persianToday.split('/');
         startInput.value = `${parts[0]}/${parts[1]}/01`;
       }
