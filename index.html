@@ -27,7 +27,6 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Vazirmatn', sans-serif; }
     body { background-color: var(--bg); color: var(--text); line-height: 1.6; padding-bottom: 70px; }
 
-    /* هدر */
     .top-header { background: linear-gradient(135deg, #134e4a, #0f766e); color: #fff; padding: 20px 16px; border-radius: 0 0 20px 20px; box-shadow: 0 4px 20px rgba(15,118,110,0.2); }
     .header-content { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px; }
     .header-title-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
@@ -69,7 +68,6 @@
     th, td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
     th { background: #f1f5f9; color: var(--secondary); font-weight: 700; }
 
-    /* فیش حقوقی رسمی */
     .payslip { background: #fff; border: 2px solid #0f766e; border-radius: 16px; padding: 24px; margin-top: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
     .payslip-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px dashed #cbd5e1; padding-bottom: 14px; margin-bottom: 16px; }
     .payslip-title { font-size: 1.2rem; font-weight: 900; color: #0f766e; }
@@ -124,7 +122,7 @@
       <button class="tab-btn" onclick="switchTab('projects', event)">🏗️ پروژه‌ها</button>
     </nav>
 
-    <!-- ثبت تردد (بالاترین بخش) -->
+    <!-- ثبت تردد -->
     <section id="clockTab" class="tab-content">
       <div class="card">
         <div class="card-title">ثبت فوری ورود و خروج کارگر</div>
@@ -164,12 +162,10 @@
     <section id="reportsTab" class="tab-content" style="display: none;">
       <div class="card no-print">
         <div class="card-title">محاسبه و صدور فیش حقوقی رسمی</div>
+        <div class="form-group"><label>کارگر:</label><select id="reportWorkerSelect"></select></div>
         <div class="form-row">
-          <div class="form-group"><label>کارگر:</label><select id="reportWorkerSelect"></select></div>
-          <div class="form-group">
-            <label>دوره:</label>
-            <select id="reportPeriodSelect"><option value="current_month">ماه جاری</option></select>
-          </div>
+          <div class="form-group"><label>از تاریخ (شمسی):</label><input type="text" id="reportStartDate" placeholder="مثال: 1405/03/01"></div>
+          <div class="form-group"><label>تا تاریخ (شمسی):</label><input type="text" id="reportEndDate" placeholder="مثال: 1405/03/31"></div>
         </div>
         <button class="btn btn-primary" onclick="generatePayslip()">📄 صدور فیش حقوقی رسمی</button>
       </div>
@@ -183,14 +179,14 @@
             </div>
             <div class="payslip-meta">
               <div>تاریخ: <span id="psIssueDate">—</span></div>
-              <div>سریال: <span id="psSerial">—</span></div>
+              <div>بازه: <span id="psRange">—</span></div>
             </div>
           </div>
           <div class="payslip-grid">
             <div class="payslip-item"><div class="label">نام کارگر:</div><div class="val" id="psWorkerName">—</div></div>
             <div class="payslip-item"><div class="label">کد پرسنلی:</div><div class="val" id="psWorkerCode">—</div></div>
             <div class="payslip-item"><div class="label">دستمزد ساعتی:</div><div class="val" id="psHourlyWage">—</div></div>
-            <div class="payslip-item"><div class="label">مجموع ساعت:</div><div class="val" id="psTotalHours">—</div></div>
+            <div class="payslip-item"><div class="label">مجموع ساعت کارکرد:</div><div class="val" id="psTotalHours">—</div></div>
             <div class="payslip-item"><div class="label">جمع ناخالص:</div><div class="val" id="psGrossPay">—</div></div>
             <div class="payslip-item"><div class="label">کسورات / مساعده:</div><div class="val" style="color:var(--danger)">۰ تومان</div></div>
           </div>
@@ -311,6 +307,28 @@
       const todays = db.attendance.filter(a => a.date === today);
       document.getElementById('statPresentToday').innerText = new Set(todays.map(a => a.workerId)).size.toLocaleString('fa-IR');
 
+      // محاسبه مجموع ساعت امروز
+      let totalTodayMins = 0;
+      const workerTodayLogs = {};
+      todays.forEach(a => {
+        if (!workerTodayLogs[a.workerId]) workerTodayLogs[a.workerId] = [];
+        workerTodayLogs[a.workerId].push(a);
+      });
+      Object.values(workerTodayLogs).forEach(logs => {
+        let inTime = null;
+        logs.forEach(l => {
+          const [h, m] = l.time.split(':').map(Number);
+          const t = h * 60 + m;
+          if (l.type === 'ورود') inTime = t;
+          else if (l.type === 'خروج' && inTime !== null) {
+            if (t > inTime) totalTodayMins += (t - inTime);
+            inTime = null;
+          }
+        });
+      });
+      const totalHoursFormatted = (totalTodayMins / 60).toFixed(1);
+      document.getElementById('statTotalHoursToday').innerText = Number(totalHoursFormatted).toLocaleString('fa-IR');
+
       const tbody = document.getElementById('todayAttendanceTableBody');
       tbody.innerHTML = todays.length === 0 ? '<tr><td colspan="5" style="text-align:center; color:var(--text-muted);">امروز ترددی ثبت نشده است.</td></tr>' : '';
       todays.slice().reverse().forEach(item => {
@@ -341,7 +359,16 @@
     function recordAttendance(type) {
       const workerId = document.getElementById('clockWorkerSelect').value;
       if (!workerId) { alert('لطفاً کارگر را انتخاب کنید.'); return; }
+      
       const now = new Date();
+      // تبدیل تاریخ میلادی امروز به شمسی برای ذخیره دقیق در دیتابیس
+      let persianDateStr = '';
+      try {
+        persianDateStr = new Intl.DateTimeFormat('fa-IR-u-ca-persian', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(now).replace(/\//g, '/');
+      } catch(e) {
+        persianDateStr = now.toISOString().slice(0, 10);
+      }
+
       db.attendance.push({
         id: Date.now(),
         workerId: Number(workerId),
@@ -349,6 +376,7 @@
         type: type,
         workType: document.getElementById('attendanceType').value,
         date: now.toISOString().slice(0,10),
+        persianDate: persianDateStr,
         time: now.toTimeString().slice(0,5)
       });
       saveDB(); refreshUI();
@@ -360,7 +388,18 @@
       const worker = db.workers.find(w => w.id === workerId);
       if (!worker) { alert('کارگر نامعتبر است.'); return; }
 
-      const records = db.attendance.filter(a => a.workerId === workerId);
+      const startDate = document.getElementById('reportStartDate').value.trim();
+      const endDate = document.getElementById('reportEndDate').value.trim();
+
+      // فیلتر ترددها بر اساس تاریخ شمسی وارد شده
+      const records = db.attendance.filter(a => {
+        if (a.workerId !== workerId) return false;
+        const pDate = a.persianDate || a.date;
+        if (startDate && pDate < startDate) return false;
+        if (endDate && pDate > endDate) return false;
+        return true;
+      });
+
       let mins = 0, lastIn = null;
       records.forEach(r => {
         if (r.type === 'ورود') {
@@ -371,11 +410,11 @@
           lastIn = null;
         }
       });
-      const hours = mins > 0 ? (mins/60).toFixed(1) : 8;
+      const hours = mins > 0 ? (mins/60).toFixed(1) : 0;
       const gross = Math.round(hours * worker.wage);
 
       document.getElementById('psIssueDate').innerText = new Intl.DateTimeFormat('fa-IR-u-ca-persian', {dateStyle:'medium'}).format(new Date());
-      document.getElementById('psSerial').innerText = `REC-${Date.now().toString().slice(-6)}`;
+      document.getElementById('psRange').innerText = (startDate || endDate) ? `${startDate || 'ابتدا'} تا ${endDate || 'اکنون'}` : 'کل دوره‌ها';
       document.getElementById('psWorkerName').innerText = worker.name;
       document.getElementById('psWorkerCode').innerText = worker.code || 'ثبت نشده';
       document.getElementById('psHourlyWage').innerText = `${Number(worker.wage).toLocaleString('fa-IR')} تومان`;
