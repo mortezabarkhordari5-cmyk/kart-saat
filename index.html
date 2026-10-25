@@ -358,7 +358,7 @@
       wTbody.innerHTML = '';
       db.workers.forEach(w => {
         const tr = document.createElement('tr');
-        tr.innerHTML = `<td><strong>${w.name}</strong></td><td>${w.code||'—'}</td><td>${Number(w.wage||0).toLocaleString('fa-IR')} تومان</td><td>${w.phone||'—'}</td><td><button class="btn btn-outline" style="padding:2px 6px; color:red; font-size:0.75rem;" onclick="deleteWorker(${w.id})">حذف</button></td>`;
+        tr.innerHTML = `<td><strong>${w.name}</strong></td><td>${w.code||'—'}</td><td>${Number(w.wage||0).toLocaleString('fa-IR')} تومان</td><td>${w.phone||'—'}</td><td><button type="button" class="btn btn-outline" style="padding:2px 6px; color:red; font-size:0.75rem;" onclick="deleteWorker(${w.id})">حذف</button></td>`;
         wTbody.appendChild(tr);
       });
 
@@ -367,7 +367,7 @@
       db.projects.forEach((p, idx) => {
         const li = document.createElement('li');
         li.style.cssText = 'padding:8px 12px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;';
-        li.innerHTML = `<span>🏗️ ${p}</span> <button class="btn btn-outline" style="padding:2px 8px; color:red; font-size:0.7rem;" onclick="deleteProject(${idx})">حذف</button>`;
+        li.innerHTML = `<span>🏗️ ${p}</span> <button type="button" class="btn btn-outline" style="padding:2px 8px; color:red; font-size:0.7rem;" onclick="deleteProject(${idx})">حذف</button>`;
         pList.appendChild(li);
       });
     }
@@ -392,14 +392,14 @@
 
     function generatePayslip() {
       const workerId = Number(document.getElementById('reportWorkerSelect').value);
-      const worker = db.workers.find(w => w.id === workerId);
+      const worker = db.workers.find(w => Number(w.id) === workerId);
       if (!worker) { alert('کارگر نامعتبر است.'); return; }
 
       const startDate = document.getElementById('reportStartDate').value.trim();
       const endDate = document.getElementById('reportEndDate').value.trim();
 
       const records = db.attendance.filter(a => {
-        if (a.workerId !== workerId) return false;
+        if (Number(a.workerId) !== workerId) return false;
         const pDate = a.persianDate || '';
         if (startDate && pDate < startDate) return false;
         if (endDate && pDate > endDate) return false;
