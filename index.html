@@ -151,8 +151,8 @@
         <div class="card-title">محاسبه و صدور فیش حقوقی رسمی</div>
         <div class="form-group"><label>کارگر:</label><select id="reportWorkerSelect"></select></div>
         <div class="form-row">
-          <div class="form-group"><label>از تاریخ:</label><input type="date" id="reportStartDate" style="direction:ltr; text-align:right;"></div>
-          <div class="form-group"><label>تا تاریخ:</label><input type="date" id="reportEndDate" style="direction:ltr; text-align:right;"></div>
+          <div class="form-group"><label>از تاریخ (شمسی):</label><input type="text" id="reportStartDate" placeholder="1405/03/01" style="direction:ltr; text-align:right;"></div>
+          <div class="form-group"><label>تا تاریخ (شمسی):</label><input type="text" id="reportEndDate" placeholder="1405/03/31" style="direction:ltr; text-align:right;"></div>
         </div>
         <button class="btn btn-primary" onclick="generatePayslip()">📄 صدور فیش حقوقی رسمی</button>
       </div>
@@ -258,13 +258,6 @@
       }
     }
 
-    function getISODateStr(dateObj) {
-      const y = dateObj.getFullYear();
-      const m = String(dateObj.getMonth() + 1).padStart(2, '0');
-      const d = String(dateObj.getDate()).padStart(2, '0');
-      return `${y}-${m}-${d}`;
-    }
-
     function updateHeaderDate() {
       const now = new Date();
       try {
@@ -274,19 +267,19 @@
     }
     setInterval(updateHeaderDate, 1000);
 
-    // مقداردهی اولیه تاریخ‌ها هنگام لود صفحه
+    // مقداردهی اولیه تاریخ شمسی جاری
     window.addEventListener('DOMContentLoaded', () => {
       const now = new Date();
-      const isoToday = getISODateStr(now);
-      const startInputs = document.getElementById('reportStartDate');
-      const endInputs = document.getElementById('reportEndDate');
-      if(startInputs && !startInputs.value) {
-        // ابتدای ماه جاری میلادی معادل یا تاریخ امروز پیش‌فرض
-        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-        startInputs.value = getISODateStr(firstDay);
+      const persianToday = getPersianDateStr(now);
+      const startInput = document.getElementById('reportStartDate');
+      const endInput = document.getElementById('reportEndDate');
+      if (startInput && !startInput.value) {
+        // مثلاً اول ماه جاری شمسی
+        const parts = persianToday.split('/');
+        startInput.value = `${parts[0]}/${parts[1]}/01`;
       }
-      if(endInputs && !endInputs.value) {
-        endInputs.value = isoToday;
+      if (endInput && !endInput.value) {
+        endInput.value = persianToday;
       }
     });
 
@@ -323,8 +316,8 @@
       document.getElementById('statWorkersCount').innerText = db.workers.length.toLocaleString('fa-IR');
       
       const now = new Date();
-      const todayIso = getISODateStr(now);
-      const todays = db.attendance.filter(a => a.dateIso === todayIso);
+      const todayPersian = getPersianDateStr(now);
+      const todays = db.attendance.filter(a => a.persianDate === todayPersian);
       
       document.getElementById('statPresentToday').innerText = new Set(todays.map(a => a.workerId)).size.toLocaleString('fa-IR');
 
@@ -413,7 +406,7 @@
         project: document.getElementById('clockProjectSelect').value,
         type: type,
         workType: document.getElementById('attendanceType').value,
-        dateIso: getISODateStr(now),
+        persianDate: getPersianDateStr(now),
         time: now.toTimeString().slice(0,5)
       });
       saveDB(); refreshUI();
@@ -425,14 +418,14 @@
       const worker = db.workers.find(w => Number(w.id) === workerId);
       if (!worker) { alert('کارگر نامعتبر است.'); return; }
 
-      const startDate = document.getElementById('reportStartDate').value;
-      const endDate = document.getElementById('reportEndDate').value;
+      const startDate = document.getElementById('reportStartDate').value.trim();
+      const endDate = document.getElementById('reportEndDate').value.trim();
 
       const records = db.attendance.filter(a => {
         if (Number(a.workerId) !== workerId) return false;
-        const dIso = a.dateIso || '';
-        if (startDate && dIso < startDate) return false;
-        if (endDate && dIso > endDate) return false;
+        const pDate = a.persianDate || '';
+        if (startDate && pDate < startDate) return false;
+        if (endDate && pDate > endDate) return false;
         return true;
       });
 
