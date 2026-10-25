@@ -164,8 +164,8 @@
         <div class="card-title">محاسبه و صدور فیش حقوقی رسمی</div>
         <div class="form-group"><label>کارگر:</label><select id="reportWorkerSelect"></select></div>
         <div class="form-row">
-          <div class="form-group"><label>از تاریخ (شمسی):</label><input type="date" id="reportStartDate"></div>
-          <div class="form-group"><label>تا تاریخ (شمسی):</label><input type="date" id="reportEndDate"></div>
+          <div class="form-group"><label>از تاریخ (شمسی):</label><input type="text" id="reportStartDate" placeholder="1405/03/01" style="direction:ltr; text-align:right;"></div>
+          <div class="form-group"><label>تا تاریخ (شمسی):</label><input type="text" id="reportEndDate" placeholder="1405/03/31" style="direction:ltr; text-align:right;"></div>
         </div>
         <button class="btn btn-primary" onclick="generatePayslip()">📄 صدور فیش حقوقی رسمی</button>
       </div>
@@ -239,7 +239,7 @@
         <button class="btn btn-primary" onclick="addProject()">➕ ثبت پروژه</button>
       </div>
       <div class="card">
-        <div class="card-title"L>لیست پروژه‌ها</div>
+        <div class="card-title">لیست پروژه‌ها</div>
         <ul id="projectsList" style="list-style: none; padding: 0;"></ul>
       </div>
     </section>
@@ -267,7 +267,7 @@
       try {
         return new Intl.DateTimeFormat('fa-IR-u-ca-persian', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(dateObj).replace(/\//g, '/');
       } catch(e) {
-        return dateObj.toISOString().slice(0, 10);
+        return '1405/01/01';
       }
     }
 
@@ -278,10 +278,11 @@
       } catch(e) { document.getElementById('persianHeaderDate').innerText = 'امروز'; }
       document.getElementById('liveClock').innerText = now.toTimeString().slice(0,8);
 
+      const pToday = getPersianDateStr(now);
       const startInput = document.getElementById('reportStartDate');
       const endInput = document.getElementById('reportEndDate');
-      if (startInput && !startInput.value) startInput.value = now.toISOString().slice(0, 10);
-      if (endInput && !endInput.value) endInput.value = now.toISOString().slice(0, 10);
+      if (startInput && !startInput.value) startInput.value = pToday;
+      if (endInput && !endInput.value) endInput.value = pToday;
     }
     setInterval(updateHeaderDate, 1000);
 
@@ -318,8 +319,8 @@
       document.getElementById('statWorkersCount').innerText = db.workers.length.toLocaleString('fa-IR');
       
       const now = new Date();
-      const todayIso = now.toISOString().slice(0, 10);
-      const todays = db.attendance.filter(a => a.date === todayIso);
+      const todayPersian = getPersianDateStr(now);
+      const todays = db.attendance.filter(a => a.persianDate === todayPersian);
       
       document.getElementById('statPresentToday').innerText = new Set(todays.map(a => a.workerId)).size.toLocaleString('fa-IR');
 
@@ -382,7 +383,6 @@
         project: document.getElementById('clockProjectSelect').value,
         type: type,
         workType: document.getElementById('attendanceType').value,
-        date: now.toISOString().slice(0,10),
         persianDate: getPersianDateStr(now),
         time: now.toTimeString().slice(0,5)
       });
@@ -395,13 +395,14 @@
       const worker = db.workers.find(w => w.id === workerId);
       if (!worker) { alert('کارگر نامعتبر است.'); return; }
 
-      const startDate = document.getElementById('reportStartDate').value;
-      const endDate = document.getElementById('reportEndDate').value;
+      const startDate = document.getElementById('reportStartDate').value.trim();
+      const endDate = document.getElementById('reportEndDate').value.trim();
 
       const records = db.attendance.filter(a => {
         if (a.workerId !== workerId) return false;
-        if (startDate && a.date < startDate) return false;
-        if (endDate && a.date > endDate) return false;
+        const pDate = a.persianDate || '';
+        if (startDate && pDate < startDate) return false;
+        if (endDate && pDate > endDate) return false;
         return true;
       });
 
@@ -419,7 +420,7 @@
       const gross = Math.round(hours * worker.wage);
 
       document.getElementById('psIssueDate').innerText = new Intl.DateTimeFormat('fa-IR-u-ca-persian', {dateStyle:'medium'}).format(new Date());
-      document.getElementById('psRange').innerText = (startDate || endDate) ? `${startDate} تا ${endDate}` : 'کل دوره‌ها';
+      document.getElementById('psRange').innerText = (startDate || endDate) ? `${startDate || 'ابتدا'} تا ${endDate || 'اکنون'}` : 'کل دوره‌ها';
       document.getElementById('psWorkerName').innerText = worker.name;
       document.getElementById('psWorkerCode').innerText = worker.code || 'ثبت نشده';
       document.getElementById('psHourlyWage').innerText = `${Number(worker.wage).toLocaleString('fa-IR')} تومان`;
@@ -445,7 +446,11 @@
     }
 
     function deleteWorker(id) {
-      if (confirm('حذف شود؟')) { db.workers = db.workers.filter(w => w.id !== id); saveDB(); refreshUI(); }
+      if (confirm('آیا از حذف این کارگر مطمئن هستید؟')) {
+        db.workers = db.workers.filter(w => Number(w.id) !== Number(id));
+        saveDB();
+        refreshUI();
+      }
     }
 
     function addProject() {
