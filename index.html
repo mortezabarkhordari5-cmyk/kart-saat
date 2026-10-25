@@ -151,8 +151,15 @@
         <div class="card-title">محاسبه و صدور فیش حقوقی رسمی</div>
         <div class="form-group"><label>کارگر:</label><select id="reportWorkerSelect"></select></div>
         <div class="form-row">
-          <div class="form-group"><label>از تاریخ (شمسی):</label><input type="text" id="reportStartDate" placeholder="1405/03/01" maxlength="10" style="direction:ltr; text-align:right;"></div>
-          <div class="form-group"><label>تا تاریخ (شمسی):</label><input type="text" id="reportEndDate" placeholder="1405/03/31" maxlength="10" style="direction:ltr; text-align:right;"></div>
+          <!-- استفاده از نوع تاریخ بومی با دستورات ترجیح تقویم شمسی در اندروید -->
+          <div class="form-group">
+            <label>از تاریخ:</label>
+            <input type="date" id="reportStartDate" lang="fa" style="direction:ltr; text-align:right;">
+          </div>
+          <div class="form-group">
+            <label>تا تاریخ:</label>
+            <input type="date" id="reportEndDate" lang="fa" style="direction:ltr; text-align:right;">
+          </div>
         </div>
         <button class="btn btn-primary" onclick="generatePayslip()">📄 صدور فیش حقوقی رسمی</button>
       </div>
@@ -254,7 +261,7 @@
       try {
         return new Intl.DateTimeFormat('fa-IR-u-ca-persian', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(dateObj).replace(/\//g, '/');
       } catch(e) {
-        return '1405/01/01';
+        return '1405/03/01';
       }
     }
 
@@ -269,16 +276,17 @@
 
     window.addEventListener('DOMContentLoaded', () => {
       const now = new Date();
-      const persianToday = getPersianDateStr(now);
+      // مقداردهی تاریخ به صورت میلادی استاندارد پشت صحنه تا اینپوت type="date" مقادیر را بپذیرد
+      const yyyy = now.getFullYear();
+      const mm = String(now.getMonth() + 1).padStart(2, '0');
+      const dd = String(now.getDate()).padStart(2, '0');
+      const todayISO = `${yyyy}-${mm}-${dd}`;
+      const firstDayISO = `${yyyy}-${mm}-01`;
+
       const startInput = document.getElementById('reportStartDate');
       const endInput = document.getElementById('reportEndDate');
-      if (startInput && !startInput.value) {
-        const parts = persianToday.split('/');
-        startInput.value = `${parts[0]}/${parts[1]}/01`;
-      }
-      if (endInput && !endInput.value) {
-        endInput.value = persianToday;
-      }
+      if (startInput && !startInput.value) startInput.value = firstDayISO;
+      if (endInput && !endInput.value) endInput.value = todayISO;
     });
 
     function switchTab(tabName, event) {
@@ -416,14 +424,26 @@
       const worker = db.workers.find(w => Number(w.id) === workerId);
       if (!worker) { alert('کارگر نامعتبر است.'); return; }
 
-      const startDate = document.getElementById('reportStartDate').value.trim();
-      const endDate = document.getElementById('reportEndDate').value.trim();
+      const startDateVal = document.getElementById('reportStartDate').value;
+      const endDateVal = document.getElementById('reportEndDate').value;
+
+      // تبدیل تاریخ انتخابی به فرمت مقایسه شمسی برای فیلتر
+      let startDateStr = '';
+      let endDateStr = '';
+      if (startDateVal) {
+        const d = new Date(startDateVal);
+        if(!isNaN(d)) startDateStr = getPersianDateStr(d);
+      }
+      if (endDateVal) {
+        const d = new Date(endDateVal);
+        if(!isNaN(d)) endDateStr = getPersianDateStr(d);
+      }
 
       const records = db.attendance.filter(a => {
         if (Number(a.workerId) !== workerId) return false;
         const pDate = a.persianDate || '';
-        if (startDate && pDate < startDate) return false;
-        if (endDate && pDate > endDate) return false;
+        if (startDateStr && pDate < startDateStr) return false;
+        if (endDateStr && pDate > endDateStr) return false;
         return true;
       });
 
@@ -441,7 +461,7 @@
       const gross = Math.round(hours * worker.wage);
 
       document.getElementById('psIssueDate').innerText = getPersianDateStr(new Date());
-      document.getElementById('psRange').innerText = `${startDate || '---'} تا ${endDate || '---'}`;
+      document.getElementById('psRange').innerText = `${startDateStr || '---'} تا ${endDateStr || '---'}`;
       document.getElementById('psWorkerName').innerText = worker.name;
       document.getElementById('psWorkerCode').innerText = worker.code || 'ثبت نشده';
       document.getElementById('psHourlyWage').innerText = `${Number(worker.wage).toLocaleString('fa-IR')} تومان`;
