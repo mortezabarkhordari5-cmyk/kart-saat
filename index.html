@@ -11,9 +11,7 @@
     :root {
       --primary: #0f766e;
       --primary-dark: #115e59;
-      --primary-light: #ccfbf1;
       --secondary: #1e293b;
-      --accent: #d97706;
       --bg: #f8fafc;
       --card-bg: #ffffff;
       --text: #0f172a;
@@ -41,14 +39,13 @@
 
     .form-group { margin-bottom: 14px; }
     label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; }
-    input, select, textarea { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.95rem; background: #fff; color: var(--text); outline: none; }
+    input, select { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.95rem; background: #fff; color: var(--text); outline: none; }
     input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(15,118,110,0.15); }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     @media(max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
 
     .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 18px; border-radius: 8px; border: none; font-weight: 700; font-size: 0.95rem; cursor: pointer; width: 100%; transition: 0.2s; }
     .btn-primary { background: var(--primary); color: white; }
-    .btn-primary:hover { background: var(--primary-dark); }
     .btn-success { background: var(--success); color: white; }
     .btn-danger { background: var(--danger); color: white; }
     .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
@@ -71,26 +68,16 @@
     .payslip { background: #fff; border: 2px solid #0f766e; border-radius: 16px; padding: 24px; margin-top: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
     .payslip-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px dashed #cbd5e1; padding-bottom: 14px; margin-bottom: 16px; }
     .payslip-title { font-size: 1.2rem; font-weight: 900; color: #0f766e; }
-    .payslip-subtitle { font-size: 0.8rem; color: var(--text-muted); }
-    .payslip-meta { text-align: left; font-size: 0.85rem; color: #334155; }
     .payslip-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
-    @media(max-width:500px){ .payslip-grid { grid-template-columns: 1fr; } }
     .payslip-item { background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px 14px; border-radius: 8px; }
     .payslip-item .label { font-size: 0.78rem; color: #64748b; margin-bottom: 2px; }
     .payslip-item .val { font-size: 1rem; font-weight: 800; color: #0f172a; }
     .payslip-highlight { background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1px solid #86efac; padding: 16px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
-    .payslip-highlight .label { font-size: 1rem; font-weight: 800; color: #166534; }
     .payslip-highlight .val { font-size: 1.4rem; font-weight: 900; color: #15803d; }
     .payslip-footer-legal { border-top: 1px solid #e2e8f0; padding-top: 12px; font-size: 0.75rem; color: #64748b; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
 
     .app-footer { background: #fff; border-top: 1px solid var(--border); text-align: center; padding: 14px 16px; font-size: 0.85rem; color: var(--text-muted); position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; }
     .support-pill { display: inline-block; background: #f1f5f9; color: #0f766e; padding: 3px 10px; border-radius: 20px; font-weight: 800; direction: ltr; }
-
-    @media print {
-      body { background: #fff; padding: 0; }
-      .top-header, .nav-tabs, #clockTab > .card:nth-child(1), .app-footer, .no-print { display: none !important; }
-      .payslip { border: 2px solid #000; box-shadow: none; margin: 0 auto; max-width: 100%; }
-    }
   </style>
 </head>
 <body>
@@ -115,7 +102,7 @@
       <div class="stat-box"><div class="stat-val" id="statTotalHoursToday">۰</div><div class="stat-label">مجموع ساعت امروز</div></div>
     </div>
 
-    <nav class="nav-tabs no-print">
+    <nav class="nav-tabs">
       <button class="tab-btn active" onclick="switchTab('clock', event)">⏱️ ثبت تردد</button>
       <button class="tab-btn" onclick="switchTab('reports', event)">📊 فیش حقوقی</button>
       <button class="tab-btn" onclick="switchTab('workers', event)">👷 کارگران</button>
@@ -160,12 +147,12 @@
 
     <!-- گزارش و فیش حقوقی -->
     <section id="reportsTab" class="tab-content" style="display: none;">
-      <div class="card no-print">
+      <div class="card">
         <div class="card-title">محاسبه و صدور فیش حقوقی رسمی</div>
         <div class="form-group"><label>کارگر:</label><select id="reportWorkerSelect"></select></div>
         <div class="form-row">
-          <div class="form-group"><label>از تاریخ (شمسی):</label><input type="text" id="reportStartDate" placeholder="1405/03/01" style="direction:ltr; text-align:right;"></div>
-          <div class="form-group"><label>تا تاریخ (شمسی):</label><input type="text" id="reportEndDate" placeholder="1405/03/31" style="direction:ltr; text-align:right;"></div>
+          <div class="form-group"><label>از تاریخ:</label><input type="date" id="reportStartDate" style="direction:ltr; text-align:right;"></div>
+          <div class="form-group"><label>تا تاریخ:</label><input type="date" id="reportEndDate" style="direction:ltr; text-align:right;"></div>
         </div>
         <button class="btn btn-primary" onclick="generatePayslip()">📄 صدور فیش حقوقی رسمی</button>
       </div>
@@ -177,7 +164,7 @@
               <div class="payslip-title">فیش حقوق و دستمزد</div>
               <div class="payslip-subtitle">سامانه رسمی کنترل تردد کارگران</div>
             </div>
-            <div class="payslip-meta">
+            <div class="payslip-meta" style="text-align: left; font-size: 0.85rem;">
               <div>تاریخ: <span id="psIssueDate">—</span></div>
               <div>بازه: <span id="psRange">—</span></div>
             </div>
@@ -200,7 +187,7 @@
             <div>پشتیبانی: <span class="support-pill">09371880982</span></div>
           </div>
         </div>
-        <div style="margin-top: 12px;" class="no-print">
+        <div style="margin-top: 12px;">
           <button class="btn btn-primary" onclick="window.print()">🖨️ چاپ فیش حقوقی</button>
         </div>
       </div>
@@ -245,7 +232,7 @@
     </section>
   </main>
 
-  <footer class="app-footer no-print">
+  <footer class="app-footer">
     <div>کارت ساعت هوشمند کارگران | پشتیبانی: <span class="support-pill">09371880982</span></div>
   </footer>
 
@@ -271,20 +258,37 @@
       }
     }
 
+    function getISODateStr(dateObj) {
+      const y = dateObj.getFullYear();
+      const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const d = String(dateObj.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
     function updateHeaderDate() {
       const now = new Date();
       try {
         document.getElementById('persianHeaderDate').innerText = new Intl.DateTimeFormat('fa-IR-u-ca-persian', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).format(now);
       } catch(e) { document.getElementById('persianHeaderDate').innerText = 'امروز'; }
       document.getElementById('liveClock').innerText = now.toTimeString().slice(0,8);
-
-      const pToday = getPersianDateStr(now);
-      const startInput = document.getElementById('reportStartDate');
-      const endInput = document.getElementById('reportEndDate');
-      if (startInput && !startInput.value) startInput.value = pToday;
-      if (endInput && !endInput.value) endInput.value = pToday;
     }
     setInterval(updateHeaderDate, 1000);
+
+    // مقداردهی اولیه تاریخ‌ها هنگام لود صفحه
+    window.addEventListener('DOMContentLoaded', () => {
+      const now = new Date();
+      const isoToday = getISODateStr(now);
+      const startInputs = document.getElementById('reportStartDate');
+      const endInputs = document.getElementById('reportEndDate');
+      if(startInputs && !startInputs.value) {
+        // ابتدای ماه جاری میلادی معادل یا تاریخ امروز پیش‌فرض
+        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+        startInputs.value = getISODateStr(firstDay);
+      }
+      if(endInputs && !endInputs.value) {
+        endInputs.value = isoToday;
+      }
+    });
 
     function switchTab(tabName, event) {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -319,8 +323,8 @@
       document.getElementById('statWorkersCount').innerText = db.workers.length.toLocaleString('fa-IR');
       
       const now = new Date();
-      const todayPersian = getPersianDateStr(now);
-      const todays = db.attendance.filter(a => a.persianDate === todayPersian);
+      const todayIso = getISODateStr(now);
+      const todays = db.attendance.filter(a => a.dateIso === todayIso);
       
       document.getElementById('statPresentToday').innerText = new Set(todays.map(a => a.workerId)).size.toLocaleString('fa-IR');
 
@@ -356,11 +360,37 @@
 
       const wTbody = document.getElementById('workersListTableBody');
       wTbody.innerHTML = '';
-      db.workers.forEach(w => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td><strong>${w.name}</strong></td><td>${w.code||'—'}</td><td>${Number(w.wage||0).toLocaleString('fa-IR')} تومان</td><td>${w.phone||'—'}</td><td><button type="button" class="btn btn-outline" style="padding:4px 10px; color:red; font-size:0.8rem; font-weight:bold;" onclick="deleteWorker(${w.id})">حذف</button></td>`;
-        wTbody.appendChild(tr);
-      });
+      if (db.workers.length === 0) {
+        wTbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--text-muted);">کارگری ثبت نشده است.</td></tr>';
+      } else {
+        db.workers.forEach(w => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td><strong>${w.name}</strong></td>
+            <td>${w.code||'—'}</td>
+            <td>${Number(w.wage||0).toLocaleString('fa-IR')} تومان</td>
+            <td>${w.phone||'—'}</td>
+            <td></td>
+          `;
+          const actionTd = tr.querySelector('td:last-child');
+          const delBtn = document.createElement('button');
+          delBtn.type = 'button';
+          delBtn.className = 'btn btn-outline';
+          delBtn.style.cssText = 'padding:4px 10px; color:red; font-size:0.8rem; font-weight:bold;';
+          delBtn.textContent = 'حذف';
+          
+          delBtn.onclick = function() {
+            if (confirm(`آیا از حذف کارگر «${w.name}» مطمئن هستید؟`)) {
+              db.workers = db.workers.filter(item => Number(item.id) !== Number(w.id));
+              saveDB();
+              refreshUI();
+            }
+          };
+          
+          actionTd.appendChild(delBtn);
+          wTbody.appendChild(tr);
+        });
+      }
 
       const pList = document.getElementById('projectsList');
       pList.innerHTML = '';
@@ -383,7 +413,7 @@
         project: document.getElementById('clockProjectSelect').value,
         type: type,
         workType: document.getElementById('attendanceType').value,
-        persianDate: getPersianDateStr(now),
+        dateIso: getISODateStr(now),
         time: now.toTimeString().slice(0,5)
       });
       saveDB(); refreshUI();
@@ -395,14 +425,14 @@
       const worker = db.workers.find(w => Number(w.id) === workerId);
       if (!worker) { alert('کارگر نامعتبر است.'); return; }
 
-      const startDate = document.getElementById('reportStartDate').value.trim();
-      const endDate = document.getElementById('reportEndDate').value.trim();
+      const startDate = document.getElementById('reportStartDate').value;
+      const endDate = document.getElementById('reportEndDate').value;
 
       const records = db.attendance.filter(a => {
         if (Number(a.workerId) !== workerId) return false;
-        const pDate = a.persianDate || '';
-        if (startDate && pDate < startDate) return false;
-        if (endDate && pDate > endDate) return false;
+        const dIso = a.dateIso || '';
+        if (startDate && dIso < startDate) return false;
+        if (endDate && dIso > endDate) return false;
         return true;
       });
 
@@ -419,8 +449,8 @@
       const hours = mins > 0 ? (mins/60).toFixed(1) : 0;
       const gross = Math.round(hours * worker.wage);
 
-      document.getElementById('psIssueDate').innerText = new Intl.DateTimeFormat('fa-IR-u-ca-persian', {dateStyle:'medium'}).format(new Date());
-      document.getElementById('psRange').innerText = (startDate || endDate) ? `${startDate || 'ابتدا'} تا ${endDate || 'اکنون'}` : 'کل دوره‌ها';
+      document.getElementById('psIssueDate').innerText = getPersianDateStr(new Date());
+      document.getElementById('psRange').innerText = `${startDate || '---'} تا ${endDate || '---'}`;
       document.getElementById('psWorkerName').innerText = worker.name;
       document.getElementById('psWorkerCode').innerText = worker.code || 'ثبت نشده';
       document.getElementById('psHourlyWage').innerText = `${Number(worker.wage).toLocaleString('fa-IR')} تومان`;
@@ -443,14 +473,6 @@
       document.getElementById('newWorkerWage').value = '';
       document.getElementById('newWorkerPhone').value = '';
       alert('کارگر ثبت شد.');
-    }
-
-    function deleteWorker(id) {
-      if (confirm('آیا از حذف این کارگر مطمئن هستید؟')) {
-        db.workers = db.workers.filter(w => Number(w.id) !== Number(id));
-        saveDB();
-        refreshUI();
-      }
     }
 
     function addProject() {
