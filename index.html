@@ -358,7 +358,7 @@
       wTbody.innerHTML = '';
       db.workers.forEach(w => {
         const tr = document.createElement('tr');
-        tr.innerHTML = `<td><strong>${w.name}</strong></td><td>${w.code||'—'}</td><td>${Number(w.wage||0).toLocaleString('fa-IR')} تومان</td><td>${w.phone||'—'}</td><td><button type="button" class="btn btn-outline" style="padding:2px 6px; color:red; font-size:0.75rem;" onclick="deleteWorker(${w.id})">حذف</button></td>`;
+        tr.innerHTML = `<td><strong>${w.name}</strong></td><td>${w.code||'—'}</td><td>${Number(w.wage||0).toLocaleString('fa-IR')} تومان</td><td>${w.phone||'—'}</td><td><button type="button" class="btn btn-outline" style="padding:4px 10px; color:red; font-size:0.8rem; font-weight:bold;" onclick="deleteWorker(${w.id})">حذف</button></td>`;
         wTbody.appendChild(tr);
       });
 
