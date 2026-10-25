@@ -425,26 +425,73 @@
             font-size: 0.85rem;
         }
 
-        /* Print Styles */
+        /* Print Styles: print only the currently generated report. */
         @media print {
-            body {
-                background: white;
-                color: black;
-                padding: 0;
+            @page {
+                margin: 12mm;
             }
-            header, .tabs, .form-group, .btn, .modal, .no-print {
+
+            html, body {
+                background: #fff !important;
+                color: #000 !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            /* Keep the report's ancestors in the layout, but make all other UI invisible. */
+            body * {
+                visibility: hidden !important;
+            }
+
+            #reportResultContainer,
+            #reportResultContainer * {
+                visibility: visible !important;
+            }
+
+            #reportResultContainer {
+                display: block !important;
+                position: absolute !important;
+                inset: 0 !important;
+                width: 100% !important;
+                max-width: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                background: #fff !important;
+                border: 0 !important;
+                box-shadow: none !important;
+            }
+
+            #reportResultContainer .report-print-card {
+                display: block !important;
+                width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                background: #fff !important;
+                color: #000 !important;
+                border: 0 !important;
+                box-shadow: none !important;
+            }
+
+            #reportResultContainer .stats-grid {
+                grid-template-columns: repeat(4, 1fr) !important;
+                gap: 8px !important;
+            }
+
+            #reportResultContainer .stat-card {
+                padding: 10px !important;
+                border: 1px solid #bbb !important;
+                box-shadow: none !important;
+            }
+
+            #reportResultContainer .btn,
+            #reportResultContainer .no-print {
                 display: none !important;
             }
-            .section-card {
-                display: block !important;
-                box-shadow: none;
-                border: none;
-                padding: 0;
-                margin: 0;
-            }
+
             table {
                 font-size: 12px;
             }
+
             th, td {
                 padding: 8px;
                 border-color: #000;
@@ -566,7 +613,7 @@
 
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
                 <!-- Clock In/Out Box -->
-                <div style="background: var(--background); padding: 20px; border-radius: var(--radius); border: 1px solid var(--border);">
+                <div class="report-print-card" data-worker-id="${selectedWorkerId}" style="background: var(--background); padding: 20px; border-radius: var(--radius); border: 1px solid var(--border);">
                     <h3 style="margin-bottom: 15px; font-size: 1.1rem; color: var(--primary);">ثبت تردد آنی</h3>
                     <div class="form-group" style="margin-bottom: 15px;">
                         <label>انتخاب کارگر</label>
@@ -1249,23 +1296,31 @@
             let container = document.getElementById('reportResultContainer');
             let btnPrint = document.getElementById('btnPrintReport');
 
+            // Always clear the previous result before rendering a new worker report.
+            container.innerHTML = '';
+            container.style.display = 'none';
+            container.removeAttribute('data-worker-id');
+
             if (!workerId) {
                 alert('لطفاً کارگر موردنظر را انتخاب کنید.');
                 return;
             }
 
-            let worker = db.workers.find(w => w.id === workerId);
+            // Compare IDs as strings so reports remain isolated even if imported JSON
+            // contains numeric IDs while select values are always strings.
+            const selectedWorkerId = String(workerId);
+            let worker = db.workers.find(w => String(w.id) === selectedWorkerId);
             if (!worker) return;
 
             let workerAtt = db.attendance.filter(a => {
-                if (a.workerId !== workerId || !a.clockOut) return false;
+                if (String(a.workerId) !== selectedWorkerId || !a.clockOut) return false;
                 if (fromDate && a.date < fromDate) return false;
                 if (toDate && a.date > toDate) return false;
                 return true;
             });
 
             let workerAdv = db.advances.filter(ad => {
-                if (ad.workerId !== workerId) return false;
+                if (String(ad.workerId) !== selectedWorkerId) return false;
                 if (fromDate && ad.date < fromDate) return false;
                 if (toDate && ad.date > toDate) return false;
                 return true;
@@ -1285,7 +1340,7 @@
             let netPay = grossPay - totalAdvance;
 
             let html = `
-                <div style="background: var(--background); padding: 20px; border-radius: var(--radius); border: 1px solid var(--border);">
+                <div class="report-print-card" data-worker-id="${selectedWorkerId}" style="background: var(--background); padding: 20px; border-radius: var(--radius); border: 1px solid var(--border);">
                     <h3 style="margin-bottom: 15px; color: var(--primary);">گزارش تسویه‌حساب: ${worker.name}</h3>
                     <p style="margin-bottom: 10px;">بازه گزارش: ${fromDate || 'ابتدای دوره'} الی ${toDate || 'اکنون'}</p>
                     <div class="stats-grid" style="margin-top: 15px; margin-bottom: 20px;">
@@ -1298,11 +1353,17 @@
             `;
 
             container.innerHTML = html;
+            container.dataset.workerId = selectedWorkerId;
             container.style.display = 'block';
             btnPrint.style.display = 'inline-flex';
         }
 
         function printReport() {
+            const reportContainer = document.getElementById('reportResultContainer');
+            if (!reportContainer || !reportContainer.dataset.workerId || !reportContainer.innerHTML.trim()) {
+                alert('ابتدا گزارش یک کارگر را تهیه و مشاهده کنید.');
+                return;
+            }
             window.print();
         }
 
