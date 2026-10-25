@@ -8,18 +8,18 @@
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
     <style>
         :root {
-            --primary: #2563eb;
-            --primary-dark: #1d4ed8;
-            --success: #16a34a;
+            --primary: #0f766e;
+            --primary-dark: #115e59;
+            --success: #15803d;
             --danger: #dc2626;
-            --warning: #d97706;
-            --background: #f8fafc;
-            --surface: #ffffff;
-            --text-main: #1e293b;
-            --text-secondary: #64748b;
-            --border: #e2e8f0;
+            --warning: #f59e0b;
+            --background: #fff7ed;
+            --surface: #fffdf8;
+            --text-main: #24332f;
+            --text-secondary: #64706b;
+            --border: #eadfce;
             --radius: 12px;
-            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow: 0 8px 20px -12px rgb(91 65 38 / 0.35), 0 3px 8px -4px rgb(15 118 110 / 0.18);
         }
 
         * {
@@ -96,7 +96,7 @@
             background: var(--primary);
             color: white;
             border-color: var(--primary);
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+            box-shadow: 0 4px 12px rgba(15, 118, 110, 0.22);
         }
 
         /* Sections */
@@ -161,7 +161,7 @@
 
         input:focus, select:focus {
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
         }
         .btn {
             background: var(--primary);
@@ -237,7 +237,7 @@
         }
 
         tr:hover td {
-            background: #f8fafc;
+            background: #fff1e2;
         }
 
         /* Stats & Cards Grid */
@@ -380,7 +380,7 @@
         }
 
         .calendar-day:hover {
-            background: #e0e7ff;
+            background: #ccfbf1;
             color: var(--primary);
         }
 
@@ -450,6 +450,78 @@
                 border-color: #000;
             }
         }
+    
+
+        /* Warm, lively visual accents */
+        body {
+            background: linear-gradient(135deg, #fff7ed 0%, #f0fdfa 52%, #fffbeb 100%);
+        }
+
+        header {
+            background: linear-gradient(135deg, #fffdf8 0%, #ecfdf5 100%);
+            border: 1px solid rgba(15, 118, 110, 0.12);
+        }
+
+        header h1 svg { color: var(--warning); }
+
+        .live-clock {
+            background: linear-gradient(135deg, #ecfdf5, #fffbeb);
+            border-color: rgba(15, 118, 110, 0.2);
+        }
+
+        .tab-btn:hover {
+            color: var(--primary);
+            border-color: rgba(15, 118, 110, 0.35);
+            background: #f0fdfa;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #0f766e, #149b88);
+        }
+
+        .section-card {
+            background: linear-gradient(145deg, #fffdf8 0%, #ffffff 72%, #f0fdfa 100%);
+        }
+
+        h2 { border-bottom-color: #ffedd5; }
+
+        input:focus, select:focus {
+            box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12), 0 4px 12px rgba(245, 158, 11, 0.08);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #0f766e, #149b88);
+            box-shadow: 0 5px 12px rgba(15, 118, 110, 0.16);
+        }
+
+        .btn:hover { background: linear-gradient(135deg, #115e59, #0f766e); }
+        .btn-success { background: linear-gradient(135deg, #15803d, #22a35a); }
+        .btn-success:hover { background: #166534; }
+        .btn-warning { background: linear-gradient(135deg, #f59e0b, #fbbf24); color: #4a2b05; }
+        .btn-warning:hover { background: #d97706; color: #fff; }
+        .btn-danger { background: linear-gradient(135deg, #dc2626, #ef4444); }
+        .btn-outline:hover { background: #fff7ed; border-color: #f59e0b; color: #92400e; }
+
+        .table-responsive { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7); }
+        th { background: linear-gradient(135deg, #fff7ed, #ecfdf5); }
+        tr:hover td { background: #fffbeb; }
+
+        .stat-card {
+            background: linear-gradient(145deg, #fffdf8, #ecfdf5);
+            border-top: 3px solid var(--primary);
+        }
+        .stat-card:nth-child(2) { border-top-color: #f59e0b; background: linear-gradient(145deg, #fffdf8, #fffbeb); }
+        .stat-card:nth-child(3) { border-top-color: #22a35a; }
+        .stat-card:nth-child(4) { border-top-color: #fb923c; background: linear-gradient(145deg, #fffdf8, #fff7ed); }
+
+        .badge-success { background: #d1fae5; color: #065f46; }
+        .badge-danger { background: #fee2e2; color: #991b1b; }
+        .badge-warning { background: #fef3c7; color: #92400e; }
+
+        .calendar-day:hover { background: #ccfbf1; }
+        .calendar-day.selected { background: linear-gradient(135deg, #0f766e, #149b88); }
+        .calendar-day.today { border-color: #f59e0b; color: #0f766e; }
+
     </style>
 </head>
 <body>
