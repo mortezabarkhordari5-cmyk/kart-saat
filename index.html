@@ -164,8 +164,8 @@
         <div class="card-title">محاسبه و صدور فیش حقوقی رسمی</div>
         <div class="form-group"><label>کارگر:</label><select id="reportWorkerSelect"></select></div>
         <div class="form-row">
-          <div class="form-group"><label>از تاریخ (شمسی):</label><input type="text" id="reportStartDate" placeholder="مثال: 1405/03/01"></div>
-          <div class="form-group"><label>تا تاریخ (شمسی):</label><input type="text" id="reportEndDate" placeholder="مثال: 1405/03/31"></div>
+          <div class="form-group"><label>از تاریخ (شمسی):</label><input type="text" id="reportStartDate" placeholder="1405/03/01"></div>
+          <div class="form-group"><label>تا تاریخ (شمسی):</label><input type="text" id="reportEndDate" placeholder="1405/03/31"></div>
         </div>
         <button class="btn btn-primary" onclick="generatePayslip()">📄 صدور فیش حقوقی رسمی</button>
       </div>
@@ -263,12 +263,27 @@
     }
     function saveDB() { localStorage.setItem(DB_KEY, JSON.stringify(db)); }
 
+    function getPersianDateStr(dateObj) {
+      try {
+        return new Intl.DateTimeFormat('fa-IR-u-ca-persian', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(dateObj).replace(/\//g, '/');
+      } catch(e) {
+        return dateObj.toISOString().slice(0, 10);
+      }
+    }
+
     function updateHeaderDate() {
       const now = new Date();
       try {
         document.getElementById('persianHeaderDate').innerText = new Intl.DateTimeFormat('fa-IR-u-ca-persian', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).format(now);
       } catch(e) { document.getElementById('persianHeaderDate').innerText = 'امروز'; }
       document.getElementById('liveClock').innerText = now.toTimeString().slice(0,8);
+
+      // قرار دادن پیش‌فرض تاریخ امروز در فیلترهای فیش حقوقی اگر خالی بودند
+      const pToday = getPersianDateStr(now);
+      const startInput = document.getElementById('reportStartDate');
+      const endInput = document.getElementById('reportEndDate');
+      if (startInput && !startInput.value) startInput.value = pToday;
+      if (endInput && !endInput.value) endInput.value = pToday;
     }
     setInterval(updateHeaderDate, 1000);
 
@@ -303,11 +318,13 @@
       }
 
       document.getElementById('statWorkersCount').innerText = db.workers.length.toLocaleString('fa-IR');
-      const today = new Date().toISOString().slice(0, 10);
-      const todays = db.attendance.filter(a => a.date === today);
+      
+      const now = new Date();
+      const todayPersian = getPersianDateStr(now);
+      const todays = db.attendance.filter(a => (a.persianDate === todayPersian) || (a.date === now.toISOString().slice(0,10)));
+      
       document.getElementById('statPresentToday').innerText = new Set(todays.map(a => a.workerId)).size.toLocaleString('fa-IR');
 
-      // محاسبه مجموع ساعت امروز
       let totalTodayMins = 0;
       const workerTodayLogs = {};
       todays.forEach(a => {
@@ -361,14 +378,6 @@
       if (!workerId) { alert('لطفاً کارگر را انتخاب کنید.'); return; }
       
       const now = new Date();
-      // تبدیل تاریخ میلادی امروز به شمسی برای ذخیره دقیق در دیتابیس
-      let persianDateStr = '';
-      try {
-        persianDateStr = new Intl.DateTimeFormat('fa-IR-u-ca-persian', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(now).replace(/\//g, '/');
-      } catch(e) {
-        persianDateStr = now.toISOString().slice(0, 10);
-      }
-
       db.attendance.push({
         id: Date.now(),
         workerId: Number(workerId),
@@ -376,7 +385,7 @@
         type: type,
         workType: document.getElementById('attendanceType').value,
         date: now.toISOString().slice(0,10),
-        persianDate: persianDateStr,
+        persianDate: getPersianDateStr(now),
         time: now.toTimeString().slice(0,5)
       });
       saveDB(); refreshUI();
@@ -391,7 +400,6 @@
       const startDate = document.getElementById('reportStartDate').value.trim();
       const endDate = document.getElementById('reportEndDate').value.trim();
 
-      // فیلتر ترددها بر اساس تاریخ شمسی وارد شده
       const records = db.attendance.filter(a => {
         if (a.workerId !== workerId) return false;
         const pDate = a.persianDate || a.date;
