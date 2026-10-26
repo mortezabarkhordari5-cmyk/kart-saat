@@ -9,7 +9,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
-  <!-- Persian Datepicker (Shamsi Calendar) -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/css/persian-datepicker.min.css">
   <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/persian-date@1.1.0/dist/persian-date.min.js"></script>
@@ -72,6 +71,10 @@
     table { width: 100%; border-collapse: collapse; font-size: 0.85rem; text-align: right; }
     th, td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
     th { background: #f1f5f9; color: var(--secondary); font-weight: 700; }
+
+    .shift-in { color: var(--success); font-weight: 800; }
+    .shift-out { color: var(--danger); font-weight: 800; }
+    .shift-working { color: #b45309; font-weight: 800; }
 
     .payslip { background: #fff; border: 2px solid #0f766e; border-radius: 16px; padding: 24px; margin-top: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
     .payslip-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px dashed #cbd5e1; padding-bottom: 14px; margin-bottom: 16px; }
@@ -148,11 +151,11 @@
         </div>
       </div>
       <div class="card">
-        <div class="card-title">ترددهای امروز</div>
+        <div class="card-title">کارکرد امروز کارگران (هر کارگر یک سطر)</div>
         <div class="table-responsive">
           <table>
-            <thead><tr><th>کارگر</th><th>رویداد</th><th>ساعت</th><th>پروژه</th><th>نوع</th></tr></thead>
-            <tbody id="todayAttendanceTableBody"><tr><td colspan="5" style="text-align:center; color:var(--text-muted);">امروز ترددی ثبت نشده است.</td></tr></tbody>
+            <thead><tr><th>کارگر</th><th>ورود</th><th>خروج</th><th>مدت کارکرد</th><th>پروژه</th><th>نوع</th></tr></thead>
+            <tbody id="todayAttendanceTableBody"><tr><td colspan="6" style="text-align:center; color:var(--text-muted);">امروز ترددی ثبت نشده است.</td></tr></tbody>
           </table>
         </div>
       </div>
@@ -163,7 +166,6 @@
         <div class="card-title">محاسبه و صدور فیش حقوقی رسمی</div>
         <div class="form-group"><label>کارگر:</label><select id="reportWorkerSelect"></select></div>
 
-        <!-- فیلدهای تقویم شمسی -->
         <div class="form-row">
           <div class="form-group">
             <label>از تاریخ (شمسی):</label>
@@ -267,6 +269,15 @@
       if (!db.workers) db.workers = [];
       if (!db.projects) db.projects = ['کارگاه مرکزی'];
       if (!db.attendance) db.attendance = [];
+
+      // پاکسازی خودکار کارگران آزمایشی که از داخل برنامه حذف نمی‌شدند
+      const junkNames = ['رضا کارگر', 'محمد ناصری'];
+      const before = db.workers.length;
+      db.workers = db.workers.filter(w => !junkNames.includes(String(w.name || '').trim()));
+      if (db.workers.length !== before) {
+        const keepIds = db.workers.map(w => Number(w.id));
+        db.attendance = db.attendance.filter(a => keepIds.includes(Number(a.workerId)));
+      }
       saveDB();
     }
     function saveDB() { localStorage.setItem(DB_KEY, JSON.stringify(db)); }
@@ -280,6 +291,11 @@
     function normalizePersianDateInput(str) {
       if (!str) return '';
       return String(str).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
+    }
+
+    // تاریخ را به شکل یکسان "1405/08/04" برمی‌گرداند تا مقایسه‌ها همیشه درست باشد
+    function normDate(s) {
+      return normalizePersianDateInput(String(s || '')).replace(/[^0-9\/]/g, '').trim();
     }
 
     function getPersianDateStr(dateObj) {
@@ -311,6 +327,25 @@
       document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
       document.getElementById(tabName + 'Tab').style.display = 'block';
       if (event && event.target) event.target.classList.add('active');
+      // وقتی تب فیش حقوقی باز می‌شود تقویم‌ها مقداردهی می‌شوند تا محاسبه درست کار کند
+      if (tabName === 'reports') initShamsiPickers();
+    }
+
+    // محاسبه دقیقه کارکرد از روی لیست ورود/خروج مرتب‌شده
+    function calcMinutes(logs) {
+      let mins = 0, lastIn = null;
+      logs.forEach(r => {
+        if (!r.time || r.time.indexOf(':') === -1) return;
+        const p = r.time.split(':');
+        const t = parseInt(p[0], 10) * 60 + parseInt(p[1], 10);
+        if (r.type === 'ورود') {
+          lastIn = t;
+        } else if (r.type === 'خروج' && lastIn !== null) {
+          if (t >= lastIn) mins += (t - lastIn);
+          lastIn = null;
+        }
+      });
+      return mins;
     }
 
     function refreshUI() {
@@ -348,43 +383,54 @@
 
       document.getElementById('statPresentToday').innerText = (new Set(todays.map(a => a.workerId))).size.toLocaleString('fa-IR');
 
-      let totalTodayMins = 0;
-      const workerTodayLogs = {};
+      // مجموع ساعت امروز (نمایش آماری)
+      const logsByWorker = {};
       todays.forEach(a => {
-        if (!workerTodayLogs[a.workerId]) workerTodayLogs[a.workerId] = [];
-        workerTodayLogs[a.workerId].push(a);
+        if (!logsByWorker[a.workerId]) logsByWorker[a.workerId] = [];
+        logsByWorker[a.workerId].push(a);
       });
-
-      Object.values(workerTodayLogs).forEach(logs => {
-        logs.sort((a,b) => a.time.localeCompare(b.time));
-
-        let inTime = null;
-        logs.forEach(l => {
-          const [h, m] = l.time.split(':').map(Number);
-          const t = h * 60 + m;
-          if (l.type === 'ورود') inTime = t;
-          else if (l.type === 'خروج' && inTime !== null) {
-            if (t > inTime) totalTodayMins += (t - inTime);
-            inTime = null;
-          }
-        });
+      let totalTodayMins = 0;
+      Object.values(logsByWorker).forEach(logs => {
+        logs.sort((a,b) => String(a.time||'').localeCompare(String(b.time||'')));
+        totalTodayMins += calcMinutes(logs);
       });
+      document.getElementById('statTotalHoursToday').innerText = Number((totalTodayMins/60).toFixed(1)).toLocaleString('fa-IR');
 
-      const totalHoursFormatted = (totalTodayMins / 60).toFixed(1);
-      document.getElementById('statTotalHoursToday').innerText = Number(totalHoursFormatted).toLocaleString('fa-IR');
-
+      // جدول خطی: هر کارگر یک سطر با ورود، خروج و مدت کارکرد
       const tbody = document.getElementById('todayAttendanceTableBody');
-      tbody.innerHTML = todays.length === 0 ? '<tr><td colspan="5" style="text-align:center; color:var(--text-muted);">امروز ترددی ثبت نشده است.</td></tr>' : '';
-      todays.slice().reverse().forEach(item => {
-        const w = db.workers.find(x => Number(x.id) === Number(item.workerId));
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td><strong>${w ? w.name : 'کارگر حذف شده'}</strong></td>
-                        <td><span style="color:${item.type==='ورود'?'green':'red'}; font-weight:800;">${item.type}</span></td>
-                        <td>${toPersianDigits(item.time)}</td>
-                        <td>${item.project || 'کارگاه مرکزی'}</td>
-                        <td>${item.workType || 'کارکرد عادی'}</td>`;
-        tbody.appendChild(tr);
-      });
+      tbody.innerHTML = '';
+      const workerIds = Object.keys(logsByWorker);
+      if (workerIds.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">امروز ترددی ثبت نشده است.</td></tr>';
+      } else {
+        workerIds.forEach(wid => {
+          const logs = logsByWorker[wid].slice().sort((a,b) => String(a.time||'').localeCompare(String(b.time||'')));
+          const w = db.workers.find(x => Number(x.id) === Number(wid));
+          const inLog = logs.find(l => l.type === 'ورود');
+          const outLog = logs.filter(l => l.type === 'خروج').pop();
+          const inTime = inLog ? inLog.time : '—';
+          let outTime = '—', durText = '—';
+          if (outLog) {
+            outTime = outLog.time;
+            const mins = calcMinutes([inLog, outLog].filter(Boolean));
+            if (mins > 0) {
+              const h = Math.floor(mins/60), m = mins % 60;
+              durText = (h > 0 ? toPersianDigits(h) + ' ساعت ' : '') + toPersianDigits(m) + ' دقیقه';
+            }
+          } else if (inLog) {
+            outTime = '<span class="shift-working">در حال کار...</span>';
+          }
+          const lastLog = logs[logs.length - 1] || {};
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td><strong>${w ? w.name : 'کارگر حذف شده'}</strong></td>
+                          <td class="shift-in">${toPersianDigits(inTime)}</td>
+                          <td>${outTime}</td>
+                          <td>${durText}</td>
+                          <td>${lastLog.project || 'کارگاه مرکزی'}</td>
+                          <td>${lastLog.workType || 'کارکرد عادی'}</td>`;
+          tbody.appendChild(tr);
+        });
+      }
 
       const wTbody = document.getElementById('workersListTableBody');
       wTbody.innerHTML = '';
@@ -406,6 +452,7 @@
           delBtn.onclick = function() {
             if (confirm(`آیا از حذف کارگر «${w.name}» مطمئن هستید؟`)) {
               db.workers = db.workers.filter(item => Number(item.id) !== Number(w.id));
+              db.attendance = db.attendance.filter(a => Number(a.workerId) !== Number(w.id));
               saveDB(); refreshUI();
             }
           };
@@ -445,52 +492,41 @@
       const worker = db.workers.find(w => Number(w.id) === workerId);
       if (!worker) { alert('کارگر نامعتبر است.'); return; }
 
-      const startDateStr = (document.getElementById('reportStartDateValue')?.value || normalizePersianDateInput(document.getElementById('reportStartDate').value)).trim();
-      const endDateStr = (document.getElementById('reportEndDateValue')?.value || normalizePersianDateInput(document.getElementById('reportEndDate').value)).trim();
+      const startDateStr = normDate(document.getElementById('reportStartDateValue')?.value || document.getElementById('reportStartDate').value);
+      const endDateStr = normDate(document.getElementById('reportEndDateValue')?.value || document.getElementById('reportEndDate').value);
 
       const deduction = Number(document.getElementById('reportDeduction').value) || 0;
 
       const records = db.attendance.filter(a => {
         if (Number(a.workerId) !== workerId) return false;
-        const pDateFa = a.persianDate || '';
-        const pDate = normalizePersianDateInput(pDateFa);
+        const pDate = normDate(a.persianDate);
         if (startDateStr && pDate < startDateStr) return false;
         if (endDateStr && pDate > endDateStr) return false;
         return true;
       });
 
       records.sort((a,b) => {
-        const da = normalizePersianDateInput(a.persianDate || '').localeCompare(normalizePersianDateInput(b.persianDate || ''));
+        const da = normDate(a.persianDate).localeCompare(normDate(b.persianDate));
         if (da !== 0) return da;
-        return (a.time || '').localeCompare(b.time || '');
+        return String(a.time || '').localeCompare(String(b.time || ''));
       });
 
+      // جمع دقیقه کارکرد روی همه روزهای بازه انتخابی
       const logsByDate = {};
       records.forEach(r => {
-        const key = normalizePersianDateInput(r.persianDate || '');
+        const key = normDate(r.persianDate);
         if (!logsByDate[key]) logsByDate[key] = [];
         logsByDate[key].push(r);
       });
 
       let mins = 0;
       Object.values(logsByDate).forEach(dayLogs => {
-        dayLogs.sort((a,b) => (a.time || '').localeCompare(b.time || ''));
-        let lastIn = null;
-        dayLogs.forEach(r => {
-          if (r.type === 'ورود') {
-            const p = r.time.split(':');
-            lastIn = parseInt(p[0])*60 + parseInt(p[1]);
-          } else if (r.type === 'خروج' && lastIn !== null) {
-            const p = r.time.split(':');
-            const out = parseInt(p[0])*60 + parseInt(p[1]);
-            if (out >= lastIn) mins += (out - lastIn);
-            lastIn = null;
-          }
-        });
+        dayLogs.sort((a,b) => String(a.time || '').localeCompare(String(b.time || '')));
+        mins += calcMinutes(dayLogs);
       });
 
-      const hours = mins > 0 ? (mins/60).toFixed(1) : 0;
-      const gross = Math.round(Number(hours) * Number(worker.wage || 0));
+      const hours = mins > 0 ? (mins/60) : 0;
+      const gross = Math.round(hours * Number(worker.wage || 0));
       const netPay = gross - deduction;
 
       document.getElementById('psIssueDate').innerText = getPersianDateStr(new Date());
@@ -498,7 +534,7 @@
       document.getElementById('psWorkerName').innerText = worker.name;
       document.getElementById('psWorkerCode').innerText = toPersianDigits(worker.code || 'ثبت نشده');
       document.getElementById('psHourlyWage').innerText = `${Number(worker.wage).toLocaleString('fa-IR')} تومان`;
-      document.getElementById('psTotalHours').innerText = `${Number(hours).toLocaleString('fa-IR')} ساعت`;
+      document.getElementById('psTotalHours').innerText = `${hours.toLocaleString('fa-IR', {maximumFractionDigits: 2})} ساعت`;
       document.getElementById('psGrossPay').innerText = `${gross.toLocaleString('fa-IR')} تومان`;
       document.getElementById('psDeductionVal').innerText = `${deduction.toLocaleString('fa-IR')} تومان`;
       document.getElementById('psNetPay').innerText = `${netPay.toLocaleString('fa-IR')} تومان`;
