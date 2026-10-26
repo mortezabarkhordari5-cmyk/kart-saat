@@ -121,7 +121,7 @@
           <div class="form-group">
             <label>نوع ثبت:</label>
             <select id="attendanceType">
-              <option value="عادی">کارکرد عادی</option>
+              <option value="کارکرد عادی">کارکرد عادی</option>
               <option value="اضافه کار">اضافه کاری</option>
               <option value="تعطیل کاری">تعطیل کاری</option>
             </select>
@@ -152,14 +152,12 @@
         <div class="form-group"><label>کارگر:</label><select id="reportWorkerSelect"></select></div>
         <div class="form-row">
           <div class="form-group">
-            <label>از تاریخ:</label>
-            <input type="date" id="reportStartDate" lang="fa" style="direction:ltr; text-align:right;">
-            <div id="displayStartDate" style="font-size:0.8rem; color:var(--primary); margin-top:4px;"></div>
+            <label>از تاریخ (شمسی):</label>
+            <input type="text" id="reportStartDate" placeholder="1405/07/01" style="direction:ltr; text-align:right;">
           </div>
           <div class="form-group">
-            <label>تا تاریخ:</label>
-            <input type="date" id="reportEndDate" lang="fa" style="direction:ltr; text-align:right;">
-            <div id="displayEndDate" style="font-size:0.8rem; color:var(--primary); margin-top:4px;"></div>
+            <label>تا تاریخ (شمسی):</label>
+            <input type="text" id="reportEndDate" placeholder="1405/08/04" style="direction:ltr; text-align:right;">
           </div>
         </div>
         <button class="btn btn-primary" onclick="generatePayslip()">📄 صدور فیش حقوقی رسمی</button>
@@ -258,22 +256,12 @@
     }
     function saveDB() { localStorage.setItem(DB_KEY, JSON.stringify(db)); }
 
-    // تابع اصلی برای تبدیل تاریخ به شمسی (استفاده شده در همه جای برنامه)
     function getPersianDateStr(dateObj) {
       try {
         return new Intl.DateTimeFormat('fa-IR-u-ca-persian', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(dateObj).replace(/\//g, '/');
       } catch(e) {
-        return '1405/03/01';
+        return '1405/07/01';
       }
-    }
-
-    // تابع کمکی برای آپدیت لحظه‌ای نمایش تاریخ زیر فیلدها
-    function updateDateLabel(input, displayId) {
-        if (input.value) {
-            document.getElementById(displayId).innerText = 'معادل شمسی: ' + getPersianDateStr(new Date(input.value));
-        } else {
-            document.getElementById(displayId).innerText = '';
-        }
     }
 
     function updateHeaderDate() {
@@ -287,28 +275,15 @@
 
     window.addEventListener('DOMContentLoaded', () => {
       const now = new Date();
-      const yyyy = now.getFullYear();
-      const mm = String(now.getMonth() + 1).padStart(2, '0');
-      const dd = String(now.getDate()).padStart(2, '0');
-      const todayISO = `${yyyy}-${mm}-${dd}`;
-      const firstDayISO = `${yyyy}-${mm}-01`;
+      const todayPersian = getPersianDateStr(now);
+      const parts = todayPersian.split('/');
+      const firstDayPersian = `${parts[0]}/${parts[1]}/01`;
 
       const startInput = document.getElementById('reportStartDate');
       const endInput = document.getElementById('reportEndDate');
       
-      // تنظیم مقادیر اولیه
-      if (startInput && !startInput.value) startInput.value = firstDayISO;
-      if (endInput && !endInput.value) endInput.value = todayISO;
-
-      // اضافه کردن رویدادها برای نمایش لحظه‌ای
-      if (startInput) {
-          startInput.onchange = () => updateDateLabel(startInput, 'displayStartDate');
-          updateDateLabel(startInput, 'displayStartDate'); // آپدیت اولیه
-      }
-      if (endInput) {
-          endInput.onchange = () => updateDateLabel(endInput, 'displayEndDate');
-          updateDateLabel(endInput, 'displayEndDate'); // آپدیت اولیه
-      }
+      if (startInput && !startInput.value) startInput.value = firstDayPersian;
+      if (endInput && !endInput.value) endInput.value = todayPersian;
     });
 
     function switchTab(tabName, event) {
@@ -322,6 +297,7 @@
       ['clockWorkerSelect', 'reportWorkerSelect'].forEach(id => {
         const sel = document.getElementById(id);
         if(!sel) return;
+        const currentVal = sel.value;
         sel.innerHTML = '';
         db.workers.forEach(w => {
           const opt = document.createElement('option');
@@ -329,16 +305,19 @@
           opt.textContent = `${w.name} (${Number(w.wage||0).toLocaleString('fa-IR')} ت)`;
           sel.appendChild(opt);
         });
+        if (currentVal) sel.value = currentVal;
       });
 
       const pSel = document.getElementById('clockProjectSelect');
       if(pSel) {
+        const currentP = pSel.value;
         pSel.innerHTML = '';
         db.projects.forEach(p => {
           const opt = document.createElement('option');
           opt.value = p; opt.textContent = p;
           pSel.appendChild(opt);
         });
+        if (currentP) pSel.value = currentP;
       }
 
       document.getElementById('statWorkersCount').innerText = db.workers.length.toLocaleString('fa-IR');
@@ -373,9 +352,9 @@
       const tbody = document.getElementById('todayAttendanceTableBody');
       tbody.innerHTML = todays.length === 0 ? '<tr><td colspan="5" style="text-align:center; color:var(--text-muted);">امروز ترددی ثبت نشده است.</td></tr>' : '';
       todays.slice().reverse().forEach(item => {
-        const w = db.workers.find(x => x.id == item.workerId);
+        const w = db.workers.find(x => Number(x.id) === Number(item.workerId));
         const tr = document.createElement('tr');
-        tr.innerHTML = `<td><strong>${w?w.name:'نامشخص'}</strong></td><td><span style="color:${item.type==='ورود'?'green':'red'}; font-weight:800;">${item.type}</span></td><td>${item.time}</td><td>${item.project}</td><td>${item.workType}</td>`;
+        tr.innerHTML = `<td><strong>${w ? w.name : 'کارگر حذف شده'}</strong></td><td><span style="color:${item.type==='ورود'?'green':'red'}; font-weight:800;">${item.type}</span></td><td>${item.time}</td><td>${item.project || 'کارگاه مرکزی'}</td><td>${item.workType || 'کارکرد عادی'}</td>`;
         tbody.appendChild(tr);
       });
 
@@ -431,9 +410,9 @@
       db.attendance.push({
         id: Date.now(),
         workerId: Number(workerId),
-        project: document.getElementById('clockProjectSelect').value,
+        project: document.getElementById('clockProjectSelect').value || 'کارگاه مرکزی',
         type: type,
-        workType: document.getElementById('attendanceType').value,
+        workType: document.getElementById('attendanceType').value || 'کارکرد عادی',
         persianDate: getPersianDateStr(now),
         time: now.toTimeString().slice(0,5)
       });
@@ -446,19 +425,8 @@
       const worker = db.workers.find(w => Number(w.id) === workerId);
       if (!worker) { alert('کارگر نامعتبر است.'); return; }
 
-      const startDateVal = document.getElementById('reportStartDate').value;
-      const endDateVal = document.getElementById('reportEndDate').value;
-
-      let startDateStr = '';
-      let endDateStr = '';
-      if (startDateVal) {
-        const d = new Date(startDateVal);
-        if(!isNaN(d)) startDateStr = getPersianDateStr(d);
-      }
-      if (endDateVal) {
-        const d = new Date(endDateVal);
-        if(!isNaN(d)) endDateStr = getPersianDateStr(d);
-      }
+      const startDateStr = document.getElementById('reportStartDate').value.trim();
+      const endDateStr = document.getElementById('reportEndDate').value.trim();
 
       const records = db.attendance.filter(a => {
         if (Number(a.workerId) !== workerId) return false;
