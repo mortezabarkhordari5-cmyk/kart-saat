@@ -4,9 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>کارت ساعت هوشمند و قانونی کارگران</title>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Persian Datepicker (Shamsi Calendar) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/css/persian-datepicker.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/persian-date@1.1.0/dist/persian-date.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/js/persian-datepicker.min.js"></script>
+
   <style>
     :root {
       --primary: #0f766e;
@@ -154,10 +162,21 @@
       <div class="card no-print">
         <div class="card-title">محاسبه و صدور فیش حقوقی رسمی</div>
         <div class="form-group"><label>کارگر:</label><select id="reportWorkerSelect"></select></div>
+
+        <!-- فیلدهای تقویم شمسی -->
         <div class="form-row">
-          <div class="form-group"><label>از تاریخ (شمسی):</label><input type="text" id="reportStartDate" inputmode="numeric" placeholder="1405/01/01" style="direction:ltr; text-align:right;"></div>
-          <div class="form-group"><label>تا تاریخ (شمسی):</label><input type="text" id="reportEndDate" inputmode="numeric" placeholder="1405/01/01" style="direction:ltr; text-align:right;"></div>
+          <div class="form-group">
+            <label>از تاریخ (شمسی):</label>
+            <input type="text" id="reportStartDate" placeholder="۱۴۰۵/۰۱/۰۱" style="direction:ltr; text-align:right;" autocomplete="off">
+            <input type="hidden" id="reportStartDateValue">
+          </div>
+          <div class="form-group">
+            <label>تا تاریخ (شمسی):</label>
+            <input type="text" id="reportEndDate" placeholder="۱۴۰۵/۰۱/۰۱" style="direction:ltr; text-align:right;" autocomplete="off">
+            <input type="hidden" id="reportEndDateValue">
+          </div>
         </div>
+
         <div class="form-group"><label>مبلغ مساعده یا کسورات (تومان):</label><input type="number" id="reportDeduction" placeholder="۰"></div>
         <button class="btn btn-primary" onclick="generatePayslip()">📄 صدور فیش حقوقی رسمی</button>
       </div>
@@ -197,7 +216,6 @@
         </div>
       </div>
     </section>
-
     <section id="workersTab" class="tab-content no-print" style="display: none;">
       <div class="card">
         <div class="card-title">ثبت کارگر جدید</div>
@@ -259,6 +277,11 @@
       return String(str).replace(/\d/g, x => persianDigits[x]);
     }
 
+    function normalizePersianDateInput(str) {
+      if (!str) return '';
+      return String(str).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
+    }
+
     function getPersianDateStr(dateObj) {
       try {
         let formatter = new Intl.DateTimeFormat('fa-IR-u-ca-persian', { year: 'numeric', month: '2-digit', day: '2-digit' });
@@ -283,17 +306,6 @@
     }
     setInterval(updateHeaderDate, 1000);
 
-    window.addEventListener('DOMContentLoaded', () => {
-      const now = new Date();
-      const todayPersian = getPersianDateStr(now);
-      const parts = todayPersian.split('/');
-      const firstDayPersian = parts.length === 3 ? `${parts[0]}/${parts[1]}/۰۱` : '۱۴۰۵/۰۸/۰۱';
-      const startInput = document.getElementById('reportStartDate');
-      const endInput = document.getElementById('reportEndDate');
-      if (startInput && !startInput.value) startInput.value = firstDayPersian;
-      if (endInput && !endInput.value) endInput.value = todayPersian;
-    });
-
     function switchTab(tabName, event) {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
@@ -315,6 +327,7 @@
         });
         if (currentVal) sel.value = currentVal;
       });
+
       const pSel = document.getElementById('clockProjectSelect');
       if(pSel) {
         const currentP = pSel.value;
@@ -326,18 +339,25 @@
         });
         if (currentP) pSel.value = currentP;
       }
+
       document.getElementById('statWorkersCount').innerText = (db.workers.length).toLocaleString('fa-IR');
+
       const now = new Date();
       const todayPersian = getPersianDateStr(now);
       const todays = db.attendance.filter(a => a.persianDate === todayPersian);
+
       document.getElementById('statPresentToday').innerText = (new Set(todays.map(a => a.workerId))).size.toLocaleString('fa-IR');
+
       let totalTodayMins = 0;
       const workerTodayLogs = {};
       todays.forEach(a => {
         if (!workerTodayLogs[a.workerId]) workerTodayLogs[a.workerId] = [];
         workerTodayLogs[a.workerId].push(a);
       });
+
       Object.values(workerTodayLogs).forEach(logs => {
+        logs.sort((a,b) => a.time.localeCompare(b.time));
+
         let inTime = null;
         logs.forEach(l => {
           const [h, m] = l.time.split(':').map(Number);
@@ -349,16 +369,23 @@
           }
         });
       });
+
       const totalHoursFormatted = (totalTodayMins / 60).toFixed(1);
       document.getElementById('statTotalHoursToday').innerText = Number(totalHoursFormatted).toLocaleString('fa-IR');
+
       const tbody = document.getElementById('todayAttendanceTableBody');
       tbody.innerHTML = todays.length === 0 ? '<tr><td colspan="5" style="text-align:center; color:var(--text-muted);">امروز ترددی ثبت نشده است.</td></tr>' : '';
       todays.slice().reverse().forEach(item => {
         const w = db.workers.find(x => Number(x.id) === Number(item.workerId));
         const tr = document.createElement('tr');
-        tr.innerHTML = `<td><strong>${w ? w.name : 'کارگر حذف شده'}</strong></td><td><span style="color:${item.type==='ورود'?'green':'red'}; font-weight:800;">${item.type}</span></td><td>${toPersianDigits(item.time)}</td><td>${item.project || 'کارگاه مرکزی'}</td><td>${item.workType || 'کارکرد عادی'}</td>`;
+        tr.innerHTML = `<td><strong>${w ? w.name : 'کارگر حذف شده'}</strong></td>
+                        <td><span style="color:${item.type==='ورود'?'green':'red'}; font-weight:800;">${item.type}</span></td>
+                        <td>${toPersianDigits(item.time)}</td>
+                        <td>${item.project || 'کارگاه مرکزی'}</td>
+                        <td>${item.workType || 'کارکرد عادی'}</td>`;
         tbody.appendChild(tr);
       });
+
       const wTbody = document.getElementById('workersListTableBody');
       wTbody.innerHTML = '';
       if (db.workers.length === 0) {
@@ -366,31 +393,50 @@
       } else {
         db.workers.forEach(w => {
           const tr = document.createElement('tr');
-          tr.innerHTML = `<td><strong>${w.name}</strong></td><td>${toPersianDigits(w.code||'—')}</td><td>${Number(w.wage||0).toLocaleString('fa-IR')} تومان</td><td>${toPersianDigits(w.phone||'—')}</td><td></td>`;
+          tr.innerHTML = `<td><strong>${w.name}</strong></td>
+                          <td>${toPersianDigits(w.code||'—')}</td>
+                          <td>${Number(w.wage||0).toLocaleString('fa-IR')} تومان</td>
+                          <td>${toPersianDigits(w.phone||'—')}</td><td></td>`;
           const actionTd = tr.querySelector('td:last-child');
           const delBtn = document.createElement('button');
-          delBtn.type = 'button'; delBtn.className = 'btn btn-outline'; delBtn.style.cssText = 'padding:4px 10px; color:red; font-size:0.8rem; font-weight:bold;';
+          delBtn.type = 'button';
+          delBtn.className = 'btn btn-outline';
+          delBtn.style.cssText = 'padding:4px 10px; color:red; font-size:0.8rem; font-weight:bold;';
           delBtn.textContent = 'حذف';
-          delBtn.onclick = function() { if (confirm(`آیا از حذف کارگر «${w.name}» مطمئن هستید؟`)) { db.workers = db.workers.filter(item => Number(item.id) !== Number(w.id)); saveDB(); refreshUI(); } };
+          delBtn.onclick = function() {
+            if (confirm(`آیا از حذف کارگر «${w.name}» مطمئن هستید؟`)) {
+              db.workers = db.workers.filter(item => Number(item.id) !== Number(w.id));
+              saveDB(); refreshUI();
+            }
+          };
           actionTd.appendChild(delBtn);
           wTbody.appendChild(tr);
         });
       }
+
       const pList = document.getElementById('projectsList');
       pList.innerHTML = '';
       db.projects.forEach((p, idx) => {
         const li = document.createElement('li');
         li.style.cssText = 'padding:8px 12px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;';
-        li.innerHTML = `<span>🏗️ ${p}</span> <button type="button" class="btn btn-outline" style="padding:2px 8px; color:red; font-size:0.7rem;" onclick="deleteProject(${idx})">حذف</button>`;
+        li.innerHTML = `<span>🏗️ ${p}</span>
+                        <button type="button" class="btn btn-outline" style="padding:2px 8px; color:red; font-size:0.7rem;" onclick="deleteProject(${idx})">حذف</button>`;
         pList.appendChild(li);
       });
     }
-
     function recordAttendance(type) {
       const workerId = document.getElementById('clockWorkerSelect').value;
       if (!workerId) { alert('لطفاً کارگر را انتخاب کنید.'); return; }
       const now = new Date();
-      db.attendance.push({ id: Date.now(), workerId: Number(workerId), project: document.getElementById('clockProjectSelect').value || 'کارگاه مرکزی', type: type, workType: document.getElementById('attendanceType').value || 'کارکرد عادی', persianDate: getPersianDateStr(now), time: now.toTimeString().slice(0,5) });
+      db.attendance.push({
+        id: Date.now(),
+        workerId: Number(workerId),
+        project: document.getElementById('clockProjectSelect').value || 'کارگاه مرکزی',
+        type: type,
+        workType: document.getElementById('attendanceType').value || 'کارکرد عادی',
+        persianDate: getPersianDateStr(now),
+        time: now.toTimeString().slice(0,5)
+      });
       saveDB(); refreshUI(); alert(`ثبت ${type} با موفقیت انجام شد.`);
     }
 
@@ -398,29 +444,57 @@
       const workerId = Number(document.getElementById('reportWorkerSelect').value);
       const worker = db.workers.find(w => Number(w.id) === workerId);
       if (!worker) { alert('کارگر نامعتبر است.'); return; }
-      const startDateStr = document.getElementById('reportStartDate').value.trim();
-      const endDateStr = document.getElementById('reportEndDate').value.trim();
+
+      const startDateStr = (document.getElementById('reportStartDateValue')?.value || normalizePersianDateInput(document.getElementById('reportStartDate').value)).trim();
+      const endDateStr = (document.getElementById('reportEndDateValue')?.value || normalizePersianDateInput(document.getElementById('reportEndDate').value)).trim();
+
       const deduction = Number(document.getElementById('reportDeduction').value) || 0;
 
       const records = db.attendance.filter(a => {
         if (Number(a.workerId) !== workerId) return false;
-        const pDate = a.persianDate || '';
+        const pDateFa = a.persianDate || '';
+        const pDate = normalizePersianDateInput(pDateFa);
         if (startDateStr && pDate < startDateStr) return false;
         if (endDateStr && pDate > endDateStr) return false;
         return true;
       });
 
-      let mins = 0, lastIn = null;
-      records.forEach(r => {
-        if (r.type === 'ورود') { const p = r.time.split(':'); lastIn = parseInt(p[0])*60 + parseInt(p[1]); } 
-        else if (r.type === 'خروج' && lastIn !== null) { const p = r.time.split(':'); const out = parseInt(p[0])*60 + parseInt(p[1]); if (out > lastIn) mins += (out - lastIn); lastIn = null; }
+      records.sort((a,b) => {
+        const da = normalizePersianDateInput(a.persianDate || '').localeCompare(normalizePersianDateInput(b.persianDate || ''));
+        if (da !== 0) return da;
+        return (a.time || '').localeCompare(b.time || '');
       });
+
+      const logsByDate = {};
+      records.forEach(r => {
+        const key = normalizePersianDateInput(r.persianDate || '');
+        if (!logsByDate[key]) logsByDate[key] = [];
+        logsByDate[key].push(r);
+      });
+
+      let mins = 0;
+      Object.values(logsByDate).forEach(dayLogs => {
+        dayLogs.sort((a,b) => (a.time || '').localeCompare(b.time || ''));
+        let lastIn = null;
+        dayLogs.forEach(r => {
+          if (r.type === 'ورود') {
+            const p = r.time.split(':');
+            lastIn = parseInt(p[0])*60 + parseInt(p[1]);
+          } else if (r.type === 'خروج' && lastIn !== null) {
+            const p = r.time.split(':');
+            const out = parseInt(p[0])*60 + parseInt(p[1]);
+            if (out >= lastIn) mins += (out - lastIn);
+            lastIn = null;
+          }
+        });
+      });
+
       const hours = mins > 0 ? (mins/60).toFixed(1) : 0;
-      const gross = Math.round(hours * worker.wage);
+      const gross = Math.round(Number(hours) * Number(worker.wage || 0));
       const netPay = gross - deduction;
 
       document.getElementById('psIssueDate').innerText = getPersianDateStr(new Date());
-      document.getElementById('psRange').innerText = `${startDateStr || '---'} تا ${endDateStr || '---'}`;
+      document.getElementById('psRange').innerText = `${toPersianDigits(startDateStr || '---')} تا ${toPersianDigits(endDateStr || '---')}`;
       document.getElementById('psWorkerName').innerText = worker.name;
       document.getElementById('psWorkerCode').innerText = toPersianDigits(worker.code || 'ثبت نشده');
       document.getElementById('psHourlyWage').innerText = `${Number(worker.wage).toLocaleString('fa-IR')} تومان`;
@@ -432,14 +506,22 @@
       document.getElementById('payslipContainer').style.display = 'block';
       document.getElementById('payslipContainer').scrollIntoView({behavior:'smooth'});
     }
-
     function addWorker() {
       const name = document.getElementById('newWorkerName').value.trim();
       const wage = Number(document.getElementById('newWorkerWage').value);
       if (!name || !wage) { alert('نام و دستمزد ساعتی الزامی است.'); return; }
-      db.workers.push({ id: Date.now(), name, code: document.getElementById('newWorkerCode').value.trim(), wage, phone: document.getElementById('newWorkerPhone').value.trim() });
+      db.workers.push({
+        id: Date.now(),
+        name,
+        code: document.getElementById('newWorkerCode').value.trim(),
+        wage,
+        phone: document.getElementById('newWorkerPhone').value.trim()
+      });
       saveDB(); refreshUI();
-      document.getElementById('newWorkerName').value = ''; document.getElementById('newWorkerCode').value = ''; document.getElementById('newWorkerWage').value = ''; document.getElementById('newWorkerPhone').value = '';
+      document.getElementById('newWorkerName').value = '';
+      document.getElementById('newWorkerCode').value = '';
+      document.getElementById('newWorkerWage').value = '';
+      document.getElementById('newWorkerPhone').value = '';
       alert('کارگر ثبت شد.');
     }
 
@@ -450,9 +532,56 @@
       document.getElementById('newProjectName').value = '';
     }
 
-    function deleteProject(idx) { if (confirm('پروژه حذف شود؟')) { db.projects.splice(idx, 1); saveDB(); refreshUI(); } }
+    function deleteProject(idx) {
+      if (confirm('پروژه حذف شود؟')) {
+        db.projects.splice(idx, 1);
+        saveDB(); refreshUI();
+      }
+    }
+    function initShamsiPickers() {
+      if (typeof $ === 'undefined' || !$.fn.persianDatepicker) return;
 
-    loadDB(); updateHeaderDate(); refreshUI();
+      const now = new persianDate();
+      const today = now.format('YYYY/MM/DD');
+      const firstDay = now.format('YYYY/MM') + '/01';
+
+      const startText = document.getElementById('reportStartDate');
+      const endText = document.getElementById('reportEndDate');
+      const startVal = document.getElementById('reportStartDateValue');
+      const endVal = document.getElementById('reportEndDateValue');
+
+      if (startText && !startText.value) startText.value = toPersianDigits(firstDay);
+      if (endText && !endText.value) endText.value = toPersianDigits(today);
+      if (startVal && !startVal.value) startVal.value = firstDay;
+      if (endVal && !endVal.value) endVal.value = today;
+
+      $('#reportStartDate').persianDatepicker({
+        format: 'YYYY/MM/DD',
+        initialValue: true,
+        autoClose: true,
+        onSelect: function (unix) {
+          const d = new persianDate(unix).format('YYYY/MM/DD');
+          document.getElementById('reportStartDateValue').value = d;
+          document.getElementById('reportStartDate').value = toPersianDigits(d);
+        }
+      });
+
+      $('#reportEndDate').persianDatepicker({
+        format: 'YYYY/MM/DD',
+        initialValue: true,
+        autoClose: true,
+        onSelect: function (unix) {
+          const d = new persianDate(unix).format('YYYY/MM/DD');
+          document.getElementById('reportEndDateValue').value = d;
+          document.getElementById('reportEndDate').value = toPersianDigits(d);
+        }
+      });
+    }
+
+    loadDB();
+    updateHeaderDate();
+    refreshUI();
+    window.addEventListener('DOMContentLoaded', initShamsiPickers);
   </script>
 </body>
 </html>
