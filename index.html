@@ -350,7 +350,9 @@
       const tbody = document.getElementById('todayAttendanceTableBody');
       tbody.innerHTML = todays.length === 0 ? '<tr><td colspan="5" style="text-align:center; color:var(--text-muted);">امروز ترددی ثبت نشده است.</td></tr>' : '';
       todays.slice().reverse().forEach(item => {
-        const w = db.workers.find(x => x.id == item.workerId);
+        // --- تغییر اینجا اعمال شد (تبدیل به Number برای مقایسه دقیق) ---
+        const w = db.workers.find(x => Number(x.id) === Number(item.workerId));
+        // -------------------------------------------------------------
         const tr = document.createElement('tr');
         tr.innerHTML = `<td><strong>${w?w.name:'نامشخص'}</strong></td><td><span style="color:${item.type==='ورود'?'green':'red'}; font-weight:800;">${item.type}</span></td><td>${item.time}</td><td>${item.project}</td><td>${item.workType}</td>`;
         tbody.appendChild(tr);
