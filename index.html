@@ -97,6 +97,13 @@
       .no-print { display: none !important; }
     }
   </style>
+  <!-- تنظیمات PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0f766e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="کارت ساعت">
+  <link rel="apple-touch-icon" href="icon-192.png">
 </head>
 <body>
 
@@ -619,5 +626,16 @@
     refreshUI();
     window.addEventListener('DOMContentLoaded', initShamsiPickers);
   </script>
+    <script>
+    // ثبت Service Worker برای قابلیت PWA و آفلاین
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then((reg) => console.log('Service Worker با موفقیت ثبت شد:', reg.scope))
+          .catch((err) => console.error('خطا در ثبت Service Worker:', err));
+      });
+    }
+  </script>
+
 </body>
 </html>
