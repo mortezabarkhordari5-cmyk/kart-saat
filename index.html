@@ -78,11 +78,19 @@
 
     .app-footer { background: #fff; border-top: 1px solid var(--border); text-align: center; padding: 14px 16px; font-size: 0.85rem; color: var(--text-muted); position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; }
     .support-pill { display: inline-block; background: #f1f5f9; color: #0f766e; padding: 3px 10px; border-radius: 20px; font-weight: 800; direction: ltr; }
+
+    /* تنظیمات اختصاصی برای حالت چاپ و خروجی PDF (فقط فیش چاپ شود) */
+    @media print {
+      body * { visibility: hidden; }
+      #payslipContainer, #payslipContainer * { visibility: visible; }
+      #payslipContainer { position: absolute; left: 0; top: 0; width: 100%; margin: 0; border: none; box-shadow: none; }
+      .no-print { display: none !important; }
+    }
   </style>
 </head>
 <body>
 
-  <header class="top-header">
+  <header class="top-header no-print">
     <div class="header-content">
       <div class="header-title-row">
         <div class="app-title">📋 کارت ساعت هوشمند و قانونی کارگران</div>
@@ -96,13 +104,13 @@
   </header>
 
   <main class="container">
-    <div class="stats-grid">
+    <div class="stats-grid no-print">
       <div class="stat-box"><div class="stat-val" id="statWorkersCount">۰</div><div class="stat-label">تعداد کل کارگران</div></div>
       <div class="stat-box"><div class="stat-val" id="statPresentToday">۰</div><div class="stat-label">حاضرین امروز</div></div>
       <div class="stat-box"><div class="stat-val" id="statTotalHoursToday">۰</div><div class="stat-label">مجموع ساعت امروز</div></div>
     </div>
 
-    <nav class="nav-tabs">
+    <nav class="nav-tabs no-print">
       <button class="tab-btn active" onclick="switchTab('clock', event)">⏱️ ثبت تردد</button>
       <button class="tab-btn" onclick="switchTab('reports', event)">📊 فیش حقوقی</button>
       <button class="tab-btn" onclick="switchTab('workers', event)">👷 کارگران</button>
@@ -110,7 +118,7 @@
     </nav>
 
     <!-- ثبت تردد -->
-    <section id="clockTab" class="tab-content">
+    <section id="clockTab" class="tab-content no-print">
       <div class="card">
         <div class="card-title">ثبت فوری ورود و خروج کارگر</div>
         <div class="form-row">
@@ -147,7 +155,7 @@
 
     <!-- گزارش و فیش حقوقی -->
     <section id="reportsTab" class="tab-content" style="display: none;">
-      <div class="card">
+      <div class="card no-print">
         <div class="card-title">محاسبه و صدور فیش حقوقی رسمی</div>
         <div class="form-group"><label>کارگر:</label><select id="reportWorkerSelect"></select></div>
         <div class="form-row">
@@ -193,14 +201,14 @@
             <div>پشتیبانی: <span class="support-pill">09371880982</span></div>
           </div>
         </div>
-        <div style="margin-top: 12px;">
+        <div style="margin-top: 12px;" class="no-print">
           <button class="btn btn-primary" onclick="window.print()">🖨️ چاپ فیش حقوقی</button>
         </div>
       </div>
     </section>
 
     <!-- کارگران -->
-    <section id="workersTab" class="tab-content" style="display: none;">
+    <section id="workersTab" class="tab-content no-print" style="display: none;">
       <div class="card">
         <div class="card-title">ثبت کارگر جدید</div>
         <div class="form-row">
@@ -225,7 +233,7 @@
     </section>
 
     <!-- پروژه‌ها -->
-    <section id="projectsTab" class="tab-content" style="display: none;">
+    <section id="projectsTab" class="tab-content no-print" style="display: none;">
       <div class="card">
         <div class="card-title">تعریف پروژه جدید</div>
         <div class="form-group"><label>نام پروژه:</label><input type="text" id="newProjectName" placeholder="نام پروژه"></div>
@@ -238,7 +246,7 @@
     </section>
   </main>
 
-  <footer class="app-footer">
+  <footer class="app-footer no-print">
     <div>کارت ساعت هوشمند کارگران | پشتیبانی: <span class="support-pill">09371880982</span></div>
   </footer>
 
@@ -256,28 +264,46 @@
     }
     function saveDB() { localStorage.setItem(DB_KEY, JSON.stringify(db)); }
 
+    // تبدیل اعداد انگلیسی به فارسی برای یکدست شدن ظاهر تاریخ‌ها
+    function toPersianDigits(str) {
+      if (!str) return '';
+      const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+      return String(str).replace(/\d/g, x => persianDigits[x]);
+    }
+
     function getPersianDateStr(dateObj) {
       try {
-        return new Intl.DateTimeFormat('fa-IR-u-ca-persian', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(dateObj).replace(/\//g, '/');
+        let formatter = new Intl.DateTimeFormat('fa-IR-u-ca-persian', { year: 'numeric', month: '2-digit', day: '2-digit' });
+        let parts = formatter.formatToParts(dateObj);
+        let y = '', m = '', d = '';
+        parts.forEach(p => {
+          if (p.type === 'year') y = p.value;
+          if (p.type === 'month') m = p.value;
+          if (p.type === 'day') d = p.value;
+        });
+        // بازگرداندن با فرمت استاندارد و کاملاً فارسی‌شده
+        return toPersianDigits(`${y}/${m}/${d}`);
       } catch(e) {
-        return '1405/07/01';
+        return '۱۴۰۵/۰۷/۰۱';
       }
     }
 
     function updateHeaderDate() {
       const now = new Date();
       try {
-        document.getElementById('persianHeaderDate').innerText = new Intl.DateTimeFormat('fa-IR-u-ca-persian', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).format(now);
+        let dateStr = new Intl.DateTimeFormat('fa-IR-u-ca-persian', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).format(now);
+        document.getElementById('persianHeaderDate').innerText = toPersianDigits(dateStr);
       } catch(e) { document.getElementById('persianHeaderDate').innerText = 'امروز'; }
-      document.getElementById('liveClock').innerText = now.toTimeString().slice(0,8);
+      document.getElementById('liveClock').innerText = toPersianDigits(now.toTimeString().slice(0,8));
     }
     setInterval(updateHeaderDate, 1000);
 
     window.addEventListener('DOMContentLoaded', () => {
       const now = new Date();
       const todayPersian = getPersianDateStr(now);
+      // ساخت تاریخ اول ماه شمسی به صورت ایمن
       const parts = todayPersian.split('/');
-      const firstDayPersian = `${parts[0]}/${parts[1]}/01`;
+      const firstDayPersian = parts.length === 3 ? `${parts[0]}/${parts[1]}/۰۱` : '۱۴۰۵/۰۸/۰۱';
 
       const startInput = document.getElementById('reportStartDate');
       const endInput = document.getElementById('reportEndDate');
@@ -320,13 +346,13 @@
         if (currentP) pSel.value = currentP;
       }
 
-      document.getElementById('statWorkersCount').innerText = db.workers.length.toLocaleString('fa-IR');
+      document.getElementById('statWorkersCount').innerText = (db.workers.length).toLocaleString('fa-IR');
       
       const now = new Date();
       const todayPersian = getPersianDateStr(now);
       const todays = db.attendance.filter(a => a.persianDate === todayPersian);
       
-      document.getElementById('statPresentToday').innerText = new Set(todays.map(a => a.workerId)).size.toLocaleString('fa-IR');
+      document.getElementById('statPresentToday').innerText = (new Set(todays.map(a => a.workerId))).size.toLocaleString('fa-IR');
 
       let totalTodayMins = 0;
       const workerTodayLogs = {};
@@ -354,7 +380,7 @@
       todays.slice().reverse().forEach(item => {
         const w = db.workers.find(x => Number(x.id) === Number(item.workerId));
         const tr = document.createElement('tr');
-        tr.innerHTML = `<td><strong>${w ? w.name : 'کارگر حذف شده'}</strong></td><td><span style="color:${item.type==='ورود'?'green':'red'}; font-weight:800;">${item.type}</span></td><td>${item.time}</td><td>${item.project || 'کارگاه مرکزی'}</td><td>${item.workType || 'کارکرد عادی'}</td>`;
+        tr.innerHTML = `<td><strong>${w ? w.name : 'کارگر حذف شده'}</strong></td><td><span style="color:${item.type==='ورود'?'green':'red'}; font-weight:800;">${item.type}</span></td><td>${toPersianDigits(item.time)}</td><td>${item.project || 'کارگاه مرکزی'}</td><td>${item.workType || 'کارکرد عادی'}</td>`;
         tbody.appendChild(tr);
       });
 
@@ -367,9 +393,9 @@
           const tr = document.createElement('tr');
           tr.innerHTML = `
             <td><strong>${w.name}</strong></td>
-            <td>${w.code||'—'}</td>
+            <td>${toPersianDigits(w.code||'—')}</td>
             <td>${Number(w.wage||0).toLocaleString('fa-IR')} تومان</td>
-            <td>${w.phone||'—'}</td>
+            <td>${toPersianDigits(w.phone||'—')}</td>
             <td></td>
           `;
           const actionTd = tr.querySelector('td:last-child');
@@ -452,7 +478,7 @@
       document.getElementById('psIssueDate').innerText = getPersianDateStr(new Date());
       document.getElementById('psRange').innerText = `${startDateStr || '---'} تا ${endDateStr || '---'}`;
       document.getElementById('psWorkerName').innerText = worker.name;
-      document.getElementById('psWorkerCode').innerText = worker.code || 'ثبت نشده';
+      document.getElementById('psWorkerCode').innerText = toPersianDigits(worker.code || 'ثبت نشده');
       document.getElementById('psHourlyWage').innerText = `${Number(worker.wage).toLocaleString('fa-IR')} تومان`;
       document.getElementById('psTotalHours').innerText = `${Number(hours).toLocaleString('fa-IR')} ساعت`;
       document.getElementById('psGrossPay').innerText = `${gross.toLocaleString('fa-IR')} تومان`;
