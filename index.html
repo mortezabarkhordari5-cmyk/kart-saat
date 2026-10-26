@@ -151,7 +151,6 @@
         <div class="card-title">محاسبه و صدور فیش حقوقی رسمی</div>
         <div class="form-group"><label>کارگر:</label><select id="reportWorkerSelect"></select></div>
         <div class="form-row">
-          <!-- استفاده از نوع تاریخ بومی با دستورات ترجیح تقویم شمسی در اندروید -->
           <div class="form-group">
             <label>از تاریخ:</label>
             <input type="date" id="reportStartDate" lang="fa" style="direction:ltr; text-align:right;">
@@ -257,6 +256,7 @@
     }
     function saveDB() { localStorage.setItem(DB_KEY, JSON.stringify(db)); }
 
+    // تابع اصلی برای تبدیل تاریخ به شمسی (استفاده شده در همه جای برنامه)
     function getPersianDateStr(dateObj) {
       try {
         return new Intl.DateTimeFormat('fa-IR-u-ca-persian', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(dateObj).replace(/\//g, '/');
@@ -276,7 +276,6 @@
 
     window.addEventListener('DOMContentLoaded', () => {
       const now = new Date();
-      // مقداردهی تاریخ به صورت میلادی استاندارد پشت صحنه تا اینپوت type="date" مقادیر را بپذیرد
       const yyyy = now.getFullYear();
       const mm = String(now.getMonth() + 1).padStart(2, '0');
       const dd = String(now.getDate()).padStart(2, '0');
@@ -427,7 +426,6 @@
       const startDateVal = document.getElementById('reportStartDate').value;
       const endDateVal = document.getElementById('reportEndDate').value;
 
-      // تبدیل تاریخ انتخابی به فرمت مقایسه شمسی برای فیلتر
       let startDateStr = '';
       let endDateStr = '';
       if (startDateVal) {
