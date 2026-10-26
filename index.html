@@ -424,7 +424,7 @@
           const tr = document.createElement('tr');
           tr.innerHTML = `<td><strong>${w ? w.name : 'کارگر حذف شده'}</strong></td>
                           <td class="shift-in">${toPersianDigits(inTime)}</td>
-                          <td>${outTime}</td>
+                          <td class="shift-out">${outLog ? toPersianDigits(outTime) : outTime}</td>
                           <td>${durText}</td>
                           <td>${lastLog.project || 'کارگاه مرکزی'}</td>
                           <td>${lastLog.workType || 'کارکرد عادی'}</td>`;
