@@ -79,7 +79,6 @@
     .app-footer { background: #fff; border-top: 1px solid var(--border); text-align: center; padding: 14px 16px; font-size: 0.85rem; color: var(--text-muted); position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; }
     .support-pill { display: inline-block; background: #f1f5f9; color: #0f766e; padding: 3px 10px; border-radius: 20px; font-weight: 800; direction: ltr; }
 
-    /* تنظیمات اختصاصی برای حالت چاپ و خروجی PDF (فقط فیش چاپ شود) */
     @media print {
       body * { visibility: hidden; }
       #payslipContainer, #payslipContainer * { visibility: visible; }
@@ -117,7 +116,6 @@
       <button class="tab-btn" onclick="switchTab('projects', event)">🏗️ پروژه‌ها</button>
     </nav>
 
-    <!-- ثبت تردد -->
     <section id="clockTab" class="tab-content no-print">
       <div class="card">
         <div class="card-title">ثبت فوری ورود و خروج کارگر</div>
@@ -141,7 +139,6 @@
           <button class="btn btn-danger" onclick="recordAttendance('خروج')">🔴 ثبت خروج</button>
         </div>
       </div>
-
       <div class="card">
         <div class="card-title">ترددهای امروز</div>
         <div class="table-responsive">
@@ -153,21 +150,15 @@
       </div>
     </section>
 
-    <!-- گزارش و فیش حقوقی -->
     <section id="reportsTab" class="tab-content" style="display: none;">
       <div class="card no-print">
         <div class="card-title">محاسبه و صدور فیش حقوقی رسمی</div>
         <div class="form-group"><label>کارگر:</label><select id="reportWorkerSelect"></select></div>
         <div class="form-row">
-          <div class="form-group">
-            <label>از تاریخ (شمسی):</label>
-            <input type="text" id="reportStartDate" placeholder="1405/07/01" style="direction:ltr; text-align:right;">
-          </div>
-          <div class="form-group">
-            <label>تا تاریخ (شمسی):</label>
-            <input type="text" id="reportEndDate" placeholder="1405/08/04" style="direction:ltr; text-align:right;">
-          </div>
+          <div class="form-group"><label>از تاریخ (شمسی):</label><input type="text" id="reportStartDate" inputmode="numeric" placeholder="1405/01/01" style="direction:ltr; text-align:right;"></div>
+          <div class="form-group"><label>تا تاریخ (شمسی):</label><input type="text" id="reportEndDate" inputmode="numeric" placeholder="1405/01/01" style="direction:ltr; text-align:right;"></div>
         </div>
+        <div class="form-group"><label>مبلغ مساعده یا کسورات (تومان):</label><input type="number" id="reportDeduction" placeholder="۰"></div>
         <button class="btn btn-primary" onclick="generatePayslip()">📄 صدور فیش حقوقی رسمی</button>
       </div>
 
@@ -189,7 +180,7 @@
             <div class="payslip-item"><div class="label">دستمزد ساعتی:</div><div class="val" id="psHourlyWage">—</div></div>
             <div class="payslip-item"><div class="label">مجموع ساعت کارکرد:</div><div class="val" id="psTotalHours">—</div></div>
             <div class="payslip-item"><div class="label">جمع ناخالص:</div><div class="val" id="psGrossPay">—</div></div>
-            <div class="payslip-item"><div class="label">کسورات / مساعده:</div><div class="val" style="color:var(--danger)">۰ تومان</div></div>
+            <div class="payslip-item"><div class="label">کسورات / مساعده:</div><div class="val" id="psDeductionVal" style="color:var(--danger)">۰ تومان</div></div>
           </div>
           <div class="payslip-highlight">
             <div class="label">خالص قابل پرداخت:</div>
@@ -207,7 +198,6 @@
       </div>
     </section>
 
-    <!-- کارگران -->
     <section id="workersTab" class="tab-content no-print" style="display: none;">
       <div class="card">
         <div class="card-title">ثبت کارگر جدید</div>
@@ -232,7 +222,6 @@
       </div>
     </section>
 
-    <!-- پروژه‌ها -->
     <section id="projectsTab" class="tab-content no-print" style="display: none;">
       <div class="card">
         <div class="card-title">تعریف پروژه جدید</div>
@@ -264,7 +253,6 @@
     }
     function saveDB() { localStorage.setItem(DB_KEY, JSON.stringify(db)); }
 
-    // تبدیل اعداد انگلیسی به فارسی برای یکدست شدن ظاهر تاریخ‌ها
     function toPersianDigits(str) {
       if (!str) return '';
       const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
@@ -281,11 +269,8 @@
           if (p.type === 'month') m = p.value;
           if (p.type === 'day') d = p.value;
         });
-        // بازگرداندن با فرمت استاندارد و کاملاً فارسی‌شده
         return toPersianDigits(`${y}/${m}/${d}`);
-      } catch(e) {
-        return '۱۴۰۵/۰۷/۰۱';
-      }
+      } catch(e) { return '۱۴۰۵/۰۷/۰۱'; }
     }
 
     function updateHeaderDate() {
@@ -301,13 +286,10 @@
     window.addEventListener('DOMContentLoaded', () => {
       const now = new Date();
       const todayPersian = getPersianDateStr(now);
-      // ساخت تاریخ اول ماه شمسی به صورت ایمن
       const parts = todayPersian.split('/');
       const firstDayPersian = parts.length === 3 ? `${parts[0]}/${parts[1]}/۰۱` : '۱۴۰۵/۰۸/۰۱';
-
       const startInput = document.getElementById('reportStartDate');
       const endInput = document.getElementById('reportEndDate');
-      
       if (startInput && !startInput.value) startInput.value = firstDayPersian;
       if (endInput && !endInput.value) endInput.value = todayPersian;
     });
@@ -333,7 +315,6 @@
         });
         if (currentVal) sel.value = currentVal;
       });
-
       const pSel = document.getElementById('clockProjectSelect');
       if(pSel) {
         const currentP = pSel.value;
@@ -345,15 +326,11 @@
         });
         if (currentP) pSel.value = currentP;
       }
-
       document.getElementById('statWorkersCount').innerText = (db.workers.length).toLocaleString('fa-IR');
-      
       const now = new Date();
       const todayPersian = getPersianDateStr(now);
       const todays = db.attendance.filter(a => a.persianDate === todayPersian);
-      
       document.getElementById('statPresentToday').innerText = (new Set(todays.map(a => a.workerId))).size.toLocaleString('fa-IR');
-
       let totalTodayMins = 0;
       const workerTodayLogs = {};
       todays.forEach(a => {
@@ -374,7 +351,6 @@
       });
       const totalHoursFormatted = (totalTodayMins / 60).toFixed(1);
       document.getElementById('statTotalHoursToday').innerText = Number(totalHoursFormatted).toLocaleString('fa-IR');
-
       const tbody = document.getElementById('todayAttendanceTableBody');
       tbody.innerHTML = todays.length === 0 ? '<tr><td colspan="5" style="text-align:center; color:var(--text-muted);">امروز ترددی ثبت نشده است.</td></tr>' : '';
       todays.slice().reverse().forEach(item => {
@@ -383,7 +359,6 @@
         tr.innerHTML = `<td><strong>${w ? w.name : 'کارگر حذف شده'}</strong></td><td><span style="color:${item.type==='ورود'?'green':'red'}; font-weight:800;">${item.type}</span></td><td>${toPersianDigits(item.time)}</td><td>${item.project || 'کارگاه مرکزی'}</td><td>${item.workType || 'کارکرد عادی'}</td>`;
         tbody.appendChild(tr);
       });
-
       const wTbody = document.getElementById('workersListTableBody');
       wTbody.innerHTML = '';
       if (db.workers.length === 0) {
@@ -391,33 +366,16 @@
       } else {
         db.workers.forEach(w => {
           const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td><strong>${w.name}</strong></td>
-            <td>${toPersianDigits(w.code||'—')}</td>
-            <td>${Number(w.wage||0).toLocaleString('fa-IR')} تومان</td>
-            <td>${toPersianDigits(w.phone||'—')}</td>
-            <td></td>
-          `;
+          tr.innerHTML = `<td><strong>${w.name}</strong></td><td>${toPersianDigits(w.code||'—')}</td><td>${Number(w.wage||0).toLocaleString('fa-IR')} تومان</td><td>${toPersianDigits(w.phone||'—')}</td><td></td>`;
           const actionTd = tr.querySelector('td:last-child');
           const delBtn = document.createElement('button');
-          delBtn.type = 'button';
-          delBtn.className = 'btn btn-outline';
-          delBtn.style.cssText = 'padding:4px 10px; color:red; font-size:0.8rem; font-weight:bold;';
+          delBtn.type = 'button'; delBtn.className = 'btn btn-outline'; delBtn.style.cssText = 'padding:4px 10px; color:red; font-size:0.8rem; font-weight:bold;';
           delBtn.textContent = 'حذف';
-          
-          delBtn.onclick = function() {
-            if (confirm(`آیا از حذف کارگر «${w.name}» مطمئن هستید؟`)) {
-              db.workers = db.workers.filter(item => Number(item.id) !== Number(w.id));
-              saveDB();
-              refreshUI();
-            }
-          };
-          
+          delBtn.onclick = function() { if (confirm(`آیا از حذف کارگر «${w.name}» مطمئن هستید؟`)) { db.workers = db.workers.filter(item => Number(item.id) !== Number(w.id)); saveDB(); refreshUI(); } };
           actionTd.appendChild(delBtn);
           wTbody.appendChild(tr);
         });
       }
-
       const pList = document.getElementById('projectsList');
       pList.innerHTML = '';
       db.projects.forEach((p, idx) => {
@@ -431,28 +389,18 @@
     function recordAttendance(type) {
       const workerId = document.getElementById('clockWorkerSelect').value;
       if (!workerId) { alert('لطفاً کارگر را انتخاب کنید.'); return; }
-      
       const now = new Date();
-      db.attendance.push({
-        id: Date.now(),
-        workerId: Number(workerId),
-        project: document.getElementById('clockProjectSelect').value || 'کارگاه مرکزی',
-        type: type,
-        workType: document.getElementById('attendanceType').value || 'کارکرد عادی',
-        persianDate: getPersianDateStr(now),
-        time: now.toTimeString().slice(0,5)
-      });
-      saveDB(); refreshUI();
-      alert(`ثبت ${type} با موفقیت انجام شد.`);
+      db.attendance.push({ id: Date.now(), workerId: Number(workerId), project: document.getElementById('clockProjectSelect').value || 'کارگاه مرکزی', type: type, workType: document.getElementById('attendanceType').value || 'کارکرد عادی', persianDate: getPersianDateStr(now), time: now.toTimeString().slice(0,5) });
+      saveDB(); refreshUI(); alert(`ثبت ${type} با موفقیت انجام شد.`);
     }
 
     function generatePayslip() {
       const workerId = Number(document.getElementById('reportWorkerSelect').value);
       const worker = db.workers.find(w => Number(w.id) === workerId);
       if (!worker) { alert('کارگر نامعتبر است.'); return; }
-
       const startDateStr = document.getElementById('reportStartDate').value.trim();
       const endDateStr = document.getElementById('reportEndDate').value.trim();
+      const deduction = Number(document.getElementById('reportDeduction').value) || 0;
 
       const records = db.attendance.filter(a => {
         if (Number(a.workerId) !== workerId) return false;
@@ -464,16 +412,12 @@
 
       let mins = 0, lastIn = null;
       records.forEach(r => {
-        if (r.type === 'ورود') {
-          const p = r.time.split(':'); lastIn = parseInt(p[0])*60 + parseInt(p[1]);
-        } else if (r.type === 'خروج' && lastIn !== null) {
-          const p = r.time.split(':'); const out = parseInt(p[0])*60 + parseInt(p[1]);
-          if (out > lastIn) mins += (out - lastIn);
-          lastIn = null;
-        }
+        if (r.type === 'ورود') { const p = r.time.split(':'); lastIn = parseInt(p[0])*60 + parseInt(p[1]); } 
+        else if (r.type === 'خروج' && lastIn !== null) { const p = r.time.split(':'); const out = parseInt(p[0])*60 + parseInt(p[1]); if (out > lastIn) mins += (out - lastIn); lastIn = null; }
       });
       const hours = mins > 0 ? (mins/60).toFixed(1) : 0;
       const gross = Math.round(hours * worker.wage);
+      const netPay = gross - deduction;
 
       document.getElementById('psIssueDate').innerText = getPersianDateStr(new Date());
       document.getElementById('psRange').innerText = `${startDateStr || '---'} تا ${endDateStr || '---'}`;
@@ -482,7 +426,8 @@
       document.getElementById('psHourlyWage').innerText = `${Number(worker.wage).toLocaleString('fa-IR')} تومان`;
       document.getElementById('psTotalHours').innerText = `${Number(hours).toLocaleString('fa-IR')} ساعت`;
       document.getElementById('psGrossPay').innerText = `${gross.toLocaleString('fa-IR')} تومان`;
-      document.getElementById('psNetPay').innerText = `${gross.toLocaleString('fa-IR')} تومان`;
+      document.getElementById('psDeductionVal').innerText = `${deduction.toLocaleString('fa-IR')} تومان`;
+      document.getElementById('psNetPay').innerText = `${netPay.toLocaleString('fa-IR')} تومان`;
 
       document.getElementById('payslipContainer').style.display = 'block';
       document.getElementById('payslipContainer').scrollIntoView({behavior:'smooth'});
@@ -494,10 +439,7 @@
       if (!name || !wage) { alert('نام و دستمزد ساعتی الزامی است.'); return; }
       db.workers.push({ id: Date.now(), name, code: document.getElementById('newWorkerCode').value.trim(), wage, phone: document.getElementById('newWorkerPhone').value.trim() });
       saveDB(); refreshUI();
-      document.getElementById('newWorkerName').value = '';
-      document.getElementById('newWorkerCode').value = '';
-      document.getElementById('newWorkerWage').value = '';
-      document.getElementById('newWorkerPhone').value = '';
+      document.getElementById('newWorkerName').value = ''; document.getElementById('newWorkerCode').value = ''; document.getElementById('newWorkerWage').value = ''; document.getElementById('newWorkerPhone').value = '';
       alert('کارگر ثبت شد.');
     }
 
@@ -508,13 +450,9 @@
       document.getElementById('newProjectName').value = '';
     }
 
-    function deleteProject(idx) {
-      if (confirm('پروژه حذف شود؟')) { db.projects.splice(idx, 1); saveDB(); refreshUI(); }
-    }
+    function deleteProject(idx) { if (confirm('پروژه حذف شود؟')) { db.projects.splice(idx, 1); saveDB(); refreshUI(); } }
 
-    loadDB();
-    updateHeaderDate();
-    refreshUI();
+    loadDB(); updateHeaderDate(); refreshUI();
   </script>
 </body>
 </html>
