@@ -154,10 +154,12 @@
           <div class="form-group">
             <label>از تاریخ:</label>
             <input type="date" id="reportStartDate" lang="fa" style="direction:ltr; text-align:right;">
+            <div id="displayStartDate" style="font-size:0.8rem; color:var(--primary); margin-top:4px;"></div>
           </div>
           <div class="form-group">
             <label>تا تاریخ:</label>
             <input type="date" id="reportEndDate" lang="fa" style="direction:ltr; text-align:right;">
+            <div id="displayEndDate" style="font-size:0.8rem; color:var(--primary); margin-top:4px;"></div>
           </div>
         </div>
         <button class="btn btn-primary" onclick="generatePayslip()">📄 صدور فیش حقوقی رسمی</button>
@@ -265,6 +267,15 @@
       }
     }
 
+    // تابع کمکی برای آپدیت لحظه‌ای نمایش تاریخ زیر فیلدها
+    function updateDateLabel(input, displayId) {
+        if (input.value) {
+            document.getElementById(displayId).innerText = 'معادل شمسی: ' + getPersianDateStr(new Date(input.value));
+        } else {
+            document.getElementById(displayId).innerText = '';
+        }
+    }
+
     function updateHeaderDate() {
       const now = new Date();
       try {
@@ -284,8 +295,20 @@
 
       const startInput = document.getElementById('reportStartDate');
       const endInput = document.getElementById('reportEndDate');
+      
+      // تنظیم مقادیر اولیه
       if (startInput && !startInput.value) startInput.value = firstDayISO;
       if (endInput && !endInput.value) endInput.value = todayISO;
+
+      // اضافه کردن رویدادها برای نمایش لحظه‌ای
+      if (startInput) {
+          startInput.onchange = () => updateDateLabel(startInput, 'displayStartDate');
+          updateDateLabel(startInput, 'displayStartDate'); // آپدیت اولیه
+      }
+      if (endInput) {
+          endInput.onchange = () => updateDateLabel(endInput, 'displayEndDate');
+          updateDateLabel(endInput, 'displayEndDate'); // آپدیت اولیه
+      }
     });
 
     function switchTab(tabName, event) {
