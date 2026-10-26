@@ -1,587 +1,362 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>کارت ساعت هوشمند و قانونی کارگران</title>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-
-  <!-- Persian Datepicker (Shamsi Calendar) -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/css/persian-datepicker.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/persian-date@1.1.0/dist/persian-date.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/js/persian-datepicker.min.js"></script>
-
-  <style>
-    :root {
-      --primary: #0f766e;
-      --primary-dark: #115e59;
-      --secondary: #1e293b;
-      --bg: #f8fafc;
-      --card-bg: #ffffff;
-      --text: #0f172a;
-      --text-muted: #64748b;
-      --border: #e2e8f0;
-      --success: #16a34a;
-      --danger: #dc2626;
-      --radius: 12px;
-      --shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Vazirmatn', sans-serif; }
-    body { background-color: var(--bg); color: var(--text); line-height: 1.6; padding-bottom: 70px; }
-
-    .top-header { background: linear-gradient(135deg, #134e4a, #0f766e); color: #fff; padding: 20px 16px; border-radius: 0 0 20px 20px; box-shadow: 0 4px 20px rgba(15,118,110,0.2); }
-    .header-content { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px; }
-    .header-title-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
-    .app-title { font-size: 1.25rem; font-weight: 800; }
-    .live-clock-badge { background: rgba(255,255,255,0.15); padding: 4px 12px; border-radius: 20px; font-size: 0.95rem; font-weight: 700; }
-    .header-date-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; color: #ccfbf1; border-top: 1px solid rgba(255,255,255,0.15); padding-top: 8px; }
-
-    .container { max-width: 900px; margin: 16px auto; padding: 0 16px; }
-    .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; margin-bottom: 16px; box-shadow: var(--shadow); }
-    .card-title { font-size: 1.05rem; font-weight: 800; color: var(--secondary); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
-    .card-title::before { content: ""; display: inline-block; width: 4px; height: 18px; background: var(--primary); border-radius: 4px; }
-
-    .form-group { margin-bottom: 14px; }
-    label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; }
-    input, select { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.95rem; background: #fff; color: var(--text); outline: none; }
-    input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(15,118,110,0.15); }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    @media(max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
-
-    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 18px; border-radius: 8px; border: none; font-weight: 700; font-size: 0.95rem; cursor: pointer; width: 100%; transition: 0.2s; }
-    .btn-primary { background: var(--primary); color: white; }
-    .btn-success { background: var(--success); color: white; }
-    .btn-danger { background: var(--danger); color: white; }
-    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
-    .btn-group-action { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-
-    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
-    .stat-box { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; text-align: center; box-shadow: var(--shadow); }
-    .stat-val { font-size: 1.3rem; font-weight: 900; color: var(--primary); }
-    .stat-label { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
-
-    .nav-tabs { display: flex; background: #e2e8f0; padding: 4px; border-radius: 12px; margin-bottom: 16px; gap: 4px; }
-    .tab-btn { flex: 1; padding: 8px; text-align: center; border-radius: 8px; border: none; background: transparent; font-weight: 700; font-size: 0.85rem; cursor: pointer; color: var(--text-muted); }
-    .tab-btn.active { background: #fff; color: var(--primary); box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
-
-    .table-responsive { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; text-align: right; }
-    th, td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
-    th { background: #f1f5f9; color: var(--secondary); font-weight: 700; }
-
-    .payslip { background: #fff; border: 2px solid #0f766e; border-radius: 16px; padding: 24px; margin-top: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
-    .payslip-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px dashed #cbd5e1; padding-bottom: 14px; margin-bottom: 16px; }
-    .payslip-title { font-size: 1.2rem; font-weight: 900; color: #0f766e; }
-    .payslip-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
-    .payslip-item { background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px 14px; border-radius: 8px; }
-    .payslip-item .label { font-size: 0.78rem; color: #64748b; margin-bottom: 2px; }
-    .payslip-item .val { font-size: 1rem; font-weight: 800; color: #0f172a; }
-    .payslip-highlight { background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1px solid #86efac; padding: 16px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
-    .payslip-highlight .val { font-size: 1.4rem; font-weight: 900; color: #15803d; }
-    .payslip-footer-legal { border-top: 1px solid #e2e8f0; padding-top: 12px; font-size: 0.75rem; color: #64748b; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
-
-    .app-footer { background: #fff; border-top: 1px solid var(--border); text-align: center; padding: 14px 16px; font-size: 0.85rem; color: var(--text-muted); position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; }
-    .support-pill { display: inline-block; background: #f1f5f9; color: #0f766e; padding: 3px 10px; border-radius: 20px; font-weight: 800; direction: ltr; }
-
-    @media print {
-      body * { visibility: hidden; }
-      #payslipContainer, #payslipContainer * { visibility: visible; }
-      #payslipContainer { position: absolute; left: 0; top: 0; width: 100%; margin: 0; border: none; box-shadow: none; }
-      .no-print { display: none !important; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>کارت ساعت هوشمند و حقوق کارگران</title>
+<style>
+  :root{
+    --bg:#f1f5f9; --card:#ffffff; --line:#e2e8f0;
+    --text:#0f172a; --muted:#64748b;
+    --green:#16a34a; --green-d:#15803d;
+    --red:#dc2626; --red-d:#b91c1c;
+    --blue:#2563eb; --blue-d:#1d4ed8;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:Tahoma, "Segoe UI", Vazirmatn, sans-serif;
+    background:var(--bg); color:var(--text);
+    padding:16px; padding-bottom:70px; line-height:1.7;
+  }
+  .container{max-width:900px; margin:0 auto;}
+  header.app-header{
+    background:linear-gradient(135deg,#1e3a8a,#2563eb);
+    color:#fff; border-radius:14px; padding:18px 20px; margin-bottom:16px;
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;
+  }
+  header.app-header h1{font-size:1.15rem;}
+  header.app-header .date{font-size:.85rem; opacity:.9;}
+  .card{
+    background:var(--card); border:1px solid var(--line);
+    border-radius:14px; padding:16px; margin-bottom:16px;
+    box-shadow:0 1px 3px rgba(15,23,42,.06);
+  }
+  .card h2{font-size:1rem; margin-bottom:12px; color:var(--blue-d); border-right:4px solid var(--blue); padding-right:8px;}
+  label{display:block; font-size:.85rem; margin-bottom:4px; color:var(--muted);}
+  input[type=text], input[type=number], input[type=tel], select, textarea{
+    width:100%; padding:9px 10px; border:1px solid var(--line); border-radius:9px;
+    font-family:inherit; font-size:.9rem; background:#f8fafc;
+  }
+  input:focus, select:focus, textarea:focus{outline:2px solid var(--blue); outline-offset:1px;}
+  .grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px;}
+  .btn{
+    border:none; border-radius:9px; padding:10px 18px; font-family:inherit; font-size:.9rem;
+    cursor:pointer; color:#fff; transition:.15s;
+  }
+  .btn:hover{filter:brightness(1.1);}
+  .btn-green{background:var(--green);} .btn-red{background:var(--red);}
+  .btn-blue{background:var(--blue);}
+  .btn-outline-red{background:#fff; color:var(--red); border:1px solid var(--red); padding:4px 12px; font-size:.8rem;}
+  .btn-outline-blue{background:#fff; color:var(--blue); border:1px solid var(--blue); padding:4px 12px; font-size:.8rem;}
+  .actions{display:flex; gap:10px; margin-top:12px; flex-wrap:wrap;}
+  table{width:100%; border-collapse:collapse; font-size:.85rem;}
+  th,td{padding:8px 6px; border-bottom:1px solid var(--line); text-align:right; vertical-align:middle;}
+  th{background:#f8fafc; color:var(--muted); font-weight:600;}
+  .ev-in{color:var(--green); font-weight:700;} .ev-out{color:var(--red); font-weight:700;}
+  .badge{display:inline-block; background:#eff6ff; color:var(--blue); border-radius:20px; padding:2px 10px; font-size:.78rem;}
+  .empty{color:var(--muted); text-align:center; padding:16px;}
+  .toast{
+    position:fixed; bottom:20px; right:50%; transform:translateX(50%);
+    background:#0f172a; color:#fff; padding:10px 20px; border-radius:10px; font-size:.9rem;
+    opacity:0; pointer-events:none; transition:.3s; z-index:50;
+  }
+  .toast.show{opacity:1;}
+  footer.app-footer{
+    position:fixed; bottom:0; right:0; left:0; background:#0f172a; color:#fff;
+    text-align:center; padding:8px; font-size:.8rem; z-index:40;
+  }
+  footer.app-footer b{color:#93c5fd;}
+  /* فیش حقوقی */
+  .payslip{border:2px solid var(--text); border-radius:10px; padding:16px;}
+  .payslip h3{text-align:center; margin-bottom:2px;}
+  .payslip .sub{text-align:center; font-size:.8rem; color:var(--muted); margin-bottom:10px;}
+  .ps-grid{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:10px;}
+  .ps-item{background:#f8fafc; border:1px solid var(--line); border-radius:8px; padding:6px 10px; font-size:.85rem;}
+  .ps-item span{color:var(--muted); display:block; font-size:.75rem;}
+  .ps-net{
+    background:#ecfdf5; border:2px solid var(--green); border-radius:10px;
+    padding:12px; text-align:center; font-size:1.05rem; font-weight:700; color:var(--green-d); margin:10px 0;
+  }
+  .signs{display:flex; justify-content:space-between; margin-top:20px; font-size:.85rem;}
+  .signs div{width:45%; text-align:center; border-top:1px dotted var(--muted); padding-top:6px; color:var(--muted);}
+  @media print{
+    body *{visibility:hidden;}
+    #payslipCard, #payslipCard *{visibility:visible;}
+    #payslipCard{position:absolute; top:0; right:0; left:0; border:none; box-shadow:none;}
+    footer.app-footer{display:none;}
+  }
+</style>
 </head>
 <body>
-
-  <header class="top-header no-print">
-    <div class="header-content">
-      <div class="header-title-row">
-        <div class="app-title">📋 کارت ساعت هوشمند و قانونی کارگران</div>
-        <div class="live-clock-badge" id="liveClock">۰۰:۰۰:۰۰</div>
-      </div>
-      <div class="header-date-row">
-        <span>امروز: <strong id="persianHeaderDate">در حال بارگذاری...</strong></span>
-        <span>پشتیبانی: <strong style="color:#a7f3d0">09371880982</strong></span>
-      </div>
-    </div>
+<div class="container">
+  <header class="app-header">
+    <h1>👷 کارت ساعت هوشمند و حقوق کارگران</h1>
+    <div class="date" id="todayDate"></div>
   </header>
 
-  <main class="container">
-    <div class="stats-grid no-print">
-      <div class="stat-box"><div class="stat-val" id="statWorkersCount">۰</div><div class="stat-label">تعداد کل کارگران</div></div>
-      <div class="stat-box"><div class="stat-val" id="statPresentToday">۰</div><div class="stat-label">حاضرین امروز</div></div>
-      <div class="stat-box"><div class="stat-val" id="statTotalHoursToday">۰</div><div class="stat-label">مجموع ساعت امروز</div></div>
+  <!-- ثبت تردد -->
+  <div class="card">
+    <h2>ثبت تردد</h2>
+    <div class="grid">
+      <div>
+        <label for="trafficWorker">کارگر:</label>
+        <select id="trafficWorker"></select>
+      </div>
+      <div>
+        <label for="trafficProject">پروژه:</label>
+        <select id="trafficProject">
+          <option value="مرکز">مرکز</option>
+          <option value="کارگاه مرکزی">کارگاه مرکزی</option>
+          <option value="پروژه شرقی">پروژه شرقی</option>
+        </select>
+      </div>
+      <div>
+        <label for="trafficType">نوع کارکرد:</label>
+        <select id="trafficType">
+          <option value="کارکرد عادی">کارکرد عادی</option>
+          <option value="اضافه‌کار">اضافه‌کار</option>
+        </select>
+      </div>
     </div>
+    <div style="margin-top:12px">
+      <label for="trafficNote">توضیحات:</label>
+      <input type="text" id="trafficNote" placeholder="مثال: کار در کارگاه">
+    </div>
+    <div class="actions">
+      <button class="btn btn-green" onclick="registerTraffic('ورود')">🟢 ثبت ورود</button>
+      <button class="btn btn-red" onclick="registerTraffic('خروج')">🔴 ثبت خروج</button>
+    </div>
+  </div>
 
-    <nav class="nav-tabs no-print">
-      <button class="tab-btn active" onclick="switchTab('clock', event)">⏱️ ثبت تردد</button>
-      <button class="tab-btn" onclick="switchTab('reports', event)">📊 فیش حقوقی</button>
-      <button class="tab-btn" onclick="switchTab('workers', event)">👷 کارگران</button>
-      <button class="tab-btn" onclick="switchTab('projects', event)">🏗️ پروژه‌ها</button>
-    </nav>
+  <!-- ترددهای امروز -->
+  <div class="card">
+    <h2>ترددهای امروز</h2>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr><th>کارگر</th><th>رویداد</th><th>ساعت</th><th>پروژه</th><th>نوع</th><th>توضیحات</th><th></th></tr></thead>
+        <tbody id="todayTable"></tbody>
+      </table>
+    </div>
+  </div>
 
-    <section id="clockTab" class="tab-content no-print">
-      <div class="card">
-        <div class="card-title">ثبت فوری ورود و خروج کارگر</div>
-        <div class="form-row">
-          <div class="form-group"><label>انتخاب کارگر:</label><select id="clockWorkerSelect"></select></div>
-          <div class="form-group"><label>انتخاب پروژه:</label><select id="clockProjectSelect"></select></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>نوع ثبت:</label>
-            <select id="attendanceType">
-              <option value="کارکرد عادی">کارکرد عادی</option>
-              <option value="اضافه کار">اضافه کاری</option>
-              <option value="تعطیل کاری">تعطیل کاری</option>
-            </select>
-          </div>
-          <div class="form-group"><label>توضیحات:</label><input type="text" id="attendanceNotes" placeholder="مثال: کار در کارگاه"></div>
-        </div>
-        <div class="btn-group-action">
-          <button class="btn btn-success" onclick="recordAttendance('ورود')">🟢 ثبت ورود</button>
-          <button class="btn btn-danger" onclick="recordAttendance('خروج')">🔴 ثبت خروج</button>
-        </div>
+  <!-- مدیریت کارگران -->
+  <div class="card">
+    <h2>مدیریت کارگران</h2>
+    <div class="grid">
+      <div><label>نام و نام خانوادگی:</label><input type="text" id="wName" placeholder="نام کارگر"></div>
+      <div><label>کد ملی:</label><input type="text" id="wCode" placeholder="کد ملی"></div>
+      <div><label>دستمزد ساعتی (تومان):</label><input type="number" id="wWage" placeholder="مثال: 70000" min="0"></div>
+      <div><label>تلفن:</label><input type="tel" id="wPhone" placeholder="۰۹..."></div>
+    </div>
+    <div class="actions"><button class="btn btn-green" onclick="addWorker()">➕ افزودن کارگر</button></div>
+  </div>
+
+  <div class="card">
+    <h2>لیست پرسنل</h2>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr><th>نام</th><th>کد</th><th>دستمزد</th><th>تلفن</th><th>عملیات</th></tr></thead>
+        <tbody id="workersTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- فیش حقوقی -->
+  <div class="card">
+    <h2>فیش حقوق و دستمزد</h2>
+    <div class="grid">
+      <div><label>کارگر:</label><select id="psWorker" onchange="renderPayslip()"></select></div>
+      <div><label>از تاریخ:</label><input type="text" id="psFrom" placeholder="۱۴۰۵/۰۸/۰۱"></div>
+      <div><label>تا تاریخ:</label><input type="text" id="psTo" placeholder="۱۴۰۵/۰۸/۳۰"></div>
+      <div><label>کسورات / مساعده (تومان):</label><input type="number" id="psDeduct" value="0" min="0" oninput="renderPayslip()"></div>
+    </div>
+    <div class="actions"><button class="btn btn-blue" onclick="buildPayslip()">🧮 محاسبه و نمایش فیش</button></div>
+  </div>
+
+  <div class="card" id="payslipCard" style="display:none">
+    <div class="payslip">
+      <h3>فیش حقوق و دستمزد</h3>
+      <div class="sub">سامانه رسمی کنترل تردد کارگران</div>
+      <div class="ps-grid">
+        <div class="ps-item"><span>نام کارگر</span><div id="psName">—</div></div>
+        <div class="ps-item"><span>کد پرسنلی</span><div id="psCode">—</div></div>
+        <div class="ps-item"><span>دستمزد ساعتی</span><div id="psWage">—</div></div>
+        <div class="ps-item"><span>مجموع ساعت کارکرد</span><div id="psHours">—</div></div>
+        <div class="ps-item"><span>جمع ناخالص</span><div id="psGross">—</div></div>
+        <div class="ps-item"><span>کسورات / مساعده</span><div id="psDed">—</div></div>
       </div>
-      <div class="card">
-        <div class="card-title">ترددهای امروز</div>
-        <div class="table-responsive">
-          <table>
-            <thead><tr><th>کارگر</th><th>رویداد</th><th>ساعت</th><th>پروژه</th><th>نوع</th></tr></thead>
-            <tbody id="todayAttendanceTableBody"><tr><td colspan="5" style="text-align:center; color:var(--text-muted);">امروز ترددی ثبت نشده است.</td></tr></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
+      <div class="ps-net">خالص قابل پرداخت: <span id="psNet">—</span></div>
+      <div class="signs"><div>امضای کارفرما</div><div>امضای کارگر</div></div>
+    </div>
+    <div class="actions"><button class="btn btn-green" onclick="window.print()">🖨️ چاپ فیش حقوقی</button></div>
+  </div>
+</div>
 
-    <section id="reportsTab" class="tab-content" style="display: none;">
-      <div class="card no-print">
-        <div class="card-title">محاسبه و صدور فیش حقوقی رسمی</div>
-        <div class="form-group"><label>کارگر:</label><select id="reportWorkerSelect"></select></div>
+<div class="toast" id="toast"></div>
+<footer class="app-footer">کارت ساعت هوشمند کارگران | پشتیبانی: <b>09371880982</b></footer>
 
-        <!-- فیلدهای تقویم شمسی -->
-        <div class="form-row">
-          <div class="form-group">
-            <label>از تاریخ (شمسی):</label>
-            <input type="text" id="reportStartDate" placeholder="۱۴۰۵/۰۱/۰۱" style="direction:ltr; text-align:right;" autocomplete="off">
-            <input type="hidden" id="reportStartDateValue">
-          </div>
-          <div class="form-group">
-            <label>تا تاریخ (شمسی):</label>
-            <input type="text" id="reportEndDate" placeholder="۱۴۰۵/۰۱/۰۱" style="direction:ltr; text-align:right;" autocomplete="off">
-            <input type="hidden" id="reportEndDateValue">
-          </div>
-        </div>
+<script>
+"use strict";
+const STORE = "smart_attendance_v2";
+let state = { workers: [], logs: [] };
 
-        <div class="form-group"><label>مبلغ مساعده یا کسورات (تومان):</label><input type="number" id="reportDeduction" placeholder="۰"></div>
-        <button class="btn btn-primary" onclick="generatePayslip()">📄 صدور فیش حقوقی رسمی</button>
-      </div>
+/* ---------- ابزار ---------- */
+const fa = n => String(n).replace(/\d/g, d => "۰۱۲۳۴۵۶۷۸۹"[d]);
+const money = n => fa(Number(n||0).toLocaleString("en-US")) + " تومان";
+const pad = n => String(n).padStart(2,"0");
+function nowTime(){ const d=new Date(); return pad(d.getHours())+":"+pad(d.getMinutes()); }
+function todayStr(){
+  try{ return new Intl.DateTimeFormat("fa-IR",{year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date()); }
+  catch(e){ return ""; }
+}
+function save(){ localStorage.setItem(STORE, JSON.stringify(state)); }
+function load(){
+  try{ const s = JSON.parse(localStorage.getItem(STORE)); if(s && s.workers){ state = s; return true; } }catch(e){}
+  return false;
+}
+function toast(msg){
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"), 2200);
+}
+const esc = s => String(s??"").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
-      <div id="payslipContainer" style="display: none;">
-        <div class="payslip">
-          <div class="payslip-header">
-            <div>
-              <div class="payslip-title">فیش حقوق و دستمزد</div>
-              <div class="payslip-subtitle">سامانه رسمی کنترل تردد کارگران</div>
-            </div>
-            <div class="payslip-meta" style="text-align: left; font-size: 0.85rem;">
-              <div>تاریخ: <span id="psIssueDate">—</span></div>
-              <div>بازه: <span id="psRange">—</span></div>
-            </div>
-          </div>
-          <div class="payslip-grid">
-            <div class="payslip-item"><div class="label">نام کارگر:</div><div class="val" id="psWorkerName">—</div></div>
-            <div class="payslip-item"><div class="label">کد پرسنلی:</div><div class="val" id="psWorkerCode">—</div></div>
-            <div class="payslip-item"><div class="label">دستمزد ساعتی:</div><div class="val" id="psHourlyWage">—</div></div>
-            <div class="payslip-item"><div class="label">مجموع ساعت کارکرد:</div><div class="val" id="psTotalHours">—</div></div>
-            <div class="payslip-item"><div class="label">جمع ناخالص:</div><div class="val" id="psGrossPay">—</div></div>
-            <div class="payslip-item"><div class="label">کسورات / مساعده:</div><div class="val" id="psDeductionVal" style="color:var(--danger)">۰ تومان</div></div>
-          </div>
-          <div class="payslip-highlight">
-            <div class="label">خالص قابل پرداخت:</div>
-            <div class="val" id="psNetPay">۰ تومان</div>
-          </div>
-          <div class="payslip-footer-legal">
-            <div>امضای کارفرما: ........................</div>
-            <div>امضای کارگر: ........................</div>
-            <div>پشتیبانی: <span class="support-pill"></span></div>
-          </div>
-        </div>
-        <div style="margin-top: 12px;" class="no-print">
-          <button class="btn btn-primary" onclick="window.print()">🖨️ چاپ فیش حقوقی</button>
-        </div>
-      </div>
-    </section>
-    <section id="workersTab" class="tab-content no-print" style="display: none;">
-      <div class="card">
-        <div class="card-title">ثبت کارگر جدید</div>
-        <div class="form-row">
-          <div class="form-group"><label>نام:</label><input type="text" id="newWorkerName" placeholder="نام کامل"></div>
-          <div class="form-group"><label>کد ملی:</label><input type="text" id="newWorkerCode" placeholder="کد ملی"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label>دستمزد ساعتی (تومان):</label><input type="number" id="newWorkerWage" placeholder="مثال: ۷۰۰۰۰"></div>
-          <div class="form-group"><label>تلفن:</label><input type="text" id="newWorkerPhone" placeholder="۰۹..."></div>
-        </div>
-        <button class="btn btn-primary" onclick="addWorker()">➕ افزودن کارگر</button>
-      </div>
-      <div class="card">
-        <div class="card-title">لیست پرسنل</div>
-        <div class="table-responsive">
-          <table>
-            <thead><tr><th>نام</th><th>کد</th><th>دستمزد</th><th>تلفن</th><th>عملیات</th></tr></thead>
-            <tbody id="workersListTableBody"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
+/* ---------- کارگران ---------- */
+function addWorker(){
+  const name = document.getElementById("wName").value.trim();
+  const code = document.getElementById("wCode").value.trim();
+  const wage = Number(document.getElementById("wWage").value || 0);
+  const phone = document.getElementById("wPhone").value.trim();
+  if(!name){ toast("نام کارگر را وارد کنید"); return; }
+  if(wage <= 0){ toast("دستمزد ساعتی معتبر وارد کنید"); return; }
+  state.workers.push({ id: Date.now(), name, code, wage, phone });
+  save(); refreshAll();
+  document.getElementById("wName").value = "";
+  document.getElementById("wCode").value = "";
+  document.getElementById("wWage").value = "";
+  document.getElementById("wPhone").value = "";
+  toast("کارگر با موفقیت اضافه شد ✅");
+}
+function deleteWorker(id){
+  if(!confirm("آیا از حذف این کارگر مطمئن هستید؟ ترددهای او نیز حذف می‌شود.")) return;
+  state.workers = state.workers.filter(w => w.id !== id);
+  state.logs = state.logs.filter(l => l.workerId !== id);
+  save(); refreshAll(); toast("کارگر حذف شد");
+}
+function getWorker(id){ return state.workers.find(w => w.id === id); }
 
-    <section id="projectsTab" class="tab-content no-print" style="display: none;">
-      <div class="card">
-        <div class="card-title">تعریف پروژه جدید</div>
-        <div class="form-group"><label>نام پروژه:</label><input type="text" id="newProjectName" placeholder="نام پروژه"></div>
-        <button class="btn btn-primary" onclick="addProject()">➕ ثبت پروژه</button>
-      </div>
-      <div class="card">
-        <div class="card-title">لیست پروژه‌ها</div>
-        <ul id="projectsList" style="list-style: none; padding: 0;"></ul>
-      </div>
-    </section>
-  </main>
+/* ---------- تردد ---------- */
+function registerTraffic(ev){
+  const wid = Number(document.getElementById("trafficWorker").value);
+  if(!wid){ toast("ابتدا یک کارگر اضافه یا انتخاب کنید"); return; }
+  state.logs.push({
+    id: Date.now(), workerId: wid, event: ev, time: nowTime(),
+    date: todayStr(), project: document.getElementById("trafficProject").value,
+    type: document.getElementById("trafficType").value,
+    note: document.getElementById("trafficNote").value.trim()
+  });
+  save(); renderToday();
+  document.getElementById("trafficNote").value = "";
+  toast((ev === "ورود" ? "ورود" : "خروج") + " ثبت شد ✅ ساعت " + fa(nowTime()));
+}
+function deleteLog(id){
+  state.logs = state.logs.filter(l => l.id !== id);
+  save(); renderToday();
+}
+function workerLabel(id){
+  const w = getWorker(id);
+  return w ? w.name : "کارگر حذف شده";
+}
 
-  <footer class="app-footer no-print">
-    <div>کارت ساعت هوشمند کارگران | پشتیبانی: <span class="support-pill">09371880982</span></div>
-  </footer>
+/* ---------- رندر ---------- */
+function renderWorkers(){
+  const tb = document.getElementById("workersTable");
+  tb.innerHTML = state.workers.length ? state.workers.map(w => `
+    <tr>
+      <td>${esc(w.name)}</td>
+      <td>${w.code ? esc(w.code) : "-"}</td>
+      <td>${money(w.wage)}</td>
+      <td>${w.phone ? fa(esc(w.phone)) : "-"}</td>
+      <td><button class="btn-outline-red" style="border:1px solid var(--red);background:#fff;color:var(--red);border-radius:7px;padding:3px 12px;cursor:pointer;font-family:inherit" onclick="deleteWorker(${w.id})">حذف</button></td>
+    </tr>`).join("")
+    : `<tr><td colspan="5" class="empty">کارگری ثبت نشده است</td></tr>`;
+}
+function fillSelects(){
+  const opts = state.workers.map(w => `<option value="${w.id}">${esc(w.name)}</option>`).join("");
+  const tw = document.getElementById("trafficWorker");
+  const pw = document.getElementById("psWorker");
+  const keepTw = tw.value, keepPw = pw.value;
+  tw.innerHTML = opts || `<option value="">— کارگری ثبت نشده —</option>`;
+  pw.innerHTML = opts || `<option value="">— کارگری ثبت نشده —</option>`;
+  if(keepTw) tw.value = keepTw;
+  if(keepPw) pw.value = keepPw;
+}
+function renderToday(){
+  const today = todayStr();
+  const rows = state.logs.filter(l => l.date === today).slice().reverse();
+  document.getElementById("todayTable").innerHTML = rows.length ? rows.map(l => `
+    <tr>
+      <td>${esc(workerLabel(l.workerId))}</td>
+      <td class="${l.event === "ورود" ? "ev-in" : "ev-out"}">${l.event}</td>
+      <td>${fa(l.time)}</td>
+      <td>${esc(l.project)}</td>
+      <td><span class="badge">${esc(l.type)}</span></td>
+      <td>${l.note ? esc(l.note) : "-"}</td>
+      <td><button style="border:none;background:none;color:var(--red);cursor:pointer;font-size:1rem" title="حذف" onclick="deleteLog(${l.id})">✕</button></td>
+    </tr>`).join("")
+    : `<tr><td colspan="7" class="empty">امروز ترددی ثبت نشده است</td></tr>`;
+}
+function hoursBetween(inTime, outTime){
+  const [ih, im] = inTime.split(":").map(Number);
+  const [oh, om] = outTime.split(":").map(Number);
+  let mins = (oh*60+om) - (ih*60+im);
+  return mins > 0 ? mins/60 : 0;
+}
+function buildPayslip(){
+  const wid = Number(document.getElementById("psWorker").value);
+  const w = getWorker(wid);
+  if(!w){ toast("کارگر را انتخاب کنید"); return; }
+  const logs = state.logs.filter(l => l.workerId === wid && l.event === "ورود").map(l => l.time);
+  let total = 0;
+  logs.forEach(t => {
+    const outs = state.logs
+      .filter(l => l.workerId === wid && l.event === "خروج" && l.time > t)
+      .map(l => l.time).sort();
+    if(outs.length) total += hoursBetween(t, outs[0]);
+  });
+  const gross = total * w.wage;
+  const ded = Number(document.getElementById("psDeduct").value || 0);
+  document.getElementById("psName").textContent = w.name;
+  document.getElementById("psCode").textContent = w.code || "ثبت نشده";
+  document.getElementById("psWage").textContent = money(w.wage);
+  document.getElementById("psHours").textContent = fa(total.toFixed(2)) + " ساعت";
+  document.getElementById("psGross").textContent = money(gross);
+  document.getElementById("psDed").textContent = money(ded);
+  document.getElementById("psNet").textContent = money(Math.max(0, gross - ded));
+  document.getElementById("payslipCard").style.display = "block";
+  toast("فیش محاسبه شد 🧮");
+}
+function renderPayslip(){ /* re-render happens on محاسبه */ }
+function refreshAll(){ fillSelects(); renderWorkers(); renderToday(); }
 
-  <script>
-    const DB_KEY = 'tati_worker_db';
-    let db = { workers: [], projects: ['کارگاه مرکزی'], attendance: [] };
-
-    function loadDB() {
-      const saved = localStorage.getItem(DB_KEY);
-      if (saved) { try { db = JSON.parse(saved); } catch(e){} }
-      if (!db.workers) db.workers = [];
-      if (!db.projects) db.projects = ['کارگاه مرکزی'];
-      if (!db.attendance) db.attendance = [];
-      saveDB();
-    }
-    function saveDB() { localStorage.setItem(DB_KEY, JSON.stringify(db)); }
-
-    function toPersianDigits(str) {
-      if (!str) return '';
-      const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
-      return String(str).replace(/\d/g, x => persianDigits[x]);
-    }
-
-    function normalizePersianDateInput(str) {
-      if (!str) return '';
-      return String(str).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
-    }
-
-    function getPersianDateStr(dateObj) {
-      try {
-        let formatter = new Intl.DateTimeFormat('fa-IR-u-ca-persian', { year: 'numeric', month: '2-digit', day: '2-digit' });
-        let parts = formatter.formatToParts(dateObj);
-        let y = '', m = '', d = '';
-        parts.forEach(p => {
-          if (p.type === 'year') y = p.value;
-          if (p.type === 'month') m = p.value;
-          if (p.type === 'day') d = p.value;
-        });
-        return toPersianDigits(`${y}/${m}/${d}`);
-      } catch(e) { return '۱۴۰۵/۰۷/۰۱'; }
-    }
-
-    function updateHeaderDate() {
-      const now = new Date();
-      try {
-        let dateStr = new Intl.DateTimeFormat('fa-IR-u-ca-persian', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).format(now);
-        document.getElementById('persianHeaderDate').innerText = toPersianDigits(dateStr);
-      } catch(e) { document.getElementById('persianHeaderDate').innerText = 'امروز'; }
-      document.getElementById('liveClock').innerText = toPersianDigits(now.toTimeString().slice(0,8));
-    }
-    setInterval(updateHeaderDate, 1000);
-
-    function switchTab(tabName, event) {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
-      document.getElementById(tabName + 'Tab').style.display = 'block';
-      if (event && event.target) event.target.classList.add('active');
-    }
-
-    function refreshUI() {
-      ['clockWorkerSelect', 'reportWorkerSelect'].forEach(id => {
-        const sel = document.getElementById(id);
-        if(!sel) return;
-        const currentVal = sel.value;
-        sel.innerHTML = '';
-        db.workers.forEach(w => {
-          const opt = document.createElement('option');
-          opt.value = w.id;
-          opt.textContent = `${w.name} (${Number(w.wage||0).toLocaleString('fa-IR')} ت)`;
-          sel.appendChild(opt);
-        });
-        if (currentVal) sel.value = currentVal;
-      });
-
-      const pSel = document.getElementById('clockProjectSelect');
-      if(pSel) {
-        const currentP = pSel.value;
-        pSel.innerHTML = '';
-        db.projects.forEach(p => {
-          const opt = document.createElement('option');
-          opt.value = p; opt.textContent = p;
-          pSel.appendChild(opt);
-        });
-        if (currentP) pSel.value = currentP;
-      }
-
-      document.getElementById('statWorkersCount').innerText = (db.workers.length).toLocaleString('fa-IR');
-
-      const now = new Date();
-      const todayPersian = getPersianDateStr(now);
-      const todays = db.attendance.filter(a => a.persianDate === todayPersian);
-
-      document.getElementById('statPresentToday').innerText = (new Set(todays.map(a => a.workerId))).size.toLocaleString('fa-IR');
-
-      let totalTodayMins = 0;
-      const workerTodayLogs = {};
-      todays.forEach(a => {
-        if (!workerTodayLogs[a.workerId]) workerTodayLogs[a.workerId] = [];
-        workerTodayLogs[a.workerId].push(a);
-      });
-
-      Object.values(workerTodayLogs).forEach(logs => {
-        logs.sort((a,b) => a.time.localeCompare(b.time));
-
-        let inTime = null;
-        logs.forEach(l => {
-          const [h, m] = l.time.split(':').map(Number);
-          const t = h * 60 + m;
-          if (l.type === 'ورود') inTime = t;
-          else if (l.type === 'خروج' && inTime !== null) {
-            if (t > inTime) totalTodayMins += (t - inTime);
-            inTime = null;
-          }
-        });
-      });
-
-      const totalHoursFormatted = (totalTodayMins / 60).toFixed(1);
-      document.getElementById('statTotalHoursToday').innerText = Number(totalHoursFormatted).toLocaleString('fa-IR');
-
-      const tbody = document.getElementById('todayAttendanceTableBody');
-      tbody.innerHTML = todays.length === 0 ? '<tr><td colspan="5" style="text-align:center; color:var(--text-muted);">امروز ترددی ثبت نشده است.</td></tr>' : '';
-      todays.slice().reverse().forEach(item => {
-        const w = db.workers.find(x => Number(x.id) === Number(item.workerId));
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td><strong>${w ? w.name : 'کارگر حذف شده'}</strong></td>
-                        <td><span style="color:${item.type==='ورود'?'green':'red'}; font-weight:800;">${item.type}</span></td>
-                        <td>${toPersianDigits(item.time)}</td>
-                        <td>${item.project || 'کارگاه مرکزی'}</td>
-                        <td>${item.workType || 'کارکرد عادی'}</td>`;
-        tbody.appendChild(tr);
-      });
-
-      const wTbody = document.getElementById('workersListTableBody');
-      wTbody.innerHTML = '';
-      if (db.workers.length === 0) {
-        wTbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--text-muted);">کارگری ثبت نشده است.</td></tr>';
-      } else {
-        db.workers.forEach(w => {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `<td><strong>${w.name}</strong></td>
-                          <td>${toPersianDigits(w.code||'—')}</td>
-                          <td>${Number(w.wage||0).toLocaleString('fa-IR')} تومان</td>
-                          <td>${toPersianDigits(w.phone||'—')}</td><td></td>`;
-          const actionTd = tr.querySelector('td:last-child');
-          const delBtn = document.createElement('button');
-          delBtn.type = 'button';
-          delBtn.className = 'btn btn-outline';
-          delBtn.style.cssText = 'padding:4px 10px; color:red; font-size:0.8rem; font-weight:bold;';
-          delBtn.textContent = 'حذف';
-          delBtn.onclick = function() {
-            if (confirm(`آیا از حذف کارگر «${w.name}» مطمئن هستید؟`)) {
-              db.workers = db.workers.filter(item => Number(item.id) !== Number(w.id));
-              saveDB(); refreshUI();
-            }
-          };
-          actionTd.appendChild(delBtn);
-          wTbody.appendChild(tr);
-        });
-      }
-
-      const pList = document.getElementById('projectsList');
-      pList.innerHTML = '';
-      db.projects.forEach((p, idx) => {
-        const li = document.createElement('li');
-        li.style.cssText = 'padding:8px 12px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;';
-        li.innerHTML = `<span>🏗️ ${p}</span>
-                        <button type="button" class="btn btn-outline" style="padding:2px 8px; color:red; font-size:0.7rem;" onclick="deleteProject(${idx})">حذف</button>`;
-        pList.appendChild(li);
-      });
-    }
-    function recordAttendance(type) {
-      const workerId = document.getElementById('clockWorkerSelect').value;
-      if (!workerId) { alert('لطفاً کارگر را انتخاب کنید.'); return; }
-      const now = new Date();
-      db.attendance.push({
-        id: Date.now(),
-        workerId: Number(workerId),
-        project: document.getElementById('clockProjectSelect').value || 'کارگاه مرکزی',
-        type: type,
-        workType: document.getElementById('attendanceType').value || 'کارکرد عادی',
-        persianDate: getPersianDateStr(now),
-        time: now.toTimeString().slice(0,5)
-      });
-      saveDB(); refreshUI(); alert(`ثبت ${type} با موفقیت انجام شد.`);
-    }
-
-    function generatePayslip() {
-      const workerId = Number(document.getElementById('reportWorkerSelect').value);
-      const worker = db.workers.find(w => Number(w.id) === workerId);
-      if (!worker) { alert('کارگر نامعتبر است.'); return; }
-
-      const startDateStr = (document.getElementById('reportStartDateValue')?.value || normalizePersianDateInput(document.getElementById('reportStartDate').value)).trim();
-      const endDateStr = (document.getElementById('reportEndDateValue')?.value || normalizePersianDateInput(document.getElementById('reportEndDate').value)).trim();
-
-      const deduction = Number(document.getElementById('reportDeduction').value) || 0;
-
-      const records = db.attendance.filter(a => {
-        if (Number(a.workerId) !== workerId) return false;
-        const pDateFa = a.persianDate || '';
-        const pDate = normalizePersianDateInput(pDateFa);
-        if (startDateStr && pDate < startDateStr) return false;
-        if (endDateStr && pDate > endDateStr) return false;
-        return true;
-      });
-
-      records.sort((a,b) => {
-        const da = normalizePersianDateInput(a.persianDate || '').localeCompare(normalizePersianDateInput(b.persianDate || ''));
-        if (da !== 0) return da;
-        return (a.time || '').localeCompare(b.time || '');
-      });
-
-      const logsByDate = {};
-      records.forEach(r => {
-        const key = normalizePersianDateInput(r.persianDate || '');
-        if (!logsByDate[key]) logsByDate[key] = [];
-        logsByDate[key].push(r);
-      });
-
-      let mins = 0;
-      Object.values(logsByDate).forEach(dayLogs => {
-        dayLogs.sort((a,b) => (a.time || '').localeCompare(b.time || ''));
-        let lastIn = null;
-        dayLogs.forEach(r => {
-          if (r.type === 'ورود') {
-            const p = r.time.split(':');
-            lastIn = parseInt(p[0])*60 + parseInt(p[1]);
-          } else if (r.type === 'خروج' && lastIn !== null) {
-            const p = r.time.split(':');
-            const out = parseInt(p[0])*60 + parseInt(p[1]);
-            if (out >= lastIn) mins += (out - lastIn);
-            lastIn = null;
-          }
-        });
-      });
-
-      const hours = mins > 0 ? (mins/60).toFixed(1) : 0;
-      const gross = Math.round(Number(hours) * Number(worker.wage || 0));
-      const netPay = gross - deduction;
-
-      document.getElementById('psIssueDate').innerText = getPersianDateStr(new Date());
-      document.getElementById('psRange').innerText = `${toPersianDigits(startDateStr || '---')} تا ${toPersianDigits(endDateStr || '---')}`;
-      document.getElementById('psWorkerName').innerText = worker.name;
-      document.getElementById('psWorkerCode').innerText = toPersianDigits(worker.code || 'ثبت نشده');
-      document.getElementById('psHourlyWage').innerText = `${Number(worker.wage).toLocaleString('fa-IR')} تومان`;
-      document.getElementById('psTotalHours').innerText = `${Number(hours).toLocaleString('fa-IR')} ساعت`;
-      document.getElementById('psGrossPay').innerText = `${gross.toLocaleString('fa-IR')} تومان`;
-      document.getElementById('psDeductionVal').innerText = `${deduction.toLocaleString('fa-IR')} تومان`;
-      document.getElementById('psNetPay').innerText = `${netPay.toLocaleString('fa-IR')} تومان`;
-
-      document.getElementById('payslipContainer').style.display = 'block';
-      document.getElementById('payslipContainer').scrollIntoView({behavior:'smooth'});
-    }
-    function addWorker() {
-      const name = document.getElementById('newWorkerName').value.trim();
-      const wage = Number(document.getElementById('newWorkerWage').value);
-      if (!name || !wage) { alert('نام و دستمزد ساعتی الزامی است.'); return; }
-      db.workers.push({
-        id: Date.now(),
-        name,
-        code: document.getElementById('newWorkerCode').value.trim(),
-        wage,
-        phone: document.getElementById('newWorkerPhone').value.trim()
-      });
-      saveDB(); refreshUI();
-      document.getElementById('newWorkerName').value = '';
-      document.getElementById('newWorkerCode').value = '';
-      document.getElementById('newWorkerWage').value = '';
-      document.getElementById('newWorkerPhone').value = '';
-      alert('کارگر ثبت شد.');
-    }
-
-    function addProject() {
-      const name = document.getElementById('newProjectName').value.trim();
-      if (!name) return;
-      db.projects.push(name); saveDB(); refreshUI();
-      document.getElementById('newProjectName').value = '';
-    }
-
-    function deleteProject(idx) {
-      if (confirm('پروژه حذف شود؟')) {
-        db.projects.splice(idx, 1);
-        saveDB(); refreshUI();
-      }
-    }
-    function initShamsiPickers() {
-      if (typeof $ === 'undefined' || !$.fn.persianDatepicker) return;
-
-      const now = new persianDate();
-      const today = now.format('YYYY/MM/DD');
-      const firstDay = now.format('YYYY/MM') + '/01';
-
-      const startText = document.getElementById('reportStartDate');
-      const endText = document.getElementById('reportEndDate');
-      const startVal = document.getElementById('reportStartDateValue');
-      const endVal = document.getElementById('reportEndDateValue');
-
-      if (startText && !startText.value) startText.value = toPersianDigits(firstDay);
-      if (endText && !endText.value) endText.value = toPersianDigits(today);
-      if (startVal && !startVal.value) startVal.value = firstDay;
-      if (endVal && !endVal.value) endVal.value = today;
-
-      $('#reportStartDate').persianDatepicker({
-        format: 'YYYY/MM/DD',
-        initialValue: true,
-        autoClose: true,
-        onSelect: function (unix) {
-          const d = new persianDate(unix).format('YYYY/MM/DD');
-          document.getElementById('reportStartDateValue').value = d;
-          document.getElementById('reportStartDate').value = toPersianDigits(d);
-        }
-      });
-
-      $('#reportEndDate').persianDatepicker({
-        format: 'YYYY/MM/DD',
-        initialValue: true,
-        autoClose: true,
-        onSelect: function (unix) {
-          const d = new persianDate(unix).format('YYYY/MM/DD');
-          document.getElementById('reportEndDateValue').value = d;
-          document.getElementById('reportEndDate').value = toPersianDigits(d);
-        }
-      });
-    }
-
-    loadDB();
-    updateHeaderDate();
-    refreshUI();
-    window.addEventListener('DOMContentLoaded', initShamsiPickers);
-  </script>
+/* ---------- شروع ---------- */
+(function init(){
+  document.getElementById("todayDate").textContent = "تاریخ: " + fa(todayStr());
+  if(!load()){
+    // داده نمونه اولیه
+    const w1 = { id: 1, name: "علی طالبی", code: "", wage: 150000, phone: "" };
+    const w2 = { id: 2, name: "رضا کارگر", code: "", wage: 75000, phone: "" };
+    const w3 = { id: 3, name: "محمد ناصری", code: "", wage: 80000, phone: "" };
+    state.workers = [w1, w2, w3];
+    state.logs = [
+      { id: 10, workerId: 1, event: "ورود", time: "06:24", date: todayStr(), project: "کارگاه مرکزی", type: "کارکرد عادی", note: "" },
+      { id: 11, workerId: 1, event: "خروج", time: "12:47", date: todayStr(), project: "مرکز", type: "کارکرد عادی", note: "" },
+      { id: 12, workerId: 1, event: "ورود", time: "13:06", date: todayStr(), project: "مرکز", type: "کارکرد عادی", note: "" }
+    ];
+    save();
+  }
+  refreshAll();
+})();
+</script>
 </body>
 </html>
