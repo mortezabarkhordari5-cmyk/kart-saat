@@ -187,7 +187,7 @@
         </div>
 
         <div class="form-group"><label>مبلغ مساعده یا کسورات (تومان):</label><input type="number" id="reportDeduction" placeholder="۰"></div>
-        <button class="btn btn-primary" onclick="generatePayslip()">📄 صدور فیش حقوقی رسمی</button>
+        <button class="btn btn-primary" onclick="downloadPDF()">📥 ذخیره PDF فیش حقوقی</button>
       </div>
 
       <div id="payslipContainer" style="display: none;">
@@ -221,7 +221,7 @@
           </div>
         </div>
         <div style="margin-top: 12px;" class="no-print">
-          <button class="btn btn-primary" onclick="window.print()">🖨️ چاپ فیش حقوقی</button>
+          <button class="btn btn-primary" onclick="downloadPDF()">📥 ذخیره PDF فیش حقوقی</button>
         </div>
       </div>
     </section>
@@ -354,7 +354,18 @@
       });
       return mins;
     }
+    function downloadPDF() {
+      const workerName = document.getElementById('psWorkerName').innerText || 'کارگر';
+      const issueDate = document.getElementById('psIssueDate').innerText || '';
+      const originalTitle = document.title;
 
+      document.title = `فیش حقوقی - ${workerName} - ${issueDate}`;
+      window.print();
+
+      setTimeout(() => {
+        document.title = originalTitle;
+      }, 1000);
+    }
     function refreshUI() {
       ['clockWorkerSelect', 'reportWorkerSelect'].forEach(id => {
         const sel = document.getElementById(id);
