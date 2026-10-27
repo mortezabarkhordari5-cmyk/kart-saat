@@ -91,11 +91,30 @@
     .support-pill { display: inline-block; background: #f1f5f9; color: #0f766e; padding: 3px 10px; border-radius: 20px; font-weight: 800; direction: ltr; }
 
     @media print {
-      body * { visibility: hidden; }
-      #payslipContainer, #payslipContainer * { visibility: visible; }
-      #payslipContainer { position: absolute; left: 0; top: 0; width: 100%; margin: 0; border: none; box-shadow: none; }
-      .no-print { display: none !important; }
-    }
+  /* مخفی کردن همه چیز */
+  body * {
+    visibility: hidden !important;
+  }
+  /* نمایش فقط فیش حقوقی */
+  #payslipContainer, #payslipContainer * {
+    visibility: visible !important;
+  }
+  /* تنظیم موقعیت فیش در کاغذ */
+  #payslipContainer {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 10px !important;
+    display: block !important;
+  }
+  /* مخفی کردن دکمه‌های اضافه */
+  .no-print, button {
+    display: none !important;
+  }
+}
+
   </style>
   <!-- تنظیمات PWA -->
   <link rel="manifest" href="manifest.json">
@@ -354,12 +373,20 @@
       });
       return mins;
     }
-    function downloadPDF() {
-      const workerName = document.getElementById('psWorkerName').innerText || 'کارگر';
-      const issueDate = document.getElementById('psIssueDate').innerText || '';
+        function downloadPDF() {
+      const container = document.getElementById('payslipContainer');
+      if (!container || container.style.display === 'none') {
+        alert('لطفاً ابتدا فیش حقوقی را مشاهده/محاسبه کنید.');
+        return;
+      }
+
+      const workerName = document.getElementById('psWorkerName') ? document.getElementById('psWorkerName').innerText : 'کارگر';
+      const issueDate = document.getElementById('psIssueDate') ? document.getElementById('psIssueDate').innerText : '';
       const originalTitle = document.title;
 
       document.title = `فیش حقوقی - ${workerName} - ${issueDate}`;
+      
+      // فراخوانی پرینت
       window.print();
 
       setTimeout(() => {
