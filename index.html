@@ -204,10 +204,10 @@
             <input type="hidden" id="reportEndDateValue">
           </div>
         </div>
-
-        <div class="form-group"><label>مبلغ مساعده یا کسورات (تومان):</label><input type="number" id="reportDeduction" placeholder="۰"></div>
-        <button class="btn btn-primary" onclick="downloadPDF()">📥 ذخیره PDF فیش حقوقی</button>
-      </div>
+<div class="form-group" style="display: flex; gap: 10px; margin-top: 15px;">
+  <button type="button" class="btn btn-primary" style="flex: 1; padding: 12px; font-weight: bold;" onclick="generatePayslip()">👁 محاسبه و مشاهده فیش</button>
+  <button type="button" class="btn btn-success" style="flex: 1; padding: 12px; font-weight: bold;" onclick="downloadPDF()">📥 ذخیره PDF</button>
+</div>
 
       <div id="payslipContainer" style="display: none;">
         <div class="payslip">
