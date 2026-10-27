@@ -25,7 +25,7 @@ jobs:
         run: |
           npm install
           mkdir -p www
-          cp index.html www/
+          cp -r index.html manifest.json sw.js image_gen_d09a2146-2bf7-4b25-913e-c7f9cbb127e7_0.png www/ 2>/dev/null || true
           npx cap init "کارت ساعت" "ir.kartsaat.app" --web-dir www
           npx cap add android
 
@@ -33,14 +33,28 @@ jobs:
         run: |
           sed -i '/<application/i \    <uses-permission android:name="android.permission.CAMERA" />\n    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />\n    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />' android/app/src/main/AndroidManifest.xml
 
-      - name: Build APK
+      - name: Build Android Release APK
         run: |
           npx cap sync
           cd android
-          ./gradlew assembleDebug
+          ./gradlew assembleRelease
 
-      - name: Upload APK Artifact
+      - name: Sign APK for Cafe Bazaar
+        run: |
+          # تولید کلید امضا
+          keytool -genkey -v -keystore my-release-key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias my-alias -storepass 123456 -keypass 123456 -dname "CN=KartSaat, OU=App, O=KartSaat, L=Tehran, S=Tehran, C=IR"
+          
+          # پیدا کردن ابزار zipalign و apksigner
+          BUILD_TOOLS_DIR=$(ls -d $ANDROID_HOME/build-tools/* | tail -1)
+          
+          # ترازسازی (zipalign)
+          $BUILD_TOOLS_DIR/zipalign -v -p 4 android/app/build/outputs/apk/release/app-release-unsigned.apk kart-saat-aligned.apk
+          
+          # امضا کردن نهایی (apksigner)
+          $BUILD_TOOLS_DIR/apksigner sign --ks my-release-key.jks --ks-pass pass:123456 --key-pass pass:123456 --ks-key-alias my-alias --out kart-saat-release.apk kart-saat-aligned.apk
+
+      - name: Upload Release APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: kart-saat-debug
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: kart-saat-release
+          path: kart-saat-release.apk
