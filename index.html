@@ -374,25 +374,21 @@
       return mins;
     }
         function downloadPDF() {
-      const container = document.getElementById('payslipContainer');
-      if (!container || container.style.display === 'none') {
-        alert('لطفاً ابتدا فیش حقوقی را مشاهده/محاسبه کنید.');
-        return;
-      }
+  const workerName = document.getElementById('psWorkerName') ? document.getElementById('psWorkerName').innerText : 'کارگر';
+  const issueDate = document.getElementById('psIssueDate') ? document.getElementById('psIssueDate').innerText : '';
+  const originalTitle = document.title;
 
-      const workerName = document.getElementById('psWorkerName') ? document.getElementById('psWorkerName').innerText : 'کارگر';
-      const issueDate = document.getElementById('psIssueDate') ? document.getElementById('psIssueDate').innerText : '';
-      const originalTitle = document.title;
+  // تنظیم نام فایل خروجی PDF
+  document.title = `فیش حقوقی - ${workerName} - ${issueDate}`;
+  
+  // باز کردن پنجره پرینت سیستم
+  window.print();
 
-      document.title = `فیش حقوقی - ${workerName} - ${issueDate}`;
-      
-      // فراخوانی پرینت
-      window.print();
-
-      setTimeout(() => {
-        document.title = originalTitle;
-      }, 1000);
-    }
+  // برگرداندن عنوان اصلی صفحه بعد از ۱ ثانیه
+  setTimeout(() => {
+    document.title = originalTitle;
+  }, 1000);
+}
     function refreshUI() {
       ['clockWorkerSelect', 'reportWorkerSelect'].forEach(id => {
         const sel = document.getElementById(id);
