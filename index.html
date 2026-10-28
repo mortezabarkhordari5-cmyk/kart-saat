@@ -56,4 +56,101 @@ function addProject(){const name=document.getElementById('newProjectName').value
 function initShamsiPickers(){if(typeof $==='undefined'||!$.fn.persianDatepicker)return;const now=new persianDate(),today=now.format('YYYY/MM/DD'),firstDay=now.format('YYYY/MM')+'/01';const startText=document.getElementById('reportStartDate'),endText=document.getElementById('reportEndDate'),startVal=document.getElementById('reportStartDateValue'),endVal=document.getElementById('reportEndDateValue');if(startText&&!startText.value)startText.value=toPersianDigits(firstDay);if(endText&&!endText.value)endText.value=toPersianDigits(today);if(startVal&&!startVal.value)startVal.value=firstDay;if(endVal&&!endVal.value)endVal.value=today;$('#reportStartDate').persianDatepicker({format:'YYYY/MM/DD',initialValue:true,autoClose:true,onSelect:function(unix){const d=new persianDate(unix).format('YYYY/MM/DD');document.getElementById('reportStartDateValue').value=d;document.getElementById('reportStartDate').value=toPersianDigits(d)}});$('#reportEndDate').persianDatepicker({format:'YYYY/MM/DD',initialValue:true,autoClose:true,onSelect:function(unix){const d=new persianDate(unix).format('YYYY/MM/DD');document.getElementById('reportEndDateValue').value=d;document.getElementById('reportEndDate').value=toPersianDigits(d)}})}
 loadDB();updateHeaderDate();refreshUI();window.addEventListener('DOMContentLoaded',initShamsiPickers);
 </script><script>if('serviceWorker'in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('./sw.js').then(reg=>console.log('Service Worker با موفقیت ثبت شد:',reg.scope)).catch(err=>console.error('خطا در ثبت Service Worker:',err))})}</script>
+
+<!-- آموزش برنامه: بخش مستقل افزوده‌شده -->
+<style>
+#training-widget, #training-widget * { box-sizing: border-box; }
+#training-widget .training-launch {
+  position: fixed; left: 16px; bottom: 16px; z-index: 2147483000;
+  display: inline-flex; align-items: center; gap: 8px; direction: rtl;
+  padding: 11px 15px; border: 1px solid #d7e3f4; border-radius: 999px;
+  background: #fff; color: #17365d; font: 600 14px/1.4 system-ui, sans-serif;
+  box-shadow: 0 3px 14px rgba(0,0,0,.18); cursor: pointer;
+}
+#training-widget .training-launch:hover { background: #f3f7fc; }
+#training-widget .training-launch:focus-visible,
+#training-widget .training-close:focus-visible { outline: 3px solid #3978c5; outline-offset: 3px; }
+#training-widget .training-overlay[hidden] { display: none !important; }
+#training-widget .training-overlay {
+  position: fixed; inset: 0; z-index: 2147483001; display: grid; place-items: center;
+  padding: 18px; direction: rtl; background: rgba(15,23,42,.58);
+  font-family: system-ui, sans-serif;
+}
+#training-widget .training-dialog {
+  width: min(100%, 560px); max-height: min(88vh, 760px); overflow: auto;
+  padding: 22px; border: 1px solid #dbe3ed; border-radius: 16px;
+  background: #fff; color: #1f2937; box-shadow: 0 16px 50px rgba(0,0,0,.25);
+  text-align: right; line-height: 1.9;
+}
+#training-widget .training-head { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+#training-widget .training-head h2 { margin:0; font-size: 1.2rem; color:#17365d; }
+#training-widget .training-close {
+  flex: 0 0 auto; border: 1px solid #ccd5e0; border-radius: 9px; padding: 5px 10px;
+  background:#fff; color:#253247; font:inherit; cursor:pointer;
+}
+#training-widget .training-dialog p { margin: 12px 0; }
+#training-widget .training-dialog ol { margin: 8px 0; padding-right: 24px; }
+#training-widget .training-dialog li { margin: 7px 0; }
+#training-widget .training-note { padding:10px 12px; border-radius:10px; background:#f3f7fc; font-size:.93rem; }
+@media (max-width: 480px) {
+  #training-widget .training-launch { left: 10px; bottom: 10px; padding: 10px 12px; }
+  #training-widget .training-dialog { padding: 17px; }
+}
+</style>
+<div id="training-widget" dir="rtl">
+  <button type="button" class="training-launch" id="training-open" aria-haspopup="dialog" aria-controls="training-modal">
+    <span aria-hidden="true">❔</span><span>آموزش برنامه</span>
+  </button>
+  <div class="training-overlay" id="training-modal" hidden>
+    <section class="training-dialog" role="dialog" aria-modal="true" aria-labelledby="training-title" tabindex="-1">
+      <div class="training-head">
+        <h2 id="training-title">راهنمای استفاده از برنامه</h2>
+        <button type="button" class="training-close" id="training-close" aria-label="بستن آموزش">بستن ✕</button>
+      </div>
+      <p>برای ثبت تردد و محاسبهٔ فیش، از زبانه‌های برنامه به ترتیب زیر استفاده کنید:</p>
+      <ol>
+        <li><strong>کارگران:</strong> نام و دستمزد ساعتی را وارد کنید؛ کد و تلفن اختیاری‌اند و سپس «افزودن کارگر» را بزنید.</li>
+        <li><strong>پروژه‌ها:</strong> در صورت نیاز نام پروژه را ثبت کنید. پروژهٔ انتخابی هنگام ثبت تردد قابل انتخاب است.</li>
+        <li><strong>ثبت تردد:</strong> کارگر، پروژه و نوع کار را انتخاب کنید؛ برای شروع «ثبت ورود» و در پایان کار «ثبت خروج» را بزنید. خروج بدون ورود ثبت نمی‌شود.</li>
+        <li><strong>فیش حقوقی:</strong> کارگر و بازهٔ تاریخ شمسی را انتخاب کنید؛ مبلغ مساعده یا کسورات را در صورت نیاز وارد کرده و «صدور فیش حقوقی رسمی» را بزنید. برای نسخهٔ چاپی، «چاپ فیش حقوقی» را انتخاب کنید.</li>
+      </ol>
+      <p class="training-note">فیش بر پایهٔ ساعات ثبت‌شده و دستمزد ساعتی محاسبه می‌شود و مبلغ کسورات از جمع ناخالص کم می‌شود. اطلاعات برنامه در حافظهٔ محلی همین مرورگر ذخیره می‌شوند؛ برای جلوگیری از از دست‌رفتن داده‌ها، آن‌ها را پاک نکنید.</p>
+    </section>
+  </div>
+</div>
+<script>
+(function () {
+  'use strict';
+  var widget = document.getElementById('training-widget');
+  if (!widget) return;
+  var openButton = document.getElementById('training-open');
+  var overlay = document.getElementById('training-modal');
+  var dialog = overlay.querySelector('[role="dialog"]');
+  var closeButton = document.getElementById('training-close');
+  var previousFocus = null;
+  function closeTraining() {
+    overlay.hidden = true;
+    if (previousFocus) previousFocus.focus();
+  }
+  openButton.addEventListener('click', function () {
+    previousFocus = document.activeElement;
+    overlay.hidden = false;
+    closeButton.focus();
+  });
+  closeButton.addEventListener('click', closeTraining);
+  overlay.addEventListener('click', function (event) {
+    if (event.target === overlay) closeTraining();
+  });
+  overlay.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape') { event.preventDefault(); closeTraining(); return; }
+    if (event.key === 'Tab') {
+      var focusable = dialog.querySelectorAll('button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])');
+      if (!focusable.length) { event.preventDefault(); dialog.focus(); return; }
+      var first = focusable[0], last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    }
+  });
+}());
+</script>
 </body></html>
