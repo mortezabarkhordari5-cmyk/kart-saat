@@ -235,4 +235,26 @@ loadDB();updateHeaderDate();refreshUI();window.addEventListener('DOMContentLoade
  renderRecords();
 }());
 </script>
+
+<style>
+/* Keep the Persian datepicker above the customer tools panel and other overlays. */
+.pwt-datepicker-container{z-index:2147483647!important;}
+</style>
+
+<script>
+(function(){
+  if(typeof window.jQuery==='undefined'||!window.jQuery.fn.persianDatepicker)return;
+  var $date=window.jQuery('#cw-date');
+  if(!$date.length||$date.data('persianDatepicker'))return;
+  $date.persianDatepicker({
+    format:'YYYY/MM/DD',
+    initialValue:true,
+    autoClose:true,
+    onSelect:function(unix){
+      var value=new persianDate(unix).format('YYYY/MM/DD');
+      $date.val(typeof toPersianDigits==='function'?toPersianDigits(value):value);
+    }
+  });
+}());
+</script>
 </body></html>
