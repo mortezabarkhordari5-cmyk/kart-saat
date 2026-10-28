@@ -153,4 +153,86 @@ loadDB();updateHeaderDate();refreshUI();window.addEventListener('DOMContentLoade
   });
 }());
 </script>
+<style>
+#cw-customer-tools{direction:rtl;position:fixed;z-index:2147483000;right:16px;bottom:18px;font-family:inherit;color:#172033;}
+#cw-customer-tools *{box-sizing:border-box;font-family:inherit;}
+#cw-customer-tools .cw-fab{border:0;border-radius:999px;padding:12px 17px;background:#0f766e;color:#fff;font-size:15px;font-weight:700;box-shadow:0 6px 24px #0f172a44;cursor:pointer;}
+#cw-customer-tools button,#cw-customer-tools input,#cw-customer-tools select{font-size:14px;}
+#cw-customer-tools button:focus-visible,#cw-customer-tools input:focus-visible,#cw-customer-tools select:focus-visible{outline:3px solid #f59e0b;outline-offset:2px;}
+#cw-customer-tools .cw-panel{position:absolute;right:0;bottom:58px;width:min(430px,calc(100vw - 24px));max-height:min(78vh,740px);overflow:auto;background:#fff;border:1px solid #cbd5e1;border-radius:16px;padding:14px;box-shadow:0 12px 40px #0f172a40;}
+#cw-customer-tools .cw-panel[hidden]{display:none;}
+#cw-customer-tools h2{font-size:17px;margin:0 0 10px;color:#0f4f4b;}
+#cw-customer-tools h3{font-size:15px;margin:14px 0 8px;}
+#cw-customer-tools .cw-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+#cw-customer-tools .cw-actions button,#cw-customer-tools .cw-form button{border:0;border-radius:9px;padding:9px;background:#0f766e;color:#fff;cursor:pointer;}
+#cw-customer-tools .cw-actions button.cw-alt{background:#334155;}
+#cw-customer-tools .cw-section{border-top:1px solid #e2e8f0;margin-top:12px;padding-top:8px;}
+#cw-customer-tools label{display:block;font-weight:600;margin:7px 0 3px;}
+#cw-customer-tools input,#cw-customer-tools select{width:100%;min-height:40px;padding:7px 9px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#172033;}
+#cw-customer-tools .cw-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+#cw-customer-tools .cw-records{max-height:190px;overflow:auto;margin-top:7px;padding:0;list-style:none;}
+#cw-customer-tools .cw-records li{font-size:13px;padding:7px 8px;margin:4px 0;background:#f1f5f9;border-radius:7px;overflow-wrap:anywhere;}
+#cw-customer-tools .cw-help{font-size:12px;color:#475569;margin:5px 0;}
+@media(max-width:480px){#cw-customer-tools{right:10px;bottom:10px}#cw-customer-tools .cw-panel{right:0;bottom:54px;width:calc(100vw - 20px);max-height:76vh}#cw-customer-tools .cw-fab{padding:10px 14px}}
+</style>
+<div id="cw-customer-tools" dir="rtl">
+ <button type="button" class="cw-fab" id="cw-tools-toggle" aria-expanded="false" aria-controls="cw-tools-panel">ابزارهای کمکی</button>
+ <section class="cw-panel" id="cw-tools-panel" aria-label="ابزارهای مشتری" hidden>
+  <h2>ابزارهای کمکی</h2>
+  <div class="cw-actions">
+   <button type="button" id="cw-backup">دریافت پشتیبان JSON</button><button type="button" id="cw-restore" class="cw-alt">بازیابی پشتیبان</button>
+   <button type="button" id="cw-csv" class="cw-alt">خروجی اکسل حضورها</button><button type="button" id="cw-share">اشتراک‌گذاری فیش</button>
+   <button type="button" id="cw-bazaar" class="cw-alt">امتیاز و نظر در بازار</button><button type="button" id="cw-bazaar-change" class="cw-alt">تغییر پیوند بازار</button>
+  </div>
+  <input type="file" id="cw-json-file" accept=".json,application/json" hidden aria-label="انتخاب فایل پشتیبان JSON">
+  <div class="cw-section cw-form">
+   <h3>مدیریت ترددهای ثبت‌شده</h3>
+   <label for="cw-worker-filter">فیلتر بر اساس کارگر</label><select id="cw-worker-filter"><option value="">همهٔ کارگران</option></select>
+   <label for="cw-search">جست‌وجوی نام یا کد کارگر</label><input id="cw-search" type="search" autocomplete="off" placeholder="نام یا کد">
+   <label for="cw-record-select">رکوردهای اخیر (برای ویرایش انتخاب کنید)</label><select id="cw-record-select"><option value="">رکوردی موجود نیست</option></select>
+   <ul class="cw-records" id="cw-record-list" aria-label="فهرست خوانای رکوردهای اخیر"></ul>
+   <div class="cw-row"><div><label for="cw-date">تاریخ شمسی</label><input id="cw-date" type="text" inputmode="numeric" placeholder="۱۴۰۳/۰۱/۰۱"></div><div><label for="cw-time">ساعت</label><input id="cw-time" type="time"></div></div>
+   <div class="cw-row"><div><label for="cw-type">نوع تردد</label><select id="cw-type"><option value="ورود">ورود</option><option value="خروج">خروج</option></select></div><div><label for="cw-project">پروژه</label><input id="cw-project" type="text"></div></div>
+   <label for="cw-worktype">دستهٔ کار</label><input id="cw-worktype" type="text" placeholder="مثلاً کارکرد عادی">
+   <div class="cw-row" style="margin-top:8px"><button type="button" id="cw-save-log">ذخیرهٔ ویرایش</button><button type="button" id="cw-delete-log" style="background:#b91c1c">حذف تردد</button></div>
+   <p class="cw-help">تغییرات فقط پس از ذخیره اعمال می‌شوند؛ حذف نیازمند تأیید است.</p>
+  </div>
+ </section>
+</div>
+<script>
+(function(){
+ 'use strict';
+ var root=document.getElementById('cw-customer-tools'); if(!root)return;
+ var $=function(id){return document.getElementById(id);};
+ var toggle=$('cw-tools-toggle'),panel=$('cw-tools-panel'),workerFilter=$('cw-worker-filter'),search=$('cw-search'),recordSelect=$('cw-record-select');
+ toggle.addEventListener('click',function(){var open=panel.hidden;panel.hidden=!open;toggle.setAttribute('aria-expanded',String(open));if(open)workerFilter.focus();});
+ function safeText(v){return String(v==null?'':v)}
+ function workerFor(log){return (Array.isArray(db.workers)?db.workers:[]).find(function(w){return String(w.id)===String(log.workerId);});}
+ function showError(msg){window.alert(msg);}
+ function download(name,content,type){var blob=new Blob([content],{type:type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url);},1000);}
+ $('cw-backup').addEventListener('click',function(){try{download('پشتیبان-حضور-و-حقوق-'+new Date().toISOString().slice(0,10)+'.json',JSON.stringify(db,null,2),'application/json;charset=utf-8');}catch(e){showError('ساخت فایل پشتیبان ناموفق بود: '+e.message);}});
+ $('cw-restore').addEventListener('click',function(){$('cw-json-file').click();});
+ $('cw-json-file').addEventListener('change',function(ev){var file=ev.target.files&&ev.target.files[0];if(!file)return;var reader=new FileReader();reader.onerror=function(){showError('خواندن فایل پشتیبان ناموفق بود.');ev.target.value='';};reader.onload=function(){var candidate;try{candidate=JSON.parse(String(reader.result));if(!candidate||typeof candidate!=='object'||Array.isArray(candidate)||!Array.isArray(candidate.workers)||!Array.isArray(candidate.projects)||!Array.isArray(candidate.attendance))throw new Error('ساختار فایل معتبر نیست؛ workers، projects و attendance باید آرایه باشند.');if(!candidate.workers.every(function(x){return x&&typeof x==='object'&&!Array.isArray(x)&&x.id!=null;})||!candidate.projects.every(function(x){return typeof x==='string';})||!candidate.attendance.every(function(x){return x&&typeof x==='object'&&!Array.isArray(x)&&x.id!=null&&x.workerId!=null;}))throw new Error('محتوای آرایه‌ها معتبر نیست یا شناسهٔ لازم وجود ندارد.');}catch(e){showError('بازیابی انجام نشد: '+e.message);ev.target.value='';return;}
+ if(!window.confirm('هشدار: بازیابی، تمام کارگران، پروژه‌ها و ترددهای فعلی را با اطلاعات این فایل جایگزین می‌کند. ابتدا از داده‌های فعلی نسخهٔ پشتیبان بگیرید. ادامه می‌دهید؟')){ev.target.value='';return;}
+ var old=db;try{db=candidate;saveDB();refreshUI();renderRecords();showError('اطلاعات با موفقیت بازیابی شد.');}catch(e){db=old;try{saveDB();refreshUI();}catch(ignore){}showError('ذخیره/بازیابی ناموفق بود؛ ممکن است حافظهٔ مرورگر پر یا غیرفعال باشد. دادهٔ قبلی تا حد امکان حفظ شد. جزئیات: '+e.message);}ev.target.value='';};reader.readAsText(file,'UTF-8');});
+ function csvCell(v){var t=safeText(v);return '"'+t.replace(/"/g,'""')+'"';}
+ $('cw-csv').addEventListener('click',function(){try{var rows=[['نام کارگر','کد کارگر','تاریخ','ساعت','نوع تردد','پروژه','دستهٔ کار','توضیحات']];(Array.isArray(db.attendance)?db.attendance:[]).forEach(function(a){var w=workerFor(a)||{};rows.push([w.name||'کارگر حذف‌شده',w.code||'',a.persianDate||'',a.time||'',a.type||'',a.project||'',a.workType||'',a.notes||a.note||'']);});var csv='\uFEFF'+rows.map(function(r){return r.map(csvCell).join(',');}).join('\r\n');download('گزارش-ترددها.csv',csv,'text/csv;charset=utf-8');}catch(e){showError('ساخت فایل CSV ناموفق بود: '+e.message);}});
+ function shareText(){var box=$('payslipContainer');if(!box||!box.innerText.trim()||getComputedStyle(box).display==='none'){showError('هنوز فیشی صادر نشده است. ابتدا در بخش «فیش حقوقی» کارگر و بازهٔ زمانی را انتخاب و فیش را صادر کنید.');return null;}var get=function(id){var e=$(id);return e?e.innerText.trim():'—';};return 'فیش حقوقی\nکارگر: '+get('psWorkerName')+' (کد: '+get('psWorkerCode')+')\nبازهٔ زمانی: '+get('psRange')+'\nمجموع ساعات: '+get('psTotalHours')+'\nدستمزد ساعتی: '+get('psHourlyWage')+'\nناخالص: '+get('psGrossPay')+'\nکسورات: '+get('psDeductionVal')+'\nخالص پرداختی: '+get('psNetPay');}
+ function whatsapp(text){window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank','noopener,noreferrer');}
+ $('cw-share').addEventListener('click',function(){var text=shareText();if(!text)return;if(navigator.share){navigator.share({title:'فیش حقوقی',text:text}).catch(function(e){if(e&&e.name!=='AbortError')whatsapp(text);});}else whatsapp(text);});
+ var bazaarKey='cw_customer_bazaar_url';function validBazaar(value){try{var u=new URL(value);var h=u.hostname.toLowerCase();return u.protocol==='https:'&&(h==='cafebazaar.ir'||h.endsWith('.cafebazaar.ir')||h==='bazaar.ir'||h.endsWith('.bazaar.ir'));}catch(e){return false;}}
+ function setBazaar(change){var url='';try{url=localStorage.getItem(bazaarKey)||'';}catch(e){showError('خواندن تنظیم بازار از حافظهٔ مرورگر ممکن نشد.');}
+ if(!url||change){var entered=window.prompt('پیوند صفحهٔ برنامهٔ شما در کافه‌بازار را وارد کنید (نشانی HTTPS با دامنهٔ cafebazaar.ir یا bazaar.ir):',url);if(entered===null)return;entered=entered.trim();if(!validBazaar(entered)){showError('پیوند معتبر نیست. نشانی باید HTTPS و از دامنهٔ cafebazaar.ir یا bazaar.ir (یا زیردامنهٔ آن‌ها) باشد.');return;}try{localStorage.setItem(bazaarKey,entered);}catch(e){showError('ذخیرهٔ پیوند ممکن نشد؛ تنظیمات حافظهٔ مرورگر را بررسی کنید.');return;}url=entered;}if(validBazaar(url))window.open(url,'_blank','noopener,noreferrer');else showError('ابتدا پیوند معتبر برنامه در بازار را وارد کنید.');}
+ $('cw-bazaar').addEventListener('click',function(){setBazaar(false);});$('cw-bazaar-change').addEventListener('click',function(){setBazaar(true);});
+ function renderRecords(){if(!Array.isArray(db.attendance)||!Array.isArray(db.workers))return;var prior=workerFilter.value;workerFilter.innerHTML='';var all=document.createElement('option');all.value='';all.textContent='همهٔ کارگران';workerFilter.appendChild(all);db.workers.forEach(function(w){var o=document.createElement('option');o.value=String(w.id);o.textContent=safeText(w.name)+' ('+safeText(w.code||'بدون کد')+')';workerFilter.appendChild(o);});if(prior)workerFilter.value=prior;
+ var term=search.value.trim().toLocaleLowerCase();var matches=db.attendance.map(function(a,i){return {a:a,i:i,w:workerFor(a)||{}};}).filter(function(x){var byWorker=!workerFilter.value||String(x.a.workerId)===workerFilter.value;var hay=(safeText(x.w.name)+' '+safeText(x.w.code)).toLocaleLowerCase();return byWorker&&(!term||hay.indexOf(term)!==-1);}).sort(function(x,y){return (Number(y.a.id)||0)-(Number(x.a.id)||0);});
+ recordSelect.innerHTML='';var empty=document.createElement('option');empty.value='';empty.textContent=matches.length?'— انتخاب رکورد —':'رکوردی یافت نشد';recordSelect.appendChild(empty);matches.forEach(function(x){var o=document.createElement('option');o.value=String(x.i);o.textContent=safeText(x.a.persianDate)+' '+safeText(x.a.time)+' | '+safeText(x.w.name||'کارگر حذف‌شده')+' | '+safeText(x.a.type)+' | '+safeText(x.a.project);recordSelect.appendChild(o);});var ul=$('cw-record-list');ul.innerHTML='';matches.slice(0,12).forEach(function(x){var li=document.createElement('li');li.textContent=safeText(x.a.persianDate)+'، '+safeText(x.a.time)+' — '+safeText(x.w.name||'کارگر حذف‌شده')+' ('+safeText(x.w.code||'بدون کد')+')؛ '+safeText(x.a.type)+'، '+safeText(x.a.project)+'، '+safeText(x.a.workType);ul.appendChild(li);});}
+ workerFilter.addEventListener('change',renderRecords);search.addEventListener('input',renderRecords);
+ recordSelect.addEventListener('change',function(){var i=Number(recordSelect.value);var a=db.attendance[i];if(!recordSelect.value||!a)return;$('cw-date').value=safeText(a.persianDate);$('cw-time').value=safeText(a.time);$('cw-type').value=a.type==='خروج'?'خروج':'ورود';$('cw-project').value=safeText(a.project);$('cw-worktype').value=safeText(a.workType);});
+ function selectedIndex(){if(recordSelect.value==='')return -1;var n=Number(recordSelect.value);return Number.isInteger(n)&&n>=0&&n<db.attendance.length?n:-1;}
+ $('cw-save-log').addEventListener('click',function(){var i=selectedIndex();if(i<0){showError('ابتدا یک رکورد تردد انتخاب کنید.');return;}var date=$('cw-date').value.trim(),time=$('cw-time').value.trim();if(!date||!time||!/^\d{1,4}[\/.-]\d{1,2}[\/.-]\d{1,2}$/.test((typeof toWesternDigits==='function'?toWesternDigits(date):date).trim())||!/^\d{2}:\d{2}$/.test(time)){showError('تاریخ شمسی و ساعت معتبر را وارد کنید.');return;}var old=Object.assign({},db.attendance[i]);try{db.attendance[i].persianDate=date;db.attendance[i].time=time;db.attendance[i].type=$('cw-type').value;db.attendance[i].project=$('cw-project').value.trim();db.attendance[i].workType=$('cw-worktype').value.trim();saveDB();refreshUI();renderRecords();recordSelect.value=String(i);showError('ویرایش تردد ذخیره شد.');}catch(e){db.attendance[i]=old;showError('ذخیرهٔ تغییرات ناموفق بود: '+e.message);}});
+ $('cw-delete-log').addEventListener('click',function(){var i=selectedIndex();if(i<0){showError('ابتدا یک رکورد تردد انتخاب کنید.');return;}var a=db.attendance[i];if(!window.confirm('تردد '+safeText(a.persianDate)+' ساعت '+safeText(a.time)+' حذف شود؟ این کار قابل بازگشت نیست.'))return;var removed=db.attendance.splice(i,1)[0];try{saveDB();refreshUI();renderRecords();}catch(e){db.attendance.splice(i,0,removed);showError('حذف در حافظه ذخیره نشد: '+e.message);}});
+ renderRecords();
+}());
+</script>
 </body></html>
