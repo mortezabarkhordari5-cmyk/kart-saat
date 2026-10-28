@@ -191,7 +191,7 @@ loadDB();updateHeaderDate();refreshUI();window.addEventListener('DOMContentLoade
    <label for="cw-search">جست‌وجوی نام یا کد کارگر</label><input id="cw-search" type="search" autocomplete="off" placeholder="نام یا کد">
    <label for="cw-record-select">رکوردهای اخیر (برای ویرایش انتخاب کنید)</label><select id="cw-record-select"><option value="">رکوردی موجود نیست</option></select>
    <ul class="cw-records" id="cw-record-list" aria-label="فهرست خوانای رکوردهای اخیر"></ul>
-   <div class="cw-row"><div><label for="cw-date">تاریخ شمسی</label><input id="cw-date" type="text" inputmode="numeric" placeholder="۱۴۰۳/۰۱/۰۱"></div><div><label for="cw-time">ساعت</label><input id="cw-time" type="time"></div></div>
+   <div class="cw-row"><div><label for="cw-date">تاریخ شمسی</label><input id="cw-date" type="text" inputmode="none" readonly aria-readonly="true" placeholder="۱۴۰۳/۰۱/۰۱"></div><div><label for="cw-time">ساعت</label><input id="cw-time" type="time"></div></div>
    <div class="cw-row"><div><label for="cw-type">نوع تردد</label><select id="cw-type"><option value="ورود">ورود</option><option value="خروج">خروج</option></select></div><div><label for="cw-project">پروژه</label><input id="cw-project" type="text"></div></div>
    <label for="cw-worktype">دستهٔ کار</label><input id="cw-worktype" type="text" placeholder="مثلاً کارکرد عادی">
    <div class="cw-row" style="margin-top:8px"><button type="button" id="cw-save-log">ذخیرهٔ ویرایش</button><button type="button" id="cw-delete-log" style="background:#b91c1c">حذف تردد</button></div>
@@ -237,7 +237,7 @@ loadDB();updateHeaderDate();refreshUI();window.addEventListener('DOMContentLoade
 </script>
 
 <style>
-/* Keep the Persian datepicker above the customer tools panel and other overlays. */
+/* Readonly #cw-date prevents the mobile keyboard from shifting the picker. Keep the calendar above the customer tools panel. */
 .pwt-datepicker-container{z-index:2147483647!important;}
 </style>
 
@@ -250,6 +250,8 @@ loadDB();updateHeaderDate();refreshUI();window.addEventListener('DOMContentLoade
     format:'YYYY/MM/DD',
     initialValue:true,
     autoClose:true,
+    position:'auto',
+    observer:true,
     onSelect:function(unix){
       var value=new persianDate(unix).format('YYYY/MM/DD');
       $date.val(typeof toPersianDigits==='function'?toPersianDigits(value):value);
