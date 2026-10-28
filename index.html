@@ -1,35 +1,260 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>آموزش برنامه</title>
-  <style>
-    :root { color-scheme: light; font-family: Tahoma, Arial, sans-serif; }
-    body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #f3f5f8; color: #202735; }
-    .training-dialog { box-sizing: border-box; width: min(760px, calc(100% - 32px)); max-height: calc(100vh - 32px); overflow: auto; padding: 24px; border: 1px solid #dce2ea; border-radius: 14px; background: #fff; box-shadow: 0 12px 36px #1720331a; }
-    h1 { margin: 0 0 8px; font-size: 1.45rem; }
-    h2 { margin: 24px 0 10px; font-size: 1.15rem; }
-    p { line-height: 1.9; }
-    ul { margin: 8px 0; padding-right: 24px; line-height: 2; }
-    li { padding-right: 2px; margin-bottom: 5px; }
-    .intro { color: #536173; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>کارت ساعت هوشمند و قانونی کارگران</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/css/persian-datepicker.min.css">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/persian-date@1.1.0/dist/persian-date.min.js"></script><script src="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/js/persian-datepicker.min.js"></script>
+<style>
+:root{--primary:#0f766e;--primary-dark:#115e59;--secondary:#1e293b;--bg:#f8fafc;--card-bg:#fff;--text:#0f172a;--text-muted:#64748b;--border:#e2e8f0;--success:#16a34a;--danger:#dc2626;--radius:12px;--shadow:0 4px 14px rgba(0,0,0,.05)}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Vazirmatn',sans-serif}body{background-color:var(--bg);color:var(--text);line-height:1.6;padding-bottom:70px}
+.top-header{background:linear-gradient(135deg,#134e4a,#0f766e);color:#fff;padding:20px 16px;border-radius:0 0 20px 20px;box-shadow:0 4px 20px rgba(15,118,110,.2)}.header-content{max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:8px}.header-title-row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}.app-title{font-size:1.25rem;font-weight:800}.live-clock-badge{background:rgba(255,255,255,.15);padding:4px 12px;border-radius:20px;font-size:.95rem;font-weight:700}.header-date-row{display:flex;justify-content:space-between;align-items:center;font-size:.85rem;color:#ccfbf1;border-top:1px solid rgba(255,255,255,.15);padding-top:8px}
+.container{max-width:900px;margin:16px auto;padding:0 16px}.card{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:16px;box-shadow:var(--shadow)}.card-title{font-size:1.05rem;font-weight:800;color:var(--secondary);margin-bottom:14px;display:flex;align-items:center;gap:8px}.card-title::before{content:"";display:inline-block;width:4px;height:18px;background:var(--primary);border-radius:4px}
+.form-group{margin-bottom:14px}label{display:block;font-size:.85rem;font-weight:600;color:var(--text-muted);margin-bottom:6px}input,select{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:.95rem;background:#fff;color:var(--text);outline:none}input:focus,select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(15,118,110,.15)}.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:600px){.form-row{grid-template-columns:1fr}}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 18px;border-radius:8px;border:none;font-weight:700;font-size:.95rem;cursor:pointer;width:100%;transition:.2s}.btn-primary{background:var(--primary);color:white}.btn-success{background:var(--success);color:white}.btn-danger{background:var(--danger);color:white}.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}.btn-group-action{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}.stat-box{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:12px;text-align:center;box-shadow:var(--shadow)}.stat-val{font-size:1.3rem;font-weight:900;color:var(--primary)}.stat-label{font-size:.75rem;color:var(--text-muted);font-weight:600}
+.nav-tabs{display:flex;background:#e2e8f0;padding:4px;border-radius:12px;margin-bottom:16px;gap:4px}.tab-btn{flex:1;padding:8px;text-align:center;border-radius:8px;border:none;background:transparent;font-weight:700;font-size:.85rem;cursor:pointer;color:var(--text-muted)}.tab-btn.active{background:#fff;color:var(--primary);box-shadow:0 2px 6px rgba(0,0,0,.06)}
+.table-responsive{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.85rem;text-align:right}th,td{padding:10px 12px;border-bottom:1px solid var(--border)}th{background:#f1f5f9;color:var(--secondary);font-weight:700}.shift-in{color:var(--success);font-weight:800}.shift-out{color:var(--danger);font-weight:800}.shift-working{color:#b45309;font-weight:800}
+.payslip{background:#fff;border:2px solid #0f766e;border-radius:16px;padding:24px;margin-top:16px;box-shadow:0 10px 30px rgba(0,0,0,.08)}.payslip-header{display:flex;justify-content:space-between;align-items:center;border-bottom:2px dashed #cbd5e1;padding-bottom:14px;margin-bottom:16px}.payslip-title{font-size:1.2rem;font-weight:900;color:#0f766e}.payslip-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px}.payslip-item{background:#f8fafc;border:1px solid #e2e8f0;padding:10px 14px;border-radius:8px}.payslip-item .label{font-size:.78rem;color:#64748b;margin-bottom:2px}.payslip-item .val{font-size:1rem;font-weight:800;color:#0f172a}.payslip-highlight{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1px solid #86efac;padding:16px;border-radius:12px;display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.payslip-highlight .val{font-size:1.4rem;font-weight:900;color:#15803d}.payslip-footer-legal{border-top:1px solid #e2e8f0;padding-top:12px;font-size:.75rem;color:#64748b;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.app-footer{background:#fff;border-top:1px solid var(--border);text-align:center;padding:14px 16px;font-size:.85rem;color:var(--text-muted);position:fixed;bottom:0;left:0;right:0;z-index:100}.support-pill{display:inline-block;background:#f1f5f9;color:#0f766e;padding:3px 10px;border-radius:20px;font-weight:800;direction:ltr}
+@media print{body *{visibility:hidden}#payslipContainer,#payslipContainer *{visibility:visible}#payslipContainer{position:absolute;left:0;top:0;width:100%;margin:0;border:none;box-shadow:none}.no-print{display:none!important}}
+</style>
+<link rel="manifest" href="manifest.json"><meta name="theme-color" content="#0f766e"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="کارت ساعت"><link rel="apple-touch-icon" href="icon-192.png">
 </head>
 <body>
-  <section id="training-widget" class="training-dialog" role="dialog" aria-modal="true" aria-labelledby="training-title">
-    <h1 id="training-title">آموزش برنامه</h1>
-    <p class="intro">راهنمای بخش‌های برنامه و ابزارهای کمکی برای مدیریت اطلاعات و رکوردهای تردد.</p>
+<header class="top-header no-print"><div class="header-content"><div class="header-title-row"><div class="app-title">📋 کارت ساعت هوشمند و قانونی کارگران</div><div class="live-clock-badge" id="liveClock">۰۰:۰۰:۰۰</div></div><div class="header-date-row"><span>امروز: <strong id="persianHeaderDate">در حال بارگذاری...</strong></span><span>پشتیبانی: <strong style="color:#a7f3d0">09371880982</strong></span></div></div></header>
+<main class="container">
+<div class="stats-grid no-print"><div class="stat-box"><div class="stat-val" id="statWorkersCount">۰</div><div class="stat-label">تعداد کل کارگران</div></div><div class="stat-box"><div class="stat-val" id="statPresentToday">۰</div><div class="stat-label">حاضرین امروز</div></div><div class="stat-box"><div class="stat-val" id="statPresentTodayHours">۰</div><div class="stat-label">مجموع ساعت امروز</div></div></div>
+<nav class="nav-tabs no-print"><button class="tab-btn active" onclick="switchTab('clock', event)">⏱️ ثبت تردد</button><button class="tab-btn" onclick="switchTab('reports', event)">📊 فیش حقوقی</button><button class="tab-btn" onclick="switchTab('workers', event)">👷 کارگران</button><button class="tab-btn" onclick="switchTab('projects', event)">🏗️ پروژه‌ها</button></nav>
+<section id="clockTab" class="tab-content no-print"><div class="card"><div class="card-title">ثبت فوری ورود و خروج کارگر</div><div class="form-row"><div class="form-group"><label>انتخاب کارگر:</label><select id="clockWorkerSelect"></select></div><div class="form-group"><label>انتخاب پروژه:</label><select id="clockProjectSelect"></select></div></div><div class="form-row"><div class="form-group"><label>نوع ثبت:</label><select id="attendanceType"><option value="کارکرد عادی">کارکرد عادی</option><option value="اضافه کار">اضافه کاری</option><option value="تعطیل کاری">تعطیل کاری</option></select></div><div class="form-group"><label>توضیحات:</label><input type="text" id="attendanceNotes" placeholder="مثال: کار در کارگاه"></div></div><div class="btn-group-action"><button class="btn btn-success" onclick="recordAttendance('ورود')">🟢 ثبت ورود</button><button class="btn btn-danger" onclick="recordAttendance('خروج')">🔴 ثبت خروج</button></div></div><div class="card"><div class="card-title">کارکرد امروز کارگران</div><div class="table-responsive"><table><thead><tr><th>کارگر</th><th>ساعت ورود</th><th>ساعت خروج</th><th>مدت کارکرد</th><th>پروژه</th><th>نوع</th></tr></thead><tbody id="todayAttendanceTableBody"><tr><td colspan="6" style="text-align:center;color:var(--text-muted);">امروز ترددی ثبت نشده است.</td></tr></tbody></table></div></div></section>
+<section id="reportsTab" class="tab-content" style="display:none"><div class="card no-print"><div class="card-title">محاسبه و صدور فیش حقوقی رسمی</div><div class="form-group"><label>کارگر:</label><select id="reportWorkerSelect"></select></div><div class="form-row"><div class="form-group"><label>از تاریخ (شمسی):</label><input type="text" id="reportStartDate" placeholder="۱۴۰۵/۰۱/۰۱" style="direction:ltr;text-align:right;" autocomplete="off"><input type="hidden" id="reportStartDateValue"></div><div class="form-group"><label>تا تاریخ (شمسی):</label><input type="text" id="reportEndDate" placeholder="۱۴۰۵/۰۱/۰۱" style="direction:ltr;text-align:right;" autocomplete="off"><input type="hidden" id="reportEndDateValue"></div></div><div class="form-group"><label>مبلغ مساعده یا کسورات (تومان):</label><input type="number" id="reportDeduction" placeholder="۰"></div><button class="btn btn-primary" onclick="generatePayslip()">📄 صدور فیش حقوقی رسمی</button></div>
+<div id="payslipContainer" style="display:none"><div class="payslip"><div class="payslip-header"><div><div class="payslip-title">فیش حقوق و دستمزد</div><div class="payslip-subtitle">سامانه رسمی کنترل تردد کارگران</div></div><div class="payslip-meta" style="text-align:left;font-size:.85rem;"><div>تاریخ: <span id="psIssueDate">—</span></div><div>بازه: <span id="psRange">—</span></div></div></div><div class="payslip-grid"><div class="payslip-item"><div class="label">نام کارگر:</div><div class="val" id="psWorkerName">—</div></div><div class="payslip-item"><div class="label">کد پرسنلی:</div><div class="val" id="psWorkerCode">—</div></div><div class="payslip-item"><div class="label">دستمزد ساعتی:</div><div class="val" id="psHourlyWage">—</div></div><div class="payslip-item"><div class="label">مجموع ساعت کارکرد:</div><div class="val" id="psTotalHours">—</div></div><div class="payslip-item"><div class="label">جمع ناخالص:</div><div class="val" id="psGrossPay">—</div></div><div class="payslip-item"><div class="label">کسورات / مساعده:</div><div class="val" id="psDeductionVal" style="color:var(--danger)">۰ تومان</div></div></div><div class="payslip-highlight"><div class="label">خالص قابل پرداخت:</div><div class="val" id="psNetPay">۰ تومان</div></div><div class="payslip-footer-legal"><div>امضای کارفرما: ........................</div><div>امضای کارگر: ........................</div><div>پشتیبانی: <span class="support-pill">09371880982</span></div></div></div><div style="margin-top:12px;" class="no-print"><button class="btn btn-primary" onclick="window.print()">🖨️ چاپ فیش حقوقی</button></div></div></section>
+<section id="workersTab" class="tab-content no-print" style="display:none"><div class="card"><div class="card-title">ثبت کارگر جدید</div><div class="form-row"><div class="form-group"><label>نام:</label><input type="text" id="newWorkerName" placeholder="نام کامل"></div><div class="form-group"><label>کد ملی:</label><input type="text" id="newWorkerCode" placeholder="کد ملی"></div></div><div class="form-row"><div class="form-group"><label>دستمزد ساعتی (تومان):</label><input type="number" id="newWorkerWage" placeholder="مثال: ۷۰۰۰۰"></div><div class="form-group"><label>تلفن:</label><input type="text" id="newWorkerPhone" placeholder="۰۹..."></div></div><button class="btn btn-primary" onclick="addWorker()">➕ افزودن کارگر</button></div><div class="card"><div class="card-title">لیست پرسنل</div><div class="table-responsive"><table><thead><tr><th>نام</th><th>کد</th><th>دستمزد</th><th>تلفن</th><th>عملیات</th></tr></thead><tbody id="workersListTableBody"></tbody></table></div></div></section>
+<section id="projectsTab" class="tab-content no-print" style="display:none"><div class="card"><div class="card-title">تعریف پروژه جدید</div><div class="form-group"><label>نام پروژه:</label><input type="text" id="newProjectName" placeholder="نام پروژه"></div><button class="btn btn-primary" onclick="addProject()">➕ ثبت پروژه</button></div><div class="card"><div class="card-title">لیست پروژه‌ها</div><ul id="projectsList" style="list-style:none;padding:0"></ul></div></section>
+</main><footer class="app-footer no-print"><div>کارت ساعت هوشمند کارگران | پشتیبانی: <span class="support-pill">09371880982</span></div></footer>
+<script>
+const DB_KEY='tati_worker_db';let db={workers:[],projects:['کارگاه مرکزی'],attendance:[]};
+function loadDB(){const saved=localStorage.getItem(DB_KEY);if(saved){try{db=JSON.parse(saved)}catch(e){}}if(!db.workers)db.workers=[];if(!db.projects)db.projects=['کارگاه مرکزی'];if(!db.attendance)db.attendance=[];saveDB()}
+function saveDB(){localStorage.setItem(DB_KEY,JSON.stringify(db))}
+function toWesternDigits(value){return String(value==null?'':value).replace(/[۰-۹٠-٩]/g,d=>{const code=d.charCodeAt(0);return String(code>=0x06f0&&code<=0x06f9?code-0x06f0:code-0x0660)})}
+function toPersianDigits(str){if(str==null||str==='')return '';const digits=['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];return toWesternDigits(str).replace(/\d/g,x=>digits[Number(x)])}
+function normalizePersianDateInput(str){return toWesternDigits(str)}
+function normDate(value){let s=normalizePersianDateInput(value).trim().replace(/[٫٬]/g,'').replace(/[.\-\\]/g,'/');const parts=s.match(/\d+/g);if(!parts||parts.length<3)return '';let y=parts[0],m=parts[1],d=parts[2];if(y.length!==4)return '';return y+'/'+m.padStart(2,'0')+'/'+d.padStart(2,'0')}
+function getPersianDateStr(dateObj){try{const parts=new Intl.DateTimeFormat('fa-IR-u-ca-persian',{year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(dateObj);let y='',m='',d='';parts.forEach(p=>{if(p.type==='year')y=p.value;if(p.type==='month')m=p.value;if(p.type==='day')d=p.value});return toPersianDigits(`${y}/${m}/${d}`)}catch(e){return '۱۴۰۵/۰۷/۰۱'}}
+function updateHeaderDate(){const now=new Date();try{const dateStr=new Intl.DateTimeFormat('fa-IR-u-ca-persian',{weekday:'long',year:'numeric',month:'long',day:'numeric'}).format(now);document.getElementById('persianHeaderDate').innerText=toPersianDigits(dateStr)}catch(e){document.getElementById('persianHeaderDate').innerText='امروز'}document.getElementById('liveClock').innerText=toPersianDigits(now.toTimeString().slice(0,8))}setInterval(updateHeaderDate,1000);
+function switchTab(tabName,event){document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.tab-content').forEach(c=>c.style.display='none');document.getElementById(tabName+'Tab').style.display='block';if(event&&event.target)event.target.classList.add('active');if(tabName==='reports')initShamsiPickers()}
+function parseTimeToMinutes(tStr){if(!tStr||tStr.indexOf(':')===-1)return null;const p=toWesternDigits(tStr).split(':');const m=parseInt(p[0],10)*60+parseInt(p[1],10);return Number.isFinite(m)?m:null}
+function calcMinutes(logs){let mins=0,lastIn=null;logs.forEach(r=>{const t=parseTimeToMinutes(r.time);if(t===null)return;if(r.type==='ورود')lastIn=t;else if(r.type==='خروج'&&lastIn!==null){if(t>=lastIn)mins+=t-lastIn;lastIn=null}});return mins}
+function refreshUI(){['clockWorkerSelect','reportWorkerSelect'].forEach(id=>{const sel=document.getElementById(id);if(!sel)return;const currentVal=sel.value;sel.innerHTML='';db.workers.forEach(w=>{const opt=document.createElement('option');opt.value=w.id;opt.textContent=`${w.name} (${Number(w.wage||0).toLocaleString('fa-IR')} ت)`;sel.appendChild(opt)});if(currentVal)sel.value=currentVal});const pSel=document.getElementById('clockProjectSelect');if(pSel){const currentP=pSel.value;pSel.innerHTML='';db.projects.forEach(p=>{const opt=document.createElement('option');opt.value=p;opt.textContent=p;pSel.appendChild(opt)});if(currentP)pSel.value=currentP}document.getElementById('statWorkersCount').innerText=db.workers.length.toLocaleString('fa-IR');const today=normDate(getPersianDateStr(new Date()));const todays=db.attendance.filter(a=>normDate(a.persianDate)===today);document.getElementById('statPresentToday').innerText=new Set(todays.map(a=>a.workerId)).size.toLocaleString('fa-IR');const logsByWorker={};todays.forEach(a=>{if(!logsByWorker[a.workerId])logsByWorker[a.workerId]=[];logsByWorker[a.workerId].push(a)});let totalTodayMins=0;Object.values(logsByWorker).forEach(logs=>{logs.sort((a,b)=>(Number(a.id)||0)-(Number(b.id)||0));totalTodayMins+=calcMinutes(logs)});const statHoursEl=document.getElementById('statPresentTodayHours');if(statHoursEl){const h=Math.floor(totalTodayMins/60),m=totalTodayMins%60;statHoursEl.innerText=h>0?`${toPersianDigits(h)} س ${toPersianDigits(m)} د`:`${toPersianDigits(m)} دقیقه`}const tbody=document.getElementById('todayAttendanceTableBody');tbody.innerHTML='';let allIntervals=[];Object.keys(logsByWorker).forEach(wid=>{const logs=logsByWorker[wid].slice().sort((a,b)=>(Number(a.id)||0)-(Number(b.id)||0));let currentIn=null;logs.forEach(log=>{if(log.type==='ورود'){currentIn=log;}else if(log.type==='خروج'&&currentIn){let durMins=0;const inM=parseTimeToMinutes(currentIn.time),outM=parseTimeToMinutes(log.time);if(inM!==null&&outM!==null&&outM>=inM)durMins=outM-inM;allIntervals.push({workerId:wid,inTime:currentIn.time,outTime:log.time,mins:durMins,project:log.project||currentIn.project||'کارگاه مرکزی',workType:log.workType||currentIn.workType||'کارکرد عادی',orderId:log.id,isWorking:false});currentIn=null;}});if(currentIn){allIntervals.push({workerId:wid,inTime:currentIn.time,outTime:'—',mins:0,project:currentIn.project||'کارگاه مرکزی',workType:currentIn.workType||'کارکرد عادی',orderId:currentIn.id,isWorking:true});}});if(!allIntervals.length){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text-muted);">امروز ترددی ثبت نشده است.</td></tr>';}else{allIntervals.sort((a,b)=>(Number(b.orderId)||0)-(Number(a.orderId)||0));allIntervals.forEach(shift=>{const w=db.workers.find(x=>Number(x.id)===Number(shift.workerId));let durText='—';if(shift.mins>0){const h=Math.floor(shift.mins/60),m=shift.mins%60;durText=(h>0?toPersianDigits(h)+' ساعت و ':'')+toPersianDigits(m)+' دقیقه';}else if(shift.isWorking){durText='در حال کار...';}const outCell=shift.isWorking?'<span class="shift-working">در حال کار...</span>':`<span class="shift-out">${toPersianDigits(shift.outTime)}</span>`;const tr=document.createElement('tr');tr.innerHTML=`<td><strong>${w?w.name:'کارگر حذف شده'}</strong></td><td class="shift-in">${toPersianDigits(shift.inTime)}</td><td>${outCell}</td><td>${durText}</td><td>${shift.project}</td><td>${shift.workType}</td>`;tbody.appendChild(tr);});}const wTbody=document.getElementById('workersListTableBody');wTbody.innerHTML='';if(!db.workers.length)wTbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">کارگری ثبت نشده است.</td></tr>';else db.workers.forEach(w=>{const tr=document.createElement('tr');tr.innerHTML=`<td><strong>${w.name}</strong></td><td>${toPersianDigits(w.code||'—')}</td><td>${Number(w.wage||0).toLocaleString('fa-IR')} تومان</td><td>${toPersianDigits(w.phone||'—')}</td><td></td>`;const actionTd=tr.querySelector('td:last-child');const delBtn=document.createElement('button');delBtn.type='button';delBtn.className='btn btn-outline';delBtn.style.cssText='padding:4px 10px;color:red;font-size:.8rem;font-weight:bold';delBtn.textContent='حذف';delBtn.onclick=function(){if(confirm(`آیا از حذف کارگر «${w.name}» مطمئن هستید؟`)){db.workers=db.workers.filter(item=>Number(item.id)!==Number(w.id));db.attendance=db.attendance.filter(a=>Number(a.workerId)!==Number(w.id));saveDB();refreshUI()}};actionTd.appendChild(delBtn);wTbody.appendChild(tr)});const pList=document.getElementById('projectsList');pList.innerHTML='';db.projects.forEach((p,idx)=>{const li=document.createElement('li');li.style.cssText='padding:8px 12px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center';li.innerHTML=`<span>🏗️ ${p}</span><button type="button" class="btn btn-outline" style="padding:2px 8px;color:red;font-size:.7rem" onclick="deleteProject(${idx})">حذف</button>`;pList.appendChild(li)})}
+function recordAttendance(type){const workerId=document.getElementById('clockWorkerSelect').value;if(!workerId){alert('لطفاً کارگر را انتخاب کنید.');return}const now=new Date();const today=normDate(getPersianDateStr(now));const logs=db.attendance.filter(a=>Number(a.workerId)===Number(workerId)&&normDate(a.persianDate)===today).slice().sort((a,b)=>(Number(a.id)||0)-(Number(b.id)||0));const last=logs[logs.length-1];if(type==='ورود'&&last&&last.type==='ورود'){alert('برای این کارگر ورود ثبت شده است؛ ابتدا خروج را ثبت کنید.');return}if(type==='خروج'&&(!last||last.type!=='ورود')){alert('بدون ثبت ورود، امکان ثبت خروج وجود ندارد.');return}db.attendance.push({id:Date.now(),workerId:Number(workerId),project:document.getElementById('clockProjectSelect').value||'کارگاه مرکزی',type:type,workType:document.getElementById('attendanceType').value||'کارکرد عادی',persianDate:getPersianDateStr(now),time:now.toTimeString().slice(0,5)});saveDB();refreshUI();alert(`ثبت ${type} با موفقیت انجام شد.`)}
+function generatePayslip(){const workerId=Number(document.getElementById('reportWorkerSelect').value);const worker=db.workers.find(w=>Number(w.id)===workerId);if(!worker){alert('کارگر نامعتبر است.');return}const startInput=document.getElementById('reportStartDateValue')?.value||document.getElementById('reportStartDate').value;const endInput=document.getElementById('reportEndDateValue')?.value||document.getElementById('reportEndDate').value;const startDateStr=normDate(startInput),endDateStr=normDate(endInput);const deduction=Number(toWesternDigits(document.getElementById('reportDeduction').value))||0;const records=db.attendance.filter(a=>{if(Number(a.workerId)!==workerId)return false;const pDate=normDate(a.persianDate);if(!pDate)return false;if(startDateStr&&pDate<startDateStr)return false;if(endDateStr&&pDate>endDateStr)return false;return true});records.sort((a,b)=>(Number(a.id)||0)-(Number(b.id)||0));const logsByDate={};records.forEach(r=>{const key=normDate(r.persianDate);if(!logsByDate[key])logsByDate[key]=[];logsByDate[key].push(r)});let mins=0;Object.values(logsByDate).forEach(dayLogs=>{dayLogs.sort((a,b)=>(Number(a.id)||0)-(Number(b.id)||0));mins+=calcMinutes(dayLogs)});const hours=mins>0?mins/60:0;const gross=Math.round(hours*Number(worker.wage||0));const netPay=gross-deduction;const payH=Math.floor(mins/60),payM=mins%60;const totalHoursFormatted=(payH>0?toPersianDigits(payH)+' ساعت و ':'')+toPersianDigits(payM)+' دقیقه';document.getElementById('psIssueDate').innerText=getPersianDateStr(new Date());document.getElementById('psRange').innerText=`${toPersianDigits(startDateStr||'---')} تا ${toPersianDigits(endDateStr||'---')}`;document.getElementById('psWorkerName').innerText=worker.name;document.getElementById('psWorkerCode').innerText=toPersianDigits(worker.code||'ثبت نشده');document.getElementById('psHourlyWage').innerText=`${Number(worker.wage).toLocaleString('fa-IR')} تومان`;document.getElementById('psTotalHours').innerText=mins>0?totalHoursFormatted:'۰ ساعت';document.getElementById('psGrossPay').innerText=`${gross.toLocaleString('fa-IR')} تومان`;document.getElementById('psDeductionVal').innerText=`${deduction.toLocaleString('fa-IR')} تومان`;document.getElementById('psNetPay').innerText=`${netPay.toLocaleString('fa-IR')} تومان`;document.getElementById('payslipContainer').style.display='block';document.getElementById('payslipContainer').scrollIntoView({behavior:'smooth'})}
+function addWorker(){const name=document.getElementById('newWorkerName').value.trim();const wage=Number(toWesternDigits(document.getElementById('newWorkerWage').value));if(!name||!wage){alert('نام و دستمزد ساعتی الزامی است.');return}db.workers.push({id:Date.now(),name,code:document.getElementById('newWorkerCode').value.trim(),wage,phone:document.getElementById('newWorkerPhone').value.trim()});saveDB();refreshUI();document.getElementById('newWorkerName').value='';document.getElementById('newWorkerCode').value='';document.getElementById('newWorkerWage').value='';document.getElementById('newWorkerPhone').value='';alert('کارگر ثبت شد.')}
+function addProject(){const name=document.getElementById('newProjectName').value.trim();if(!name)return;db.projects.push(name);saveDB();refreshUI();document.getElementById('newProjectName').value=''}function deleteProject(idx){if(confirm('پروژه حذف شود؟')){db.projects.splice(idx,1);saveDB();refreshUI()}}
+function initShamsiPickers(){if(typeof $==='undefined'||!$.fn.persianDatepicker)return;const now=new persianDate(),today=now.format('YYYY/MM/DD'),firstDay=now.format('YYYY/MM')+'/01';const startText=document.getElementById('reportStartDate'),endText=document.getElementById('reportEndDate'),startVal=document.getElementById('reportStartDateValue'),endVal=document.getElementById('reportEndDateValue');if(startText&&!startText.value)startText.value=toPersianDigits(firstDay);if(endText&&!endText.value)endText.value=toPersianDigits(today);if(startVal&&!startVal.value)startVal.value=firstDay;if(endVal&&!endVal.value)endVal.value=today;$('#reportStartDate').persianDatepicker({format:'YYYY/MM/DD',initialValue:true,autoClose:true,onSelect:function(unix){const d=new persianDate(unix).format('YYYY/MM/DD');document.getElementById('reportStartDateValue').value=d;document.getElementById('reportStartDate').value=toPersianDigits(d)}});$('#reportEndDate').persianDatepicker({format:'YYYY/MM/DD',initialValue:true,autoClose:true,onSelect:function(unix){const d=new persianDate(unix).format('YYYY/MM/DD');document.getElementById('reportEndDateValue').value=d;document.getElementById('reportEndDate').value=toPersianDigits(d)}})}
+loadDB();updateHeaderDate();refreshUI();window.addEventListener('DOMContentLoaded',initShamsiPickers);
+</script><script>if('serviceWorker'in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('./sw.js').then(reg=>console.log('Service Worker با موفقیت ثبت شد:',reg.scope)).catch(err=>console.error('خطا در ثبت Service Worker:',err))})}</script>
 
-    <h2>ابزارهای کمکی</h2>
-    <ul>
-      <li><strong>دکمه پشتیبان JSON:</strong> از اطلاعات برنامه یک نسخهٔ پشتیبان با قالب JSON تهیه و ذخیره می‌کند.</li>
-      <li><strong>بازیابی پشتیبان:</strong> با انتخاب فایل پشتیبان JSON، اطلاعات ذخیره‌شده را به برنامه بازمی‌گرداند. پیش از بازیابی، فایل درست را انتخاب و محتوای فعلی را در صورت نیاز پشتیبان‌گیری کنید.</li>
-      <li><strong>خروجی اکسل CSV حضورها:</strong> فهرست حضورها را در قالب CSV صادر می‌کند تا در Excel یا نرم‌افزارهای صفحه‌گسترده باز شود.</li>
-      <li><strong>اشتراک‌گذاری فیش:</strong> فیش را برای ارسال در پیام‌رسان‌ها آماده یا به‌اشتراک می‌گذارد؛ امکان ارسال از طریق واتساپ نیز فراهم است.</li>
-      <li><strong>پیوند کافه‌بازار:</strong> می‌توانید پیوند برنامه در کافه‌بازار را ثبت کنید و در صورت نیاز آن را ویرایش نمایید.</li>
-      <li><strong>مدیریت رکوردهای تردد:</strong> رکوردهای ثبت‌شده را فیلتر کنید، ساعت یا تاریخ هر رکورد را ویرایش کنید و رکوردهای غیرلازم را حذف نمایید. پیش از حذف، رکورد موردنظر را بررسی کنید.</li>
-    </ul>
-  </section>
-</body>
-</html>
+<!-- آموزش برنامه: بخش مستقل افزوده‌شده -->
+<style>
+#training-widget, #training-widget * { box-sizing: border-box; }
+#training-widget .training-launch {
+  position: fixed; left: 16px; bottom: 16px; z-index: 2147483000;
+  display: inline-flex; align-items: center; gap: 8px; direction: rtl;
+  padding: 11px 15px; border: 1px solid #d7e3f4; border-radius: 999px;
+  background: #fff; color: #17365d; font: 600 14px/1.4 system-ui, sans-serif;
+  box-shadow: 0 3px 14px rgba(0,0,0,.18); cursor: pointer;
+}
+#training-widget .training-launch:hover { background: #f3f7fc; }
+#training-widget .training-launch:focus-visible,
+#training-widget .training-close:focus-visible { outline: 3px solid #3978c5; outline-offset: 3px; }
+#training-widget .training-overlay[hidden] { display: none !important; }
+#training-widget .training-overlay {
+  position: fixed; inset: 0; z-index: 2147483001; display: grid; place-items: center;
+  padding: 18px; direction: rtl; background: rgba(15,23,42,.58);
+  font-family: system-ui, sans-serif;
+}
+#training-widget .training-dialog {
+  width: min(100%, 560px); max-height: min(88vh, 760px); overflow: auto;
+  padding: 22px; border: 1px solid #dbe3ed; border-radius: 16px;
+  background: #fff; color: #1f2937; box-shadow: 0 16px 50px rgba(0,0,0,.25);
+  text-align: right; line-height: 1.9;
+}
+#training-widget .training-head { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+#training-widget .training-head h2 { margin:0; font-size: 1.2rem; color:#17365d; }
+#training-widget .training-close {
+  flex: 0 0 auto; border: 1px solid #ccd5e0; border-radius: 9px; padding: 5px 10px;
+  background:#fff; color:#253247; font:inherit; cursor:pointer;
+}
+#training-widget .training-dialog p { margin: 12px 0; }
+#training-widget .training-dialog ol { margin: 8px 0; padding-right: 24px; }
+#training-widget .training-dialog li { margin: 7px 0; }
+#training-widget .training-note { padding:10px 12px; border-radius:10px; background:#f3f7fc; font-size:.93rem; }
+@media (max-width: 480px) {
+  #training-widget .training-launch { left: 10px; bottom: 10px; padding: 10px 12px; }
+  #training-widget .training-dialog { padding: 17px; }
+}
+</style>
+<div id="training-widget" dir="rtl">
+  <button type="button" class="training-launch" id="training-open" aria-haspopup="dialog" aria-controls="training-modal">
+    <span aria-hidden="true">❔</span><span>آموزش برنامه</span>
+  </button>
+  <div class="training-overlay" id="training-modal" hidden>
+    <section class="training-dialog" role="dialog" aria-modal="true" aria-labelledby="training-title" tabindex="-1">
+      <div class="training-head">
+        <h2 id="training-title">راهنمای استفاده از برنامه</h2>
+        <button type="button" class="training-close" id="training-close" aria-label="بستن آموزش">بستن ✕</button>
+      </div>
+      <p>برای ثبت تردد و محاسبهٔ فیش، از زبانه‌های برنامه به ترتیب زیر استفاده کنید:</p>
+      <ol>
+        <li><strong>کارگران:</strong> نام و دستمزد ساعتی را وارد کنید؛ کد و تلفن اختیاری‌اند و سپس «افزودن کارگر» را بزنید.</li>
+        <li><strong>پروژه‌ها:</strong> در صورت نیاز نام پروژه را ثبت کنید. پروژهٔ انتخابی هنگام ثبت تردد قابل انتخاب است.</li>
+        <li><strong>ثبت تردد:</strong> کارگر، پروژه و نوع کار را انتخاب کنید؛ برای شروع «ثبت ورود» و در پایان کار «ثبت خروج» را بزنید. خروج بدون ورود ثبت نمی‌شود.</li>
+        <li><strong>فیش حقوقی:</strong> کارگر و بازهٔ تاریخ شمسی را انتخاب کنید؛ مبلغ مساعده یا کسورات را در صورت نیاز وارد کرده و «صدور فیش حقوقی رسمی» را بزنید. برای نسخهٔ چاپی، «چاپ فیش حقوقی» را انتخاب کنید.</li>
+      </ol>
+      <p class="training-note">فیش بر پایهٔ ساعات ثبت‌شده و دستمزد ساعتی محاسبه می‌شود و مبلغ کسورات از جمع ناخالص کم می‌شود. اطلاعات برنامه در حافظهٔ محلی همین مرورگر ذخیره می‌شوند؛ برای جلوگیری از از دست‌رفتن داده‌ها، آن‌ها را پاک نکنید.</p>
+    </section>
+  </div>
+</div>
+<script>
+(function () {
+  'use strict';
+  var widget = document.getElementById('training-widget');
+  if (!widget) return;
+  var openButton = document.getElementById('training-open');
+  var overlay = document.getElementById('training-modal');
+  var dialog = overlay.querySelector('[role="dialog"]');
+  var closeButton = document.getElementById('training-close');
+  var previousFocus = null;
+  function closeTraining() {
+    overlay.hidden = true;
+    if (previousFocus) previousFocus.focus();
+  }
+  openButton.addEventListener('click', function () {
+    previousFocus = document.activeElement;
+    overlay.hidden = false;
+    closeButton.focus();
+  });
+  closeButton.addEventListener('click', closeTraining);
+  overlay.addEventListener('click', function (event) {
+    if (event.target === overlay) closeTraining();
+  });
+  overlay.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape') { event.preventDefault(); closeTraining(); return; }
+    if (event.key === 'Tab') {
+      var focusable = dialog.querySelectorAll('button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])');
+      if (!focusable.length) { event.preventDefault(); dialog.focus(); return; }
+      var first = focusable[0], last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    }
+  });
+}());
+</script>
+<style>
+#cw-customer-tools{direction:rtl;position:fixed;z-index:2147483000;right:16px;bottom:18px;font-family:inherit;color:#172033;}
+#cw-customer-tools *{box-sizing:border-box;font-family:inherit;}
+#cw-customer-tools .cw-fab{border:0;border-radius:999px;padding:12px 17px;background:#0f766e;color:#fff;font-size:15px;font-weight:700;box-shadow:0 6px 24px #0f172a44;cursor:pointer;}
+#cw-customer-tools button,#cw-customer-tools input,#cw-customer-tools select{font-size:14px;}
+#cw-customer-tools button:focus-visible,#cw-customer-tools input:focus-visible,#cw-customer-tools select:focus-visible{outline:3px solid #f59e0b;outline-offset:2px;}
+#cw-customer-tools .cw-panel{position:absolute;right:0;bottom:58px;width:min(430px,calc(100vw - 24px));max-height:min(78vh,740px);overflow:auto;background:#fff;border:1px solid #cbd5e1;border-radius:16px;padding:14px;box-shadow:0 12px 40px #0f172a40;}
+#cw-customer-tools .cw-panel[hidden]{display:none;}
+#cw-customer-tools h2{font-size:17px;margin:0 0 10px;color:#0f4f4b;}
+#cw-customer-tools h3{font-size:15px;margin:14px 0 8px;}
+#cw-customer-tools .cw-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+#cw-customer-tools .cw-actions button,#cw-customer-tools .cw-form button{border:0;border-radius:9px;padding:9px;background:#0f766e;color:#fff;cursor:pointer;}
+#cw-customer-tools .cw-actions button.cw-alt{background:#334155;}
+#cw-customer-tools .cw-section{border-top:1px solid #e2e8f0;margin-top:12px;padding-top:8px;}
+#cw-customer-tools label{display:block;font-weight:600;margin:7px 0 3px;}
+#cw-customer-tools input,#cw-customer-tools select{width:100%;min-height:40px;padding:7px 9px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#172033;}
+#cw-customer-tools .cw-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+#cw-customer-tools .cw-records{max-height:190px;overflow:auto;margin-top:7px;padding:0;list-style:none;}
+#cw-customer-tools .cw-records li{font-size:13px;padding:7px 8px;margin:4px 0;background:#f1f5f9;border-radius:7px;overflow-wrap:anywhere;}
+#cw-customer-tools .cw-help{font-size:12px;color:#475569;margin:5px 0;}
+@media(max-width:480px){#cw-customer-tools{right:10px;bottom:10px}#cw-customer-tools .cw-panel{right:0;bottom:54px;width:calc(100vw - 20px);max-height:76vh}#cw-customer-tools .cw-fab{padding:10px 14px}}
+</style>
+<div id="cw-customer-tools" dir="rtl">
+ <button type="button" class="cw-fab" id="cw-tools-toggle" aria-expanded="false" aria-controls="cw-tools-panel">ابزارهای کمکی</button>
+ <section class="cw-panel" id="cw-tools-panel" aria-label="ابزارهای مشتری" hidden>
+  <h2>ابزارهای کمکی</h2>
+  <div class="cw-actions">
+   <button type="button" id="cw-backup">دریافت پشتیبان JSON</button><button type="button" id="cw-restore" class="cw-alt">بازیابی پشتیبان</button>
+   <button type="button" id="cw-csv" class="cw-alt">خروجی اکسل حضورها</button><button type="button" id="cw-share">اشتراک‌گذاری فیش</button>
+   <button type="button" id="cw-bazaar" class="cw-alt">امتیاز و نظر در بازار</button><button type="button" id="cw-bazaar-change" class="cw-alt">تغییر پیوند بازار</button>
+  </div>
+  <input type="file" id="cw-json-file" accept=".json,application/json" hidden aria-label="انتخاب فایل پشتیبان JSON">
+  <div class="cw-section cw-form">
+   <h3>مدیریت ترددهای ثبت‌شده</h3>
+   <label for="cw-worker-filter">فیلتر بر اساس کارگر</label><select id="cw-worker-filter"><option value="">همهٔ کارگران</option></select>
+   <label for="cw-search">جست‌وجوی نام یا کد کارگر</label><input id="cw-search" type="search" autocomplete="off" placeholder="نام یا کد">
+   <label for="cw-record-select">رکوردهای اخیر (برای ویرایش انتخاب کنید)</label><select id="cw-record-select"><option value="">رکوردی موجود نیست</option></select>
+   <ul class="cw-records" id="cw-record-list" aria-label="فهرست خوانای رکوردهای اخیر"></ul>
+   <div class="cw-row"><div><label for="cw-date">تاریخ شمسی</label><input id="cw-date" type="text" inputmode="numeric" placeholder="۱۴۰۳/۰۱/۰۱"></div><div><label for="cw-time">ساعت</label><input id="cw-time" type="time"></div></div>
+   <div class="cw-row"><div><label for="cw-type">نوع تردد</label><select id="cw-type"><option value="ورود">ورود</option><option value="خروج">خروج</option></select></div><div><label for="cw-project">پروژه</label><input id="cw-project" type="text"></div></div>
+   <label for="cw-worktype">دستهٔ کار</label><input id="cw-worktype" type="text" placeholder="مثلاً کارکرد عادی">
+   <div class="cw-row" style="margin-top:8px"><button type="button" id="cw-save-log">ذخیرهٔ ویرایش</button><button type="button" id="cw-delete-log" style="background:#b91c1c">حذف تردد</button></div>
+   <p class="cw-help">تغییرات فقط پس از ذخیره اعمال می‌شوند؛ حذف نیازمند تأیید است.</p>
+  </div>
+ </section>
+</div>
+<script>
+(function(){
+ 'use strict';
+ var root=document.getElementById('cw-customer-tools'); if(!root)return;
+ var $=function(id){return document.getElementById(id);};
+ var toggle=$('cw-tools-toggle'),panel=$('cw-tools-panel'),workerFilter=$('cw-worker-filter'),search=$('cw-search'),recordSelect=$('cw-record-select');
+ toggle.addEventListener('click',function(){var open=panel.hidden;panel.hidden=!open;toggle.setAttribute('aria-expanded',String(open));if(open)workerFilter.focus();});
+ function safeText(v){return String(v==null?'':v)}
+ function workerFor(log){return (Array.isArray(db.workers)?db.workers:[]).find(function(w){return String(w.id)===String(log.workerId);});}
+ function showError(msg){window.alert(msg);}
+ function download(name,content,type){var blob=new Blob([content],{type:type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url);},1000);}
+ $('cw-backup').addEventListener('click',function(){try{download('پشتیبان-حضور-و-حقوق-'+new Date().toISOString().slice(0,10)+'.json',JSON.stringify(db,null,2),'application/json;charset=utf-8');}catch(e){showError('ساخت فایل پشتیبان ناموفق بود: '+e.message);}});
+ $('cw-restore').addEventListener('click',function(){$('cw-json-file').click();});
+ $('cw-json-file').addEventListener('change',function(ev){var file=ev.target.files&&ev.target.files[0];if(!file)return;var reader=new FileReader();reader.onerror=function(){showError('خواندن فایل پشتیبان ناموفق بود.');ev.target.value='';};reader.onload=function(){var candidate;try{candidate=JSON.parse(String(reader.result));if(!candidate||typeof candidate!=='object'||Array.isArray(candidate)||!Array.isArray(candidate.workers)||!Array.isArray(candidate.projects)||!Array.isArray(candidate.attendance))throw new Error('ساختار فایل معتبر نیست؛ workers، projects و attendance باید آرایه باشند.');if(!candidate.workers.every(function(x){return x&&typeof x==='object'&&!Array.isArray(x)&&x.id!=null;})||!candidate.projects.every(function(x){return typeof x==='string';})||!candidate.attendance.every(function(x){return x&&typeof x==='object'&&!Array.isArray(x)&&x.id!=null&&x.workerId!=null;}))throw new Error('محتوای آرایه‌ها معتبر نیست یا شناسهٔ لازم وجود ندارد.');}catch(e){showError('بازیابی انجام نشد: '+e.message);ev.target.value='';return;}
+ if(!window.confirm('هشدار: بازیابی، تمام کارگران، پروژه‌ها و ترددهای فعلی را با اطلاعات این فایل جایگزین می‌کند. ابتدا از داده‌های فعلی نسخهٔ پشتیبان بگیرید. ادامه می‌دهید؟')){ev.target.value='';return;}
+ var old=db;try{db=candidate;saveDB();refreshUI();renderRecords();showError('اطلاعات با موفقیت بازیابی شد.');}catch(e){db=old;try{saveDB();refreshUI();}catch(ignore){}showError('ذخیره/بازیابی ناموفق بود؛ ممکن است حافظهٔ مرورگر پر یا غیرفعال باشد. دادهٔ قبلی تا حد امکان حفظ شد. جزئیات: '+e.message);}ev.target.value='';};reader.readAsText(file,'UTF-8');});
+ function csvCell(v){var t=safeText(v);return '"'+t.replace(/"/g,'""')+'"';}
+ $('cw-csv').addEventListener('click',function(){try{var rows=[['نام کارگر','کد کارگر','تاریخ','ساعت','نوع تردد','پروژه','دستهٔ کار','توضیحات']];(Array.isArray(db.attendance)?db.attendance:[]).forEach(function(a){var w=workerFor(a)||{};rows.push([w.name||'کارگر حذف‌شده',w.code||'',a.persianDate||'',a.time||'',a.type||'',a.project||'',a.workType||'',a.notes||a.note||'']);});var csv='\uFEFF'+rows.map(function(r){return r.map(csvCell).join(',');}).join('\r\n');download('گزارش-ترددها.csv',csv,'text/csv;charset=utf-8');}catch(e){showError('ساخت فایل CSV ناموفق بود: '+e.message);}});
+ function shareText(){var box=$('payslipContainer');if(!box||!box.innerText.trim()||getComputedStyle(box).display==='none'){showError('هنوز فیشی صادر نشده است. ابتدا در بخش «فیش حقوقی» کارگر و بازهٔ زمانی را انتخاب و فیش را صادر کنید.');return null;}var get=function(id){var e=$(id);return e?e.innerText.trim():'—';};return 'فیش حقوقی\nکارگر: '+get('psWorkerName')+' (کد: '+get('psWorkerCode')+')\nبازهٔ زمانی: '+get('psRange')+'\nمجموع ساعات: '+get('psTotalHours')+'\nدستمزد ساعتی: '+get('psHourlyWage')+'\nناخالص: '+get('psGrossPay')+'\nکسورات: '+get('psDeductionVal')+'\nخالص پرداختی: '+get('psNetPay');}
+ function whatsapp(text){window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank','noopener,noreferrer');}
+ $('cw-share').addEventListener('click',function(){var text=shareText();if(!text)return;if(navigator.share){navigator.share({title:'فیش حقوقی',text:text}).catch(function(e){if(e&&e.name!=='AbortError')whatsapp(text);});}else whatsapp(text);});
+ var bazaarKey='cw_customer_bazaar_url';function validBazaar(value){try{var u=new URL(value);var h=u.hostname.toLowerCase();return u.protocol==='https:'&&(h==='cafebazaar.ir'||h.endsWith('.cafebazaar.ir')||h==='bazaar.ir'||h.endsWith('.bazaar.ir'));}catch(e){return false;}}
+ function setBazaar(change){var url='';try{url=localStorage.getItem(bazaarKey)||'';}catch(e){showError('خواندن تنظیم بازار از حافظهٔ مرورگر ممکن نشد.');}
+ if(!url||change){var entered=window.prompt('پیوند صفحهٔ برنامهٔ شما در کافه‌بازار را وارد کنید (نشانی HTTPS با دامنهٔ cafebazaar.ir یا bazaar.ir):',url);if(entered===null)return;entered=entered.trim();if(!validBazaar(entered)){showError('پیوند معتبر نیست. نشانی باید HTTPS و از دامنهٔ cafebazaar.ir یا bazaar.ir (یا زیردامنهٔ آن‌ها) باشد.');return;}try{localStorage.setItem(bazaarKey,entered);}catch(e){showError('ذخیرهٔ پیوند ممکن نشد؛ تنظیمات حافظهٔ مرورگر را بررسی کنید.');return;}url=entered;}if(validBazaar(url))window.open(url,'_blank','noopener,noreferrer');else showError('ابتدا پیوند معتبر برنامه در بازار را وارد کنید.');}
+ $('cw-bazaar').addEventListener('click',function(){setBazaar(false);});$('cw-bazaar-change').addEventListener('click',function(){setBazaar(true);});
+ function renderRecords(){if(!Array.isArray(db.attendance)||!Array.isArray(db.workers))return;var prior=workerFilter.value;workerFilter.innerHTML='';var all=document.createElement('option');all.value='';all.textContent='همهٔ کارگران';workerFilter.appendChild(all);db.workers.forEach(function(w){var o=document.createElement('option');o.value=String(w.id);o.textContent=safeText(w.name)+' ('+safeText(w.code||'بدون کد')+')';workerFilter.appendChild(o);});if(prior)workerFilter.value=prior;
+ var term=search.value.trim().toLocaleLowerCase();var matches=db.attendance.map(function(a,i){return {a:a,i:i,w:workerFor(a)||{}};}).filter(function(x){var byWorker=!workerFilter.value||String(x.a.workerId)===workerFilter.value;var hay=(safeText(x.w.name)+' '+safeText(x.w.code)).toLocaleLowerCase();return byWorker&&(!term||hay.indexOf(term)!==-1);}).sort(function(x,y){return (Number(y.a.id)||0)-(Number(x.a.id)||0);});
+ recordSelect.innerHTML='';var empty=document.createElement('option');empty.value='';empty.textContent=matches.length?'— انتخاب رکورد —':'رکوردی یافت نشد';recordSelect.appendChild(empty);matches.forEach(function(x){var o=document.createElement('option');o.value=String(x.i);o.textContent=safeText(x.a.persianDate)+' '+safeText(x.a.time)+' | '+safeText(x.w.name||'کارگر حذف‌شده')+' | '+safeText(x.a.type)+' | '+safeText(x.a.project);recordSelect.appendChild(o);});var ul=$('cw-record-list');ul.innerHTML='';matches.slice(0,12).forEach(function(x){var li=document.createElement('li');li.textContent=safeText(x.a.persianDate)+'، '+safeText(x.a.time)+' — '+safeText(x.w.name||'کارگر حذف‌شده')+' ('+safeText(x.w.code||'بدون کد')+')؛ '+safeText(x.a.type)+'، '+safeText(x.a.project)+'، '+safeText(x.a.workType);ul.appendChild(li);});}
+ workerFilter.addEventListener('change',renderRecords);search.addEventListener('input',renderRecords);
+ recordSelect.addEventListener('change',function(){var i=Number(recordSelect.value);var a=db.attendance[i];if(!recordSelect.value||!a)return;$('cw-date').value=safeText(a.persianDate);$('cw-time').value=safeText(a.time);$('cw-type').value=a.type==='خروج'?'خروج':'ورود';$('cw-project').value=safeText(a.project);$('cw-worktype').value=safeText(a.workType);});
+ function selectedIndex(){if(recordSelect.value==='')return -1;var n=Number(recordSelect.value);return Number.isInteger(n)&&n>=0&&n<db.attendance.length?n:-1;}
+ $('cw-save-log').addEventListener('click',function(){var i=selectedIndex();if(i<0){showError('ابتدا یک رکورد تردد انتخاب کنید.');return;}var date=$('cw-date').value.trim(),time=$('cw-time').value.trim();if(!date||!time||!/^\d{1,4}[\/.-]\d{1,2}[\/.-]\d{1,2}$/.test((typeof toWesternDigits==='function'?toWesternDigits(date):date).trim())||!/^\d{2}:\d{2}$/.test(time)){showError('تاریخ شمسی و ساعت معتبر را وارد کنید.');return;}var old=Object.assign({},db.attendance[i]);try{db.attendance[i].persianDate=date;db.attendance[i].time=time;db.attendance[i].type=$('cw-type').value;db.attendance[i].project=$('cw-project').value.trim();db.attendance[i].workType=$('cw-worktype').value.trim();saveDB();refreshUI();renderRecords();recordSelect.value=String(i);showError('ویرایش تردد ذخیره شد.');}catch(e){db.attendance[i]=old;showError('ذخیرهٔ تغییرات ناموفق بود: '+e.message);}});
+ $('cw-delete-log').addEventListener('click',function(){var i=selectedIndex();if(i<0){showError('ابتدا یک رکورد تردد انتخاب کنید.');return;}var a=db.attendance[i];if(!window.confirm('تردد '+safeText(a.persianDate)+' ساعت '+safeText(a.time)+' حذف شود؟ این کار قابل بازگشت نیست.'))return;var removed=db.attendance.splice(i,1)[0];try{saveDB();refreshUI();renderRecords();}catch(e){db.attendance.splice(i,0,removed);showError('حذف در حافظه ذخیره نشد: '+e.message);}});
+ renderRecords();
+}());
+</script>
+
+<style>
+/* Keep the Persian datepicker above the customer tools panel and other overlays. */
+.pwt-datepicker-container{z-index:2147483647!important;}
+</style>
+
+<script>
+(function(){
+  if(typeof window.jQuery==='undefined'||!window.jQuery.fn.persianDatepicker)return;
+  var $date=window.jQuery('#cw-date');
+  if(!$date.length||$date.data('persianDatepicker'))return;
+  $date.persianDatepicker({
+    format:'YYYY/MM/DD',
+    initialValue:true,
+    autoClose:true,
+    onSelect:function(unix){
+      var value=new persianDate(unix).format('YYYY/MM/DD');
+      $date.val(typeof toPersianDigits==='function'?toPersianDigits(value):value);
+    }
+  });
+}());
+</script>
+</body></html>
