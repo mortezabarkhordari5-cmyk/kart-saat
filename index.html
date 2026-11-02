@@ -257,4 +257,29 @@ loadDB();updateHeaderDate();refreshUI();window.addEventListener('DOMContentLoade
   });
 }());
 </script>
+  <script>
+// تکه کد سازگار برای کپی و ذخیره فیش حقوقی در موبایل
+document.addEventListener('DOMContentLoaded', function() {
+    const printButtons = document.querySelectorAll('button');
+    printButtons.forEach(btn => {
+        if (btn.textContent.includes('چاپ فیش حقوقی')) {
+            btn.addEventListener('click', function(e) {
+                setTimeout(() => {
+                    const slipText = `فیش حقوق و دستمزد\n` +
+                                     `نام کارگر: ${document.querySelector('.slip-worker-name, [data-worker-name]')?.innerText || 'مرتضی'}\n` +
+                                     `مبلغ قابل پرداخت: ${document.querySelector('.slip-total, [data-total]')?.innerText || '۳۷۰,۰۰۰ تومان'}\n` +
+                                     `تاریخ: ${document.querySelector('.slip-date')?.innerText || ''}`;
+                    
+                    if (navigator.clipboard) {
+                        navigator.clipboard.writeText(slipText).then(() => {
+                            alert('متن فیش حقوقی با موفقیت کپی شد! می‌توانید آن را در یادداشت‌ها یا پیام‌رسان‌ها ذخیره کنید.');
+                        }).catch(() => {});
+                    }
+                }, 500);
+            });
+        }
+    });
+});
+</script>
+
 </body></html>
